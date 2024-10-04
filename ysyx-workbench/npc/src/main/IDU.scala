@@ -7,8 +7,8 @@ import chisel3.util.experimental.decode._
 
 class Imm extends Bundle{
  val rd       = Output(UInt(5.W))
- val rs1      = Output(UInt(5.W))
- val rs2      = Output(UInt(5.W))
+ val src1     = Output(UInt(5.W))
+ val src2     = Output(UInt(5.W))
  val pc       = Output(UInt(32.W))
  val imm      = Output(UInt(32.W))
  val zimm     = Output(UInt(32.W))
@@ -25,18 +25,21 @@ class Imm extends Bundle{
  val RegWr    = Output(Bool())
  val MemtoReg = Output(Bool())
  val Branch   = Output(Bool())
- val halt     = Output(Bool())
  val mret     = Output(Bool())
  val ecall    = Output(Bool())
  val Recsr    = Output(Bool())
- val halt_ret = Output(Bool())
+ val halt     = Output(Bool())
 }
 
 class IDU extends Module{
 	val io = IO(new Bundle{
-    val in       = Flipped(Irrevocable(new Inst))
-    val out      = Irrevocable(new Imm)
-    val 
+    val in       = Flipped(Decoupled(new Inst))
+    val out      = Decoupled(new Imm)
+    val src1     = Input(UInt(32.W))
+    val src2     = Input(UInt(32.W))
+    val rs1      = Output(UInt(5.W))
+    val rs2      = Output(UInt(5.W))
+    val halt     = Output(Bool())
 	})
 
   val PcMux = TruthTable(
@@ -231,15 +234,13 @@ class IDU extends Module{
   val d_idle :: d_wait_ready :: Nil = Enum(2)
   val state = RegInit(d_idle)
 
-  val valid = true.B
-
   state := MuxLookup(state, d_idle)(List(
     d_idle       -> Mux(io.out.valid, d_wait_ready, d_idle),
-    d_wait_ready -> Mux(io.in.ready,  d_idle, d_wait_ready)
+    d_wait_ready -> Mux(io.out.ready, d_idle, d_wait_ready)
   ))
 
-  io.in.valid := (state === d_wait_ready)
-  io.in.ready := (state === d_idle)
+  io.out.valid := (state === d_wait_ready)
+  io.out.ready := (state === d_idle)
 
   val imm      = Wire(UInt(32.W))
   val instType = Wire(UInt(4.W))
@@ -259,6 +260,13 @@ class IDU extends Module{
   immNum          := decoder(Cat(func3, opcode), ImmNum)
   instType        := decoder(opcode, InstType)
 
+  io.rs1  := rs1
+  io.rs2  := rs2
+  io.halt := (io.in.bits.inst === "x00100073".U)
+
+  io.out.bits.rd       := rd
+  io.out.bits.src1     := io.src1
+  io.out.bits.src2     := io.src2
   io.out.bits.zimm     := Cat(Fill(27, 0.U), rs1)
   io.out.bits.ecall    := decoder(io.in.bits.inst, Ecall)
   io.out.bits.mret     := decoder(io.in.bits.inst, Mret)
@@ -271,6 +279,8 @@ class IDU extends Module{
   io.out.bits.Recsr    := decoder(Cat(func3, opcode), Recsr)
   io.out.bits.MemNum   := decoder(Cat(func3, opcode), MemNum)
   io.out.bits.RegNum   := decoder(Cat(func3, opcode), RegNum)
+  io.out.bits.halt     := (io.in.bits.inst === "x00100073".U)
+
 
   AluMuxa     := decoder(opcode, AluMux1)
   AluMuxb     := decoder(Cat(func3, opcode), AluMux2)
@@ -279,8 +289,6 @@ class IDU extends Module{
 
   io.out.bits.AluMux   := (AluMuxa | AluMuxb)
   io.out.bits.AluSel   := (AluSela | AluSelb)
-
-  io.out.bits.halt   := (io.in.bits.inst === "x00100073".U)
 
   val csr    = io.in.bits.inst(31, 20)
   val immI12 = io.in.bits.inst(31, 20)
@@ -302,11 +310,6 @@ class IDU extends Module{
          Mux(instType === "b100".U, immJ, 0.U(32.W))))))
   
   io.out.bits.imm := Mux(immNum, Cat(Fill(27, imm(4)), imm(4, 0)), imm)
-  io.out.bits.halt_ret := Rread(10.U)
-
-
-
-  
 }
 
 /*

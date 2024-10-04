@@ -7,35 +7,33 @@ import chisel3.util.HasBlackBoxInline
 class Inst extends Bundle {
   val inst = Output(UInt(32.W))
   val pc   = Output(UInt(32.W))
-  val DataOut = Output(UInt(32.W))
 }
 
 class IFU extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
     val clock    = Input(Clock())
     val halt     = Input(Bool())
-    val out      = Irrevocable(new Inst)
-    val in       = Flipped(Irrevocable(new DATAOut))
-    //val in       = Flipped(Irrevocable(new DATAOut))
+    val reset    = Input(Bool())
+    val out      = Decoupled(new Inst)
+    val in       = Flipped(Decoupled(new DATAOut))
   })
 
-  val inst = Wire(UInt(32.W))
   val f_idle :: f_wait_ready :: Nil = Enum(2)
   val state = RegInit(f_idle)
 
-  val ready = true.B
-  val Maddr = io.in.bits.dnpc
+  val pc = RegInit("h80000000".U(32.W))
+  val inst = Reg(UInt(32.W))
+  val Maddr = (io.reset, pc, io.in.bits.dnpc)
 
   state := MuxLookup(state, f_idle)(List(
     f_idle       -> Mux(io.out.valid, f_wait_ready, f_idle),
-    f_wait_ready -> Mux(io.in.ready, f_idle, f_wait_ready)
+    f_wait_ready -> Mux(io.out.ready, f_idle, f_wait_ready)
   ))
 
   io.out.valid := (state === f_wait_ready)
-  io.in.ready  := (state === f_idle)
+  io.out.ready := (state === f_idle)
 
   io.out.bits.inst := inst
-  io.out.bits.DataOut := io.in.bits.DataOut
 
   setInline(
     "ifu.sv",
@@ -43,7 +41,6 @@ class IFU extends BlackBox with HasBlackBoxInline{
     | module IFU(
     |   input halt,
     |   input clock,
-    |   input valid,
     |   input [31:0] Maddr,
     |   output reg [31:0] inst
     | );

@@ -9,16 +9,18 @@ class Result extends Bundle{
    val src2     = Output(UInt(32.W))
    val MemNum   = Output(UInt(3.W))
    val RegNum   = Output(UInt(3.W))
+   val rd       = Output(UInt(5.W))
    val MemtoReg = Output(Bool())
    val MemWr    = Output(Bool())
    val RegWr    = Output(Bool())
-   val ecall    = Output(Bool())
 }
 
 class EXU extends Module{
   val io = IO(new Bundle{
-    val in  = Flipped(Irrevocable(new Imm))
-    val out = Irrevocable(new Result)
+    val dnpc = Output(UInt(32.W))
+    val in  = Flipped(Decoupled(new Imm))
+    val out = Decoupled(new Result)
+    val reset = Input(Bool())
   })
 
   val ina   = Wire(UInt(32.W))
@@ -30,6 +32,8 @@ class EXU extends Module{
   val pcadd = Wire(UInt(32.W))
   val PCMux = Wire(UInt(4.W))
 
+  val pc    = "h80000000".U
+
   val e_idle :: e_wait_ready :: Nil = Enum(2)
   val state = RegInit(e_idle)
 
@@ -39,7 +43,7 @@ class EXU extends Module{
   ))
 
   io.out.valid := (state === e_wait_ready)
-  io.in.ready  := (state === e_idle)
+  io.out.ready := (state === e_idle)
 
   rs1  := Mux(io.in.bits.Recsr, ~io.in.bits.src1, io.in.bits.src1)
   zimm := Mux(io.in.bits.Recsr, ~io.in.bits.zimm, io.in.bits.zimm)
@@ -67,8 +71,8 @@ class EXU extends Module{
   io.out.bits.RegNum   := io.in.bits.RegNum
   io.out.bits.MemWr    := io.in.bits.MemWr
   io.out.bits.RegWr    := io.in.bits.RegWr
-  io.out.bits.ecall    := io.in.bits.ecall
   io.out.bits.src2     := io.in.bits.src2
+  io.out.bits.rd       := io.in.bits.rd
 
   val Alu = Module(new Alu(32))
   Alu.io.ina    := ina
@@ -89,10 +93,13 @@ class EXU extends Module{
 
   pcadd := pca + pcb
 
-  io.out.bits.dnpc := Mux(io.in.bits.halt,  io.in.bits.pc, 
-                 Mux(~(io.out.valid ^ io.out.bits.MemtoReg), io.in.bits.pc,
-                 Mux(io.in.bits.ecall, io.in.bits.mtvec, 
-                 Mux(io.in.bits.mret,  io.in.bits.mepc, pcadd))))
+  io.out.bits.dnpc := Mux(io.reset, pc,
+                      Mux(io.in.bits.halt,  io.in.bits.pc, 
+                      Mux(~(io.out.valid ^ io.out.bits.MemtoReg), io.in.bits.pc,
+                      Mux(io.in.bits.ecall, io.in.bits.mtvec, 
+                      Mux(io.in.bits.mret,  io.in.bits.mepc, pcadd)))))
+
+  io.dnpc := io.out.bits.dnpc
 }
 
 

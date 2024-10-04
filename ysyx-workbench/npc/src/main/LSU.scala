@@ -4,21 +4,18 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.HasBlackBoxInline
 
-class Data extends Bundle{
+class MyData extends Bundle{
   val DataOut  = Output(UInt(32.W))
-  val result   = Output(UInt(32.W))
   val dnpc     = Output(UInt(32.W))
-  val MemNum   = Output(UInt(3.W))
+  val rd       = Output(UInt(5.W))
   val RegNum   = Output(UInt(3.W))
-  val MemWr    = Output(Bool())
   val RegWr    = Output(Bool())
-  val ecall    = Output(Bool())
 }
 
 class LSU extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
     val clock    = Input(Clock())
-    val out      = Decoupled(new Data)
+    val out      = Decoupled(new MyData)
     val in       = Flipped(Decoupled(new Result))
   })
 
@@ -30,22 +27,19 @@ class LSU extends BlackBox with HasBlackBoxInline{
   val l_idle :: l_wait_ready :: Nil = Enum(2)
   val state = RegInit(l_idle)
 
-  state = MuxLookup(state, l_idle)(List(
+  state := MuxLookup(state, l_idle)(List(
     l_idle       -> Mux(io.out.valid, l_wait_ready, l_idle),
-    l_wait_ready -> Mux(io,in,ready, l_idle, l_wait_ready)
+    l_wait_ready -> Mux(io.out.ready, l_idle, l_wait_ready)
   ))
 
   io.out.valid := (state === l_wait_ready)
-  io.in.ready  := (state === l_idle)
+  io.out.ready := (state === l_idle)
 
-  io.out.bits.Dataout  := DataOut
-  io.out.bits.MemNum   := io.in.bits.MemNum  
+  io.out.bits.DataOut  := DataOut
   io.out.bits.RegNum   := io.in.bits.RegNum  
-  io.out.bits.MemWr    := io.in.bits.MemWr   
   io.out.bits.RegWr    := io.in.bits.RegWr   
-  io.out.bits.result   := io.in.bits.result  
+  io.out.bits.rd       := io.in.bits.rd
   io.out.bits.dnpc     := io.in.bits.dnpc    
-  io.out.bits.ecall    := io.in.bits.ecall   
 
   MemtoReg := io.in.bits.MemtoReg
   wmask    := io.in.bits.MemNum

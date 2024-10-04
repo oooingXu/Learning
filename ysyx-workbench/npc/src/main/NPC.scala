@@ -13,7 +13,6 @@ import chisel3.util.experimental.loadMemoryFromFile
 class NPC extends Module {
 	val io = IO(new Bundle{
     val reset  = Input(Bool())
-    val halt_ret = Output(UInt(32.W))
     val PC     = Output(UInt(32.W))
     val NPC    = Output(UInt(32.W))
     val halt   = Output(UInt(32.W))
@@ -22,39 +21,62 @@ class NPC extends Module {
 
   val stop = RegInit("b1".U(1.W))
   val pc   = RegInit("h80000000".U(32.W))
-  val npc  = "h80000000".U(32.W)
 
   val ifu  = Module(new IFU())
   val idu  = Module(new IDU())
   val exu  = Module(new EXU())
+  val lsu  = Module(new LSU())
   val wbu  = Module(new WBU())
+  val reg  = Module(new Reg())
+  val csr  = Module(new Csr())
 
+  def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T], thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
+    prevOut.ready := thisIn.ready
+    thisIn.bits   := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
+    thisIn.valid   := prevOut.valid && thisIn.ready
+  }
+
+  pipelineConnect(ifu.io.out, idu.io.in, idu.io.out)
+  pipelineConnect(idu.io.out, exu.io.in, exu.io.out)
+  pipelineConnect(exu.io.out, lsu.io.in, lsu.io.out)
+  pipelineConnect(lsu.io.out, wbu.io.in, wbu.io.out)
+  pipelineConnect(wbu.io.out, ifu.io.in, ifu.io.out)
+
+  /*
   StageConnect(ifu.io.out, idu.io.in)
   StageConnect(idu.io.out, exu.io.in)
   StageConnect(exu.io.out, wbu.io.in)
+  */
 
-  ifu.io.Maddr    := Mux(io.reset, npc, exu.io.dnpc)
-  ifu.io.clock    := clock
+  reg.io.raddr1 := idu.io.rs1
+  reg.io.raddr2 := idu.io.rs2
 
-  stop            := !idu.io.halt
-  io.halt         := idu.io.halt
+  idu.io.src1   := reg.io.rdata1
+  idu.io.src2   := reg.io.rdata2
 
-  io.stop         := stop
-  io.halt_ret     := wbu.io.halt_ret
+  reg.io.wen    := wbu.io.RegWr
+  reg.io.waddr  := wbu.io.rd
+  reg.io.wdata  := wbu.io.DataOut
 
-  io.PC           := pc
-  pc              := Mux(io.reset, npc, 
-                     Mux(wbu.io.vaild === idu.io.MemtoReg, exu.io.dnpc, pc))
-  io.NPC          := Mux(io.reset, npc, exu.io.dnpc)
+  ifu.io.clock  := clock
+  ifu.io.reset  := io.reset
+  exu.io.reset  := io.reset
+
+  stop          := !idu.io.halt
+  io.halt       := idu.io.halt
+
+  io.stop       := stop
+
+  io.PC         := pc
 
 
   val dpiebreak = Module(new DpiEbreak)
-  dpiebreak.io.isbreak := Mux(io.reset, npc, exu.io.dnpc)
+  dpiebreak.io.isbreak := exu.io.dnpc
   dpiebreak.io.clock   := clock
-  dpiebreak.io.halt    := idu.io.halt
   dpiebreak.io.stop    := stop
 }
 
+/*
 object StageConnect{
   def apply[T <: Data](left: DecoupledIO[T], right: DecoupledIO[T]) = {
   val arch = "multi"
@@ -66,11 +88,11 @@ object StageConnect{
 
  }
 }
+*/
 
 class DpiEbreak extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
     val clock   = Input(Clock())
-    val halt    = Input(Bool())
     val stop    = Input(Bool())
     val isbreak = Input(UInt(32.W))
   })
@@ -80,7 +102,6 @@ class DpiEbreak extends BlackBox with HasBlackBoxInline{
     """import "DPI-C" function void set_npc_state(input int isbreak);
       | module DpiEbreak(
       |   input clock,
-      |   input halt,
       |   input stop,
       |   input [31:0] isbreak
       | );
