@@ -30,40 +30,13 @@ CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(C
 CFLAGS += $(CFLAGS_BUILD) $(CFLAGS_TRACE) 
 LDFLAGS += $(CFLAGS_BUILD)
 
-TOP_NAME = NPC
-SIM_NAME = NPC
+TOP_NAME = ysyx_23060336
+SIM_NAME = ysyx_23060336
 PRJ = playground
 NXDC_FILES = constr/top.nxdc
 
-#INC_PATH += $(DIRS-y)
 
-#INC_PATH ?=
-#INC_PATH += $(NPC_HOME)/csrc
-#INC_PATH += $(NPC_HOME)/include
-#INC_PATH += $(NPC_HOME)/csrc/sdb
-#INC_PATH += $(NPC_HOME)/csrc/cpu
-#INC_PATH += $(NPC_HOME)/csrc/utils
-#INC_PATH += $(NPC_HOME)/csrc/memory
-#INC_PATH += $(NPC_HOME)/csrc/device
-#
-#INC_PATH += $(AM_HOME)/am/include
-#
-#SOURCE += $(NPC_HOME)/csrc/sdb/sdb.c
-#SOURCE += $(NPC_HOME)/csrc/sdb/expr.c
-#SOURCE += $(NPC_HOME)/csrc/sdb/watchpoint.c
-#SOURCE += $(NPC_HOME)/csrc/memory/pmem.c
-#SOURCE += $(NPC_HOME)/csrc/cpu/cpu.c
-#SOURCE += $(NPC_HOME)/csrc/cpu/dut.c
-#SOURCE += $(NPC_HOME)/csrc/utils/time.c
-#SOURCE += $(NPC_HOME)/csrc/device/map.c
-#SOURCE += $(NPC_HOME)/csrc/device/device.c
-#SOURCE += $(NPC_HOME)/csrc/device/mmio.c
-#SOURCE += $(NPC_HOME)/csrc/device/timer.c
-#SOURCE += $(NPC_HOME)/csrc/device/serial.c
-#
-#SOURCE += $(NPC_HOME)/csrc/utils/disasm.cc
-
-SIM_CFLAGS += --cc --trace --exe 
+SIM_CFLAGS += --cc --trace --exe -Wno-DECLFILENAME 
 CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LIBS += $(shell llvm-config --libs)
 
@@ -85,10 +58,9 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\""
 
 sim:
 	$(call git_commit, "sim RTL")
-	$(VERILATOR) $(SIM_CFLAGS) $(CFLAGS) $(SIM) \
-		$(INCFLAGS) $(CSRCS) $(NPC) 
-	$(MAKE) -C $(OBJ) -f VNPC.mk 
-	$(OBJ)/V$(SIM_NAME) 
+	$(VERILATOR) $(SIM_CFLAGS) $(CFLAGS) $(SIM) $(INCFLAGS) $(CSRCS) $(NPC) 
+	$(MAKE) -C $(OBJ) -f V$(TOP_NAME).mk 
+#	$(OBJ)/V$(SIM_NAME) 
 
 #default: $(BIN)
 
@@ -113,14 +85,14 @@ include $(NPC_HOME)/scripts/config.mk
 
 # rules for verilator
 
-$(BIN): $(VSRCS) $(SSRCS) $(NVBOARD_ARCHIVE)
-	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_CFLAGS) \
-		--top-module $(TOP_NAME) $^ \
-		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
-		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+#$(BIN): $(VSRCS) $(SSRCS) $(NVBOARD_ARCHIVE)
+#	@rm -rf $(OBJ_DIR)
+#	$(VERILATOR) $(VERILATOR_CFLAGS) \
+#		--top-module $(TOP_NAME) $^ \
+#		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
+#		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
-all: default
+# all: default
 
 
 test:
