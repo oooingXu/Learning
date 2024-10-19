@@ -44,6 +44,7 @@ class ysyx_23060336_IDU extends Module{
     val pcmux    = Output(UInt(2.W))
     val opcode   = Output(UInt(7.W))
     val inst     = Output(UInt(32.W))
+    val imm      = Output(UInt(32.W))
     val valid    = Output(Bool())
     val ready    = Output(Bool())
 	})
@@ -245,7 +246,7 @@ class ysyx_23060336_IDU extends Module{
     d_wait_ready -> Mux(io.out.ready, d_idle, d_wait_ready)
   ))
 
-  io.out.valid := true.B
+  io.out.valid := true.B 
   io.in.ready := true.B
 
   io.valid := io.out.valid
@@ -324,10 +325,11 @@ class ysyx_23060336_IDU extends Module{
   io.out.bits.Csr := io.Csr
   io.out.bits.csr := csr
 
-  io.pcmux    := io.out.bits.PcMux
-  io.opcode   := io.in.bits.inst(6, 0)
-  io.inst := io.in.bits.inst
-  io.pc := io.in.bits.pc
+  io.pcmux  := io.out.bits.PcMux
+  io.opcode := io.in.bits.inst(6, 0)
+  io.inst   := io.in.bits.inst
+  io.pc     := io.in.bits.pc
+  io.imm    := imm
 }
 
 /*

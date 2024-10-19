@@ -11,7 +11,7 @@ class ysyx_23060336_IFUdata extends Bundle {
 
 class ysyx_23060336_IFU extends Module{
   val io = IO(new Bundle{
-    val halt     = Output(Bool())
+    val halt     = Input(Bool())
     val out      = Decoupled(new ysyx_23060336_IFUdata)
     val inst     = Output(UInt(32.W))
     val pc       = Output(UInt(32.W))
@@ -42,20 +42,20 @@ class ysyx_23060336_IFU extends Module{
   io.axi.awaddr  := npc
   io.axi.awid    := "b0001".U
   io.axi.awlen   := "h0".U
-  io.axi.awsize  := "h0".U
+  io.axi.awsize  := "h3".U
   io.axi.awburst := "h1".U
   io.axi.wvalid  := false.B
   io.axi.wdata   := npc
   io.axi.wstrb   := false.B
   io.axi.wlast   := true.B
-  io.axi.bready  := false.B
+  io.axi.bready  := true.B
   io.axi.arvalid := true.B
   io.axi.araddr  := PC
   io.axi.arid    := "h1".U
   io.axi.arlen   := "h0".U
-  io.axi.arsize  := "h0".U
+  io.axi.arsize  := "h2".U
   io.axi.arburst := "h1".U
-  io.axi.rready  := true.B
+  io.axi.rready  := true.B && ~io.halt
 
   /*
   val axi4ifu = Module(new ysyx_23060336_AXI4IFU)
@@ -65,15 +65,13 @@ class ysyx_23060336_IFU extends Module{
   io.halt       := axi4ifu.io.halt  
   */
 
-  io.out.valid  := axi4ifu.io.valid &&  axi4ifu.io.ready
-
+  io.out.valid     := io.axi.rvalid && io.axi.rready && ~io.halt
+  io.out.bits.pc   := PC
   io.out.bits.inst := io.axi.rdata
-  io.out.bits.halt := axi4ifu.io.halt
-  io.out.bits.pc := PC
-  io.valid := io.out.valid
-  io.ready := axi4ifu.io.ready
-  io.inst := axi4ifu.io.inst
-
-  io.pc   := PC
+  io.out.bits.halt := io.halt
+  io.valid         := io.out.valid
+  io.ready         := io.axi.rready
+  io.inst          := io.axi.rdata
+  io.pc            := io.axi.araddr
 }
 

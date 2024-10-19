@@ -15,19 +15,20 @@ class ysyx_23060336_EXUdata extends Bundle{
    val MemWr    = Output(Bool())
    val RegWr    = Output(Bool())
    val CsrWr    = Output(Bool())
+   val halt     = Output(Bool())
 }
 
 class ysyx_23060336_EXU extends Module{
   val io = IO(new Bundle{
-    val in  = Flipped(Decoupled(new ysyx_23060336_IDUdata))
-    val out = Decoupled(new ysyx_23060336_EXUdata)
-    val mepc = Input(UInt(32.W))
+    val in    = Flipped(Decoupled(new ysyx_23060336_IDUdata))
+    val out   = Decoupled(new ysyx_23060336_EXUdata)
+    val mepc  = Input(UInt(32.W))
     val mtvec = Input(UInt(32.W))
     val pcmux = Output(UInt(2.W))
-    val pc   = Output(UInt(32.W))
-    val dnpc = Output(UInt(32.W))
-    val valid    = Output(Bool())
-    val ready    = Output(Bool())
+    val pc    = Output(UInt(32.W))
+    val dnpc  = Output(UInt(32.W))
+    val valid = Output(Bool())
+    val ready = Output(Bool())
   })
 
   val ina   = Wire(UInt(32.W))
@@ -50,7 +51,7 @@ class ysyx_23060336_EXU extends Module{
     e_wait_ready -> Mux(io.out.ready, e_idle, e_wait_ready)
   ))
 
-  io.out.valid := true.B
+  io.out.valid := true.B 
   io.in.ready := true.B
 
   io.valid  := io.out.valid
@@ -87,6 +88,7 @@ class ysyx_23060336_EXU extends Module{
   io.out.bits.csr      := io.in.bits.csr  
   io.out.bits.src2     := io.in.bits.src2
   io.out.bits.rd       := io.in.bits.rd
+  io.out.bits.halt     := io.in.bits.halt
 
   val alu = Module(new ysyx_23060336_ALU(32))
   alu.io.ina    := ina
@@ -111,10 +113,9 @@ class ysyx_23060336_EXU extends Module{
 
   io.dnpc := Mux(reset.asBool, pc,
              Mux(empty, pc,
-             Mux(~io.out.valid, io.in.bits.pc,
              Mux(io.in.bits.halt,  io.in.bits.pc, 
              Mux(io.in.bits.ecall, io.mtvec, 
-             Mux(io.in.bits.mret,  io.mepc, pcadd))))))
+             Mux(io.in.bits.mret,  io.mepc, pcadd)))))
 
  /*
   io.dnpc := Mux(io.reset, pc,

@@ -26,39 +26,41 @@ bool in_pmem(uint32_t addr){
 	return addr - MBASE < MSIZE;
 }
 
-int pmem_read(int Maddr) {
-	//Maddr = Maddr & ~0x3u;
+int pmem_read(int araddr) {
+	//araddr = araddr & ~0x3u;
 #ifdef CONFIG_CTRACE
-	if(host_read(guest_to_host(Maddr)) == 0x73) {
+	if(host_read(guest_to_host(araddr)) == 0x73) {
 			printf("mtvec = 0x%08x\n", cpu.mtvec);
 	}
 #endif
 
 #ifdef CONFIG_MTRACE
-	printf("pread at " FMT_PADDR ", data = " FMT_PADDR "\n", Maddr, host_read(guest_to_host(Maddr)));
+	printf("pread at " FMT_PADDR ", data = " FMT_PADDR "\n", araddr, host_read(guest_to_host(araddr)));
 #endif
-	if(likely(in_pmem(Maddr))) {
-	uint32_t ret = host_read(guest_to_host(Maddr));
+	if(likely(in_pmem(araddr))) {
+	uint32_t ret = host_read(guest_to_host(araddr));
 	return ret;
 	} else {
-		return mmio_read(Maddr);
+		return mmio_read(araddr);
 	}
 	printf("read out of bound\b");
-	out_of_bound(Maddr);
+	out_of_bound(araddr);
 	return 0;
 }
 
-void pmem_write(int Maddr, int DataIn, int wmask) {
-	//Maddr = Maddr & ~0x3u;
+int pmem_write(int awaddr, int wdata, int wstrb) {
+	//awaddr = awaddr & ~0x3u;
 
 #ifdef CONFIG_MTRACE
-	printf("pwrite at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", Maddr, DataIn, wmask);
+	printf("pwrite at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", awaddr, wdata, wstrb);
 #endif
-	if(likely(in_pmem(Maddr))){
-		host_write(guest_to_host(Maddr), wmask, DataIn); return;
+	if(likely(in_pmem(awaddr))){
+		host_write(guest_to_host(awaddr), wstrb, wdata); return 0;
 	} else {
-		mmio_write(Maddr, wmask, DataIn); return;
+		mmio_write(awaddr, wstrb, wdata); return 0;
 	}
 	printf("write out of bound\b");
-		out_of_bound(Maddr);
+	out_of_bound(awaddr);
+
+	return 3;
 }

@@ -31,7 +31,8 @@ class ysyx_23060336_LSU extends Module{
     l_wait_ready -> Mux(io.out.ready, l_idle, l_wait_ready)
   ))
 
-  io.out.valid := true.B
+  io.out.valid := true.B 
+  io.in.ready  := (io.axi.rvalid && io.in.bits.MemtoReg) || ~io.in.bits.MemtoReg
 
   io.out.bits.result   := io.in.bits.result    
   io.out.bits.csr      := io.in.bits.csr
@@ -42,26 +43,26 @@ class ysyx_23060336_LSU extends Module{
   io.out.bits.RegWr    := io.in.bits.RegWr   
   io.out.bits.DataOut  := Mux(io.in.bits.MemtoReg, io.axi.rdata, io.in.bits.result)
 
-  io.axi.awvalid := io.in.bits.MemWr
+  // AXI4
+  io.axi.awvalid := io.in.bits.MemWr && ~io.in.bits.halt
   io.axi.awaddr  := io.in.bits.result
   io.axi.awid    := "h2".U
   io.axi.awlen   := "h0".U
   io.axi.awsize  := "h0".U
   io.axi.awburst := "h1".U
-  io.axi.wvalid  := io.in.bits.MemWr
+  io.axi.wvalid  := io.in.bits.MemWr && ~io.in.bits.halt
   io.axi.wdata   := io.in.bits.src2
-  io.axi.wstrb   := false.B
+  io.axi.wstrb   := io.in.bits.MemNum
   io.axi.wlast   := true.B
-  io.axi.bready  := false.B
-  io.axi.arvalid := true.B
+  io.axi.bready  := true.B
+  io.axi.arvalid := io.in.bits.MemtoReg && ~io.in.bits.halt
   io.axi.araddr  := io.in.bits.result
   io.axi.arid    := "h2".U
   io.axi.arlen   := "h0".U
-  io.axi.arsize  := "h0".U
+  io.axi.arsize  := "h2".U
   io.axi.arburst := "h1".U
-  io.axi.rready  := io.in.bits.MemtoReg
+  io.axi.rready  := io.in.bits.MemtoReg && ~io.in.bits.halt
 
-  io.in.ready    := true.B
   /*
   val vlsu = Module(new ysyx_23060336_vLSU)
   vlsu.io.clock    := clock

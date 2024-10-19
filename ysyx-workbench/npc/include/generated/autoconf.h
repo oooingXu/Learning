@@ -1,7 +1,7 @@
 /*
  *
  * Automatically generated file; DO NOT EDIT.
- * NPC Configuration Menu
+ * ysyx_23060336 Configuration Menu
  *
  */
 #define CONFIG_RTC_MMIO 0xa0000048

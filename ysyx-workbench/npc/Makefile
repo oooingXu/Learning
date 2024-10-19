@@ -39,6 +39,7 @@ NXDC_FILES = constr/top.nxdc
 SIM_CFLAGS += --cc --trace --exe -Wno-DECLFILENAME 
 CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LIBS += $(shell llvm-config --libs)
+LIBS += $(shell sdl2-config --libs) -lSDL2_image -lSDL2_ttf
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  --trace\
@@ -58,7 +59,7 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\""
 
 sim:
 	$(call git_commit, "sim RTL")
-	$(VERILATOR) $(SIM_CFLAGS) $(CFLAGS) $(SIM) $(INCFLAGS) $(CSRCS) $(NPC) 
+	$(VERILATOR) $(SIM_CFLAGS) $(CFLAGS) $(addprefix -LDFLAGS , $(LDFLAGS)) $(SIM) $(INCFLAGS) $(CSRCS) $(NPC) 
 	$(MAKE) -C $(OBJ) -f V$(TOP_NAME).mk 
 #	$(OBJ)/V$(SIM_NAME) 
 

@@ -31,6 +31,7 @@
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0;
 static bool g_print_step = false;
+static int ebreak = 0;
 
 //void device_update();
 
@@ -46,9 +47,14 @@ vluint64_t sim_time = 0;
 VerilatedVcdC *m_trace = new VerilatedVcdC;
 #endif
 
-extern "C" void set_npc_state(int isebreak){
-	if(pmem_read(isebreak) == 0x00100073){
+extern "C" int set_npc_state(int isebreak){
+	if(pmem_read(isebreak) == 0x00100073 && ebreak == 0){
 		npc_state.state = NPC_END;
+		ebreak++;
+		printf("ebreak = %d\n",ebreak);
+		return 1;
+	} else {
+		return 0;
 	}
 }
 
@@ -96,7 +102,7 @@ static void init_npc(){
 	cpu.mstatus = 0x1800;
 
 	ysyx_23060336->clock = 0;
-	ysyx_23060336->io_reset = 1;
+	ysyx_23060336->reset = 1;
 	ysyx_23060336->eval();
 }
 
@@ -124,8 +130,8 @@ static void renew_state(){
 }
 
 void exec_once(){
-		if(sim_time == 0) ysyx_23060336->io_reset = 1;
-		else ysyx_23060336->io_reset = 0;
+		if(sim_time == 0) ysyx_23060336->reset = 1;
+		else ysyx_23060336->reset = 0;
 
 		ysyx_23060336->clock = !ysyx_23060336->clock;
 		ysyx_23060336->eval();
@@ -184,6 +190,10 @@ void execute(uint32_t n){
 }
 
 void assert_fall_msg() {
+#ifdef CONFIG_WAVE
+	m_trace->close();
+#endif
+
 	isa_reg_display();
 	statistic();
 	npc_state.state = NPC_ABORT;
