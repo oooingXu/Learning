@@ -64,18 +64,22 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 			printf("Wrong regs\n");
 			printf("reg.gpr[%s] = 0x%08x, ",regs[i],ref->gpr[i]);
 			printf("dut->gpr[%s] = 0x%08x, ",regs[i],cpu.gpr[i]);
-			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
+			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->dnpc, cpu.dnpc, cpu.pc);
 
 			return false;
 		}
 	}
 
+	if(cpu.reset) {
+		printf("cpu reset\n");
+		
+		return true;
+	}
+
 	if(ref->pc != cpu.dnpc){
-		debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->pc, cpu.dnpc, cpu.pc);
-		if(cpu.pc != cpu.dnpc){
-			printf("Wrong pc\n");
-			printf("ref->pc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.pc);
-		}
+		debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->dnpc, cpu.dnpc, cpu.pc);
+		printf("Wrong pc\n");
+		printf("ref->pc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc);
 
 		return false;
 	}

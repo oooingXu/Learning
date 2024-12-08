@@ -51,7 +51,7 @@ VL_ATTR_COLD void VNPC___024root___eval_settle(VNPC___024root* vlSelf) {
 #ifdef VL_DEBUG
                 VNPC___024root___dump_triggers__stl(vlSelf);
 #endif
-                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/build/NPC.sv", 3431, "", "Settle region did not converge.");
+                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/build/NPC.sv", 3451, "", "Settle region did not converge.");
             }
             vlSelf->__VstlIterCount = ((IData)(1U) 
                                        + vlSelf->__VstlIterCount);
@@ -186,7 +186,8 @@ VL_ATTR_COLD void VNPC___024root___ctor_var_reset(VNPC___024root* vlSelf) {
     vlSelf->NPC__DOT__idu__DOT__io_rs1 = VL_RAND_RESET_I(5);
     vlSelf->NPC__DOT__idu__DOT__io_rs2 = VL_RAND_RESET_I(5);
     vlSelf->NPC__DOT__idu__DOT____Vcellinp__Ref_ext__W0_data = VL_RAND_RESET_I(32);
-    vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W2_data = VL_RAND_RESET_I(32);
+    vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W3_data = VL_RAND_RESET_I(32);
+    vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W0_data = VL_RAND_RESET_I(32);
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7c5ac__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h03617c08__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h14776bc0__0 = 0;

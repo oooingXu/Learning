@@ -245,7 +245,8 @@ class VNPC___024root final : public VerilatedModule {
         IData/*31:0*/ NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T;
         IData/*31:0*/ NPC__DOT__idu__DOT__casez_tmp;
         IData/*31:0*/ NPC__DOT__idu__DOT____Vcellinp__Ref_ext__W0_data;
-        IData/*31:0*/ NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W2_data;
+        IData/*31:0*/ NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W3_data;
+        IData/*31:0*/ NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W0_data;
         IData/*31:0*/ NPC__DOT__exu__DOT__casez_tmp;
         IData/*31:0*/ NPC__DOT__exu__DOT__Alu__DOT__AddSub__DOT__t_no_cin;
         IData/*31:0*/ NPC__DOT__wbu__DOT___lsu_DataOut;

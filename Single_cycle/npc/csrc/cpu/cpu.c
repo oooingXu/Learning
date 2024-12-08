@@ -30,7 +30,7 @@ uint32_t isa_reg_str2val(const char *s, bool *success) {
 		}
 		
 	}
-	if( cmp == 0){
+	if(cmp == 0){
 			*success = true;
 			return cpu.pc;
 	}

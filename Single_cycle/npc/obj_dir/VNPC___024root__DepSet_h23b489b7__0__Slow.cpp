@@ -222,10 +222,18 @@ VL_ATTR_COLD void VNPC___024root___stl_sequent__TOP__0(VNPC___024root* vlSelf) {
                                         | (0x1fU & 
                                            (vlSelf->NPC__DOT___ifu_inst 
                                             >> 2U)));
-    vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W2_data 
-        = ((0xffffffffU == vlSelf->NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T)
-            ? vlSelf->NPC__DOT__pc : vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
-           [0x341U]);
+    if ((0xffffffffU == vlSelf->NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T)) {
+        vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W0_data = 0xbU;
+        vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W3_data 
+            = vlSelf->NPC__DOT__pc;
+    } else {
+        vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W0_data 
+            = vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
+            [0x300U];
+        vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W3_data 
+            = vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
+            [0x341U];
+    }
     vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T 
         = (((IData)((0x1073U == (0x107fU & vlSelf->NPC__DOT___ifu_inst))) 
             << 1U) | (IData)(((3U == (0xfU & vlSelf->NPC__DOT___ifu_inst)) 

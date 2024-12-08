@@ -333,6 +333,8 @@ class IDU extends Module{
   Csr(MSTATUS) := "h1800".U
   Csr(MCAUSE)  := "hb".U
 
+  Csr(MSTATUS) := Mux(io.ecall, 11.U, Csr(MSTATUS))
+
   io.mtvec := Csr(MTVEC)
   io.mepc  := Csr(MEPC)
   

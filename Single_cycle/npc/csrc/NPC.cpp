@@ -47,6 +47,7 @@ VerilatedVcdC *m_trace = new VerilatedVcdC;
 #endif
 
 extern "C" void set_npc_state(int isebreak){
+	difftest_skip_ref();
 	if(pmem_read(isebreak) == 0x00100073){
 		npc_state.state = NPC_END;
 	}
@@ -89,6 +90,7 @@ static void statistic(){
 
 static void init_npc(){
 	cpu.pc = RESET_VECTOR;
+	cpu.reset = 1;
 	for(int i = 0; i < R; i++){
 		cpu.gpr[i] = 0;
 	}
@@ -145,7 +147,6 @@ void execute(uint32_t n){
 				exec_once();
 			}
 		}
-		renew_state();
 		debug("dnpc = 0x%08x, pc = 0x%08x", NPC->io_NPC, NPC->io_PC);
 		debug("inst = %08x", host_read(guest_to_host(NPC->io_PC)));
 #ifdef ITRACE
@@ -175,6 +176,7 @@ void execute(uint32_t n){
 		if(npc_state.state != NPC_END){
 			trace_and_difftest();
 		}
+		renew_state();
 		g_nr_guest_inst++;
 
 		debug("Success difftest");
@@ -247,8 +249,8 @@ int main(int argc, char **argv)
 #ifdef CONFIG_DIFFTEST
 	init_difftest(argv[2], img_size);
 #endif
-
 	welcome();
+
 #ifdef CONFIG_BATCH
 	cpu_exec(-1);
 #else

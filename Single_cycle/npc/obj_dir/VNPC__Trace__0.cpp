@@ -846,79 +846,84 @@ void VNPC___024root__trace_chg_sub_0(VNPC___024root* vlSelf, VerilatedVcd::Buffe
         bufp->chgCData(oldp+200,(vlSelf->NPC__DOT__idu__DOT__io_rs2),5);
         bufp->chgSData(oldp+201,((vlSelf->NPC__DOT___ifu_inst 
                                   >> 0x14U)),12);
-        bufp->chgIData(oldp+202,(((0xffffffffU == vlSelf->NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T)
+        bufp->chgIData(oldp+202,(vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
+                                 [0x300U]),32);
+        bufp->chgIData(oldp+203,(((0xffffffffU == vlSelf->NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T)
+                                   ? 0xbU : vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
+                                  [0x300U])),32);
+        bufp->chgIData(oldp+204,(((0xffffffffU == vlSelf->NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T)
                                    ? vlSelf->NPC__DOT__pc
                                    : vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
                                   [0x341U])),32);
-        bufp->chgIData(oldp+203,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
-                                 [vlSelf->NPC__DOT__idu__DOT__io_rs2]),32);
-        bufp->chgIData(oldp+204,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
-                                 [vlSelf->NPC__DOT__idu__DOT__io_rs1]),32);
         bufp->chgIData(oldp+205,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
+                                 [vlSelf->NPC__DOT__idu__DOT__io_rs2]),32);
+        bufp->chgIData(oldp+206,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
+                                 [vlSelf->NPC__DOT__idu__DOT__io_rs1]),32);
+        bufp->chgIData(oldp+207,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
                                  [0xaU]),32);
-        bufp->chgIData(oldp+206,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[0]),32);
-        bufp->chgIData(oldp+207,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[1]),32);
-        bufp->chgIData(oldp+208,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[2]),32);
-        bufp->chgIData(oldp+209,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[3]),32);
-        bufp->chgIData(oldp+210,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[4]),32);
-        bufp->chgIData(oldp+211,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[5]),32);
-        bufp->chgIData(oldp+212,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[6]),32);
-        bufp->chgIData(oldp+213,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[7]),32);
-        bufp->chgIData(oldp+214,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[8]),32);
-        bufp->chgIData(oldp+215,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[9]),32);
-        bufp->chgIData(oldp+216,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[10]),32);
-        bufp->chgIData(oldp+217,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[11]),32);
-        bufp->chgIData(oldp+218,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[12]),32);
-        bufp->chgIData(oldp+219,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[13]),32);
-        bufp->chgIData(oldp+220,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[14]),32);
-        bufp->chgIData(oldp+221,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[15]),32);
-        bufp->chgIData(oldp+222,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[16]),32);
-        bufp->chgIData(oldp+223,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[17]),32);
-        bufp->chgIData(oldp+224,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[18]),32);
-        bufp->chgIData(oldp+225,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[19]),32);
-        bufp->chgIData(oldp+226,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[20]),32);
-        bufp->chgIData(oldp+227,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[21]),32);
-        bufp->chgIData(oldp+228,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[22]),32);
-        bufp->chgIData(oldp+229,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[23]),32);
-        bufp->chgIData(oldp+230,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[24]),32);
-        bufp->chgIData(oldp+231,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[25]),32);
-        bufp->chgIData(oldp+232,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[26]),32);
-        bufp->chgIData(oldp+233,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[27]),32);
-        bufp->chgIData(oldp+234,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[28]),32);
-        bufp->chgIData(oldp+235,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[29]),32);
-        bufp->chgIData(oldp+236,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[30]),32);
-        bufp->chgIData(oldp+237,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[31]),32);
-        bufp->chgIData(oldp+238,(vlSelf->NPC__DOT__wbu__DOT___lsu_DataOut),32);
+        bufp->chgIData(oldp+208,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[0]),32);
+        bufp->chgIData(oldp+209,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[1]),32);
+        bufp->chgIData(oldp+210,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[2]),32);
+        bufp->chgIData(oldp+211,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[3]),32);
+        bufp->chgIData(oldp+212,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[4]),32);
+        bufp->chgIData(oldp+213,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[5]),32);
+        bufp->chgIData(oldp+214,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[6]),32);
+        bufp->chgIData(oldp+215,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[7]),32);
+        bufp->chgIData(oldp+216,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[8]),32);
+        bufp->chgIData(oldp+217,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[9]),32);
+        bufp->chgIData(oldp+218,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[10]),32);
+        bufp->chgIData(oldp+219,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[11]),32);
+        bufp->chgIData(oldp+220,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[12]),32);
+        bufp->chgIData(oldp+221,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[13]),32);
+        bufp->chgIData(oldp+222,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[14]),32);
+        bufp->chgIData(oldp+223,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[15]),32);
+        bufp->chgIData(oldp+224,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[16]),32);
+        bufp->chgIData(oldp+225,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[17]),32);
+        bufp->chgIData(oldp+226,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[18]),32);
+        bufp->chgIData(oldp+227,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[19]),32);
+        bufp->chgIData(oldp+228,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[20]),32);
+        bufp->chgIData(oldp+229,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[21]),32);
+        bufp->chgIData(oldp+230,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[22]),32);
+        bufp->chgIData(oldp+231,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[23]),32);
+        bufp->chgIData(oldp+232,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[24]),32);
+        bufp->chgIData(oldp+233,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[25]),32);
+        bufp->chgIData(oldp+234,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[26]),32);
+        bufp->chgIData(oldp+235,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[27]),32);
+        bufp->chgIData(oldp+236,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[28]),32);
+        bufp->chgIData(oldp+237,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[29]),32);
+        bufp->chgIData(oldp+238,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[30]),32);
+        bufp->chgIData(oldp+239,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[31]),32);
+        bufp->chgIData(oldp+240,(vlSelf->NPC__DOT__wbu__DOT___lsu_DataOut),32);
     }
-    bufp->chgBit(oldp+239,(vlSelf->clock));
-    bufp->chgBit(oldp+240,(vlSelf->reset));
-    bufp->chgBit(oldp+241,(vlSelf->io_reset));
-    bufp->chgCData(oldp+242,(vlSelf->io_rd),5);
-    bufp->chgIData(oldp+243,(vlSelf->io_src1),32);
-    bufp->chgIData(oldp+244,(vlSelf->io_src2),32);
-    bufp->chgIData(oldp+245,(vlSelf->io_halt_ret),32);
-    bufp->chgIData(oldp+246,(vlSelf->io_PC),32);
-    bufp->chgIData(oldp+247,(vlSelf->io_NPC),32);
-    bufp->chgIData(oldp+248,(vlSelf->io_halt),32);
-    bufp->chgCData(oldp+249,(vlSelf->io_instType),3);
-    bufp->chgIData(oldp+250,(vlSelf->io_result),32);
-    bufp->chgIData(oldp+251,(vlSelf->io_ina),32);
-    bufp->chgIData(oldp+252,(vlSelf->io_inb),32);
-    bufp->chgIData(oldp+253,(vlSelf->io_inst),32);
-    bufp->chgIData(oldp+254,(vlSelf->io_DataOut),32);
-    bufp->chgCData(oldp+255,(vlSelf->io_AluMux),3);
-    bufp->chgCData(oldp+256,(vlSelf->io_AluSel),4);
-    bufp->chgCData(oldp+257,(vlSelf->io_PCMux),4);
-    bufp->chgCData(oldp+258,(vlSelf->io_MemNum),2);
-    bufp->chgBit(oldp+259,(vlSelf->io_RegWr));
-    bufp->chgBit(oldp+260,(vlSelf->io_MemWr));
-    bufp->chgBit(oldp+261,(vlSelf->io_stop));
-    bufp->chgBit(oldp+262,(vlSelf->io_MemtoReg));
-    bufp->chgIData(oldp+263,(vlSelf->NPC__DOT___DpiEbreak_io_isbreak_T),32);
-    bufp->chgBit(oldp+264,((1U & (IData)(vlSelf->io_AluSel))));
-    bufp->chgBit(oldp+265,((1U & ((IData)(vlSelf->io_AluSel) 
+    bufp->chgBit(oldp+241,(vlSelf->clock));
+    bufp->chgBit(oldp+242,(vlSelf->reset));
+    bufp->chgBit(oldp+243,(vlSelf->io_reset));
+    bufp->chgCData(oldp+244,(vlSelf->io_rd),5);
+    bufp->chgIData(oldp+245,(vlSelf->io_src1),32);
+    bufp->chgIData(oldp+246,(vlSelf->io_src2),32);
+    bufp->chgIData(oldp+247,(vlSelf->io_halt_ret),32);
+    bufp->chgIData(oldp+248,(vlSelf->io_PC),32);
+    bufp->chgIData(oldp+249,(vlSelf->io_NPC),32);
+    bufp->chgIData(oldp+250,(vlSelf->io_halt),32);
+    bufp->chgCData(oldp+251,(vlSelf->io_instType),3);
+    bufp->chgIData(oldp+252,(vlSelf->io_result),32);
+    bufp->chgIData(oldp+253,(vlSelf->io_ina),32);
+    bufp->chgIData(oldp+254,(vlSelf->io_inb),32);
+    bufp->chgIData(oldp+255,(vlSelf->io_inst),32);
+    bufp->chgIData(oldp+256,(vlSelf->io_DataOut),32);
+    bufp->chgCData(oldp+257,(vlSelf->io_AluMux),3);
+    bufp->chgCData(oldp+258,(vlSelf->io_AluSel),4);
+    bufp->chgCData(oldp+259,(vlSelf->io_PCMux),4);
+    bufp->chgCData(oldp+260,(vlSelf->io_MemNum),2);
+    bufp->chgBit(oldp+261,(vlSelf->io_RegWr));
+    bufp->chgBit(oldp+262,(vlSelf->io_MemWr));
+    bufp->chgBit(oldp+263,(vlSelf->io_stop));
+    bufp->chgBit(oldp+264,(vlSelf->io_MemtoReg));
+    bufp->chgIData(oldp+265,(vlSelf->NPC__DOT___DpiEbreak_io_isbreak_T),32);
+    bufp->chgBit(oldp+266,((1U & (IData)(vlSelf->io_AluSel))));
+    bufp->chgBit(oldp+267,((1U & ((IData)(vlSelf->io_AluSel) 
                                   >> 1U))));
-    bufp->chgCData(oldp+266,((((0x1ffU != ((0x100U 
+    bufp->chgCData(oldp+268,((((0x1ffU != ((0x100U 
                                             & (vlSelf->NPC__DOT___ifu_inst 
                                                << 8U)) 
                                            | ((0x80U 
@@ -942,12 +947,12 @@ void VNPC___024root__trace_chg_sub_0(VNPC___024root* vlSelf, VerilatedVcd::Buffe
                                                               >> 2U)) 
                                                           | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hd8e30b4d__0)))))))) 
                                << 2U) | (IData)(vlSelf->io_MemNum))),3);
-    bufp->chgCData(oldp+267,(vlSelf->io_instType),4);
-    bufp->chgIData(oldp+268,(((0U != (IData)(vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T))
+    bufp->chgCData(oldp+269,(vlSelf->io_instType),4);
+    bufp->chgIData(oldp+270,(((0U != (IData)(vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T))
                                ? vlSelf->io_result : vlSelf->NPC__DOT__idu__DOT___Csr_ext_R2_data)),32);
-    bufp->chgIData(oldp+269,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
+    bufp->chgIData(oldp+271,(vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
                              [vlSelf->io_rd]),32);
-    bufp->chgIData(oldp+270,(((0U == (IData)(vlSelf->io_rd))
+    bufp->chgIData(oldp+272,(((0U == (IData)(vlSelf->io_rd))
                                ? 0U : ((IData)(vlSelf->io_RegWr)
                                         ? ((IData)(vlSelf->io_MemtoReg)
                                             ? vlSelf->io_DataOut
@@ -956,7 +961,7 @@ void VNPC___024root__trace_chg_sub_0(VNPC___024root* vlSelf, VerilatedVcd::Buffe
                                             ? vlSelf->NPC__DOT__idu__DOT___Csr_ext_R2_data
                                             : vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
                                            [vlSelf->io_rd])))),32);
-    bufp->chgIData(oldp+271,((((0x1ffU != ((0x100U 
+    bufp->chgIData(oldp+273,((((0x1ffU != ((0x100U 
                                             & (vlSelf->NPC__DOT___ifu_inst 
                                                << 8U)) 
                                            | ((0x80U 
