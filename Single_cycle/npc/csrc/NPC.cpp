@@ -114,13 +114,13 @@ static void renew_state(){
 		cpu.dnpc = NPC->io_NPC;
 		debug("renew pc = 0x%08x, dut_pc = 0x%08x, dnpc = 0x%08x, dut_dnpc = 0x%08x", NPC->io_PC, cpu.pc, NPC->io_NPC, cpu.dnpc);
 		for(int i = 0; i < R; i++){
-			cpu.gpr[i] = NPC->rootp->NPC__DOT__wbu__DOT__Ref_ext__DOT__Memory[i];
+			cpu.gpr[i] = NPC->rootp->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[i];
 		}
 
-		cpu.mepc    = NPC->rootp->NPC__DOT__wbu__DOT__Csr_ext__DOT__Memory[MEPC];
-		cpu.mtvec   = NPC->rootp->NPC__DOT__wbu__DOT__Csr_ext__DOT__Memory[MTVEC];
-		cpu.mcause  = NPC->rootp->NPC__DOT__wbu__DOT__Csr_ext__DOT__Memory[MCAUSE];
-		cpu.mstatus = NPC->rootp->NPC__DOT__wbu__DOT__Csr_ext__DOT__Memory[MSTATUS];
+		cpu.mepc    = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MEPC];
+		cpu.mtvec   = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MTVEC];
+		cpu.mcause  = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MCAUSE];
+		cpu.mstatus = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MSTATUS];
 }
 
 void exec_once(){

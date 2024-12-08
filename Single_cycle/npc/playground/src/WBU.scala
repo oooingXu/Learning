@@ -13,7 +13,6 @@ class WBU extends Module{
     val MemtoReg = Input(Bool())
     val MemWr    = Input(Bool())
     val RegWr    = Input(Bool())
-    val ecall    = Input(Bool())
     val DataOut  = Output(UInt(32.W))
   })
 
@@ -26,11 +25,11 @@ class WBU extends Module{
   lsu.io.MemtoReg := io.MemtoReg
 
   io.DataOut := Mux(io.RegNum === "b010".U, lsu.io.DataOut,
-                Mux(io.RegNum === "b101".U, lsu.io.DataOut, lsu.io.DataOut,
+                Mux(io.RegNum === "b101".U, lsu.io.DataOut, 
                 Mux(io.RegNum === "b011".U, Cat(Fill(24, 0.U), lsu.io.DataOut(7, 0)),
                 Mux(io.RegNum === "b100".U, Cat(Fill(16, 0.U), lsu.io.DataOut(15, 0)),
                 Mux(io.RegNum === "b000".U, Cat(Fill(24, lsu.io.DataOut(7)),  lsu.io.DataOut(7, 0)),
-                Mux(io.RegNum === "b001".U, Cat(Fill(16, lsu.io.DataOut(15)), lsu.io.DataOut(15, 0))))))))
+                Mux(io.RegNum === "b001".U, Cat(Fill(16, lsu.io.DataOut(15)), lsu.io.DataOut(15, 0)), lsu.io.DataOut))))))
 }
 
 class LSU extends BlackBox with HasBlackBoxInline{

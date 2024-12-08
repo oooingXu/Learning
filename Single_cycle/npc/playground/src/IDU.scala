@@ -10,6 +10,8 @@ class IDU extends Module{
 	val io = IO(new Bundle{
     val inst     = Input(UInt(32.W))
     val pc       = Input(UInt(32.W))
+		val result   = Input(UInt(32.W))
+		val DataOut  = Input(UInt(32.W))
 		val rd			 = Output(UInt(5.W))
 		val rs1			 = Output(UInt(5.W))
 		val rs2			 = Output(UInt(5.W))

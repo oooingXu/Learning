@@ -20,15 +20,12 @@ class NPC extends Module {
     val PC     = Output(UInt(32.W))
     val NPC    = Output(UInt(32.W))
     val halt   = Output(UInt(32.W))
-    val Ref    = Output(UInt(32.W))
     val instType  = Output(UInt(3.W))
     val result = Output(UInt(32.W))
     val ina    = Output(UInt(32.W))
     val inb    = Output(UInt(32.W))
     val inst   = Output(UInt(32.W))
     val DataOut= Output(UInt(32.W))
-    val mDataOut= Output(UInt(32.W))
-    val RegData= Output(UInt(32.W))
     val AluMux = Output(UInt(3.W))
     val AluSel = Output(UInt(4.W))
     val PCMux  = Output(UInt(4.W))
@@ -49,27 +46,23 @@ class NPC extends Module {
   val wbu  = Module(new WBU())
 
   exu.io.pc       := pc
-  wbu.io.pc       := pc
+  idu.io.pc       := pc
 
   ifu.io.Maddr    := Mux(io.reset, npc, exu.io.dnpc)
   ifu.io.clock    := clock
   ifu.io.halt     := idu.io.halt
   idu.io.inst     := ifu.io.inst
+  idu.io.DataOut  := wbu.io.DataOut
 
-  wbu.io.rd       := idu.io.rd
-  wbu.io.rs1      := idu.io.rs1
-  wbu.io.rs2      := idu.io.rs2
-  wbu.io.csr      := idu.io.csr
-  wbu.io.ecall    := idu.io.ecall
-  wbu.io.imm      := idu.io.imm
-  wbu.io.RegWr    := idu.io.RegWr
   wbu.io.MemNum   := idu.io.MemNum
   wbu.io.RegNum   := idu.io.RegNum
   wbu.io.MemtoReg := idu.io.MemtoReg
-  wbu.io.CsrWr    := idu.io.CsrWr
+  wbu.io.RegWr    := idu.io.RegWr
   wbu.io.MemWr    := idu.io.MemWr
+  wbu.io.src2     := idu.io.src2
 
   wbu.io.result   := exu.io.result
+  idu.io.result   := exu.io.result
 
   exu.io.ecall    := idu.io.ecall
   exu.io.mret     := idu.io.mret
@@ -83,22 +76,20 @@ class NPC extends Module {
   exu.io.Branch   := idu.io.Branch
   exu.io.MemtoReg := idu.io.MemtoReg
 
-  exu.io.src1     := wbu.io.src1
-  exu.io.src2     := wbu.io.src2
-  exu.io.mtvec    := wbu.io.mtvec
-  exu.io.mepc     := wbu.io.mepc
-  exu.io.Csr      := wbu.io.Csr
+  exu.io.src1     := idu.io.src1
+  exu.io.src2     := idu.io.src2
+  exu.io.mtvec    := idu.io.mtvec
+  exu.io.mepc     := idu.io.mepc
+  exu.io.Csr      := idu.io.Csr
 
   stop            := !idu.io.halt
   io.halt         := idu.io.halt
 
   io.stop         := stop
-  io.halt_ret     := wbu.io.halt_ret
-  io.src1         := wbu.io.src1
-  io.src2         := wbu.io.src2
+  io.halt_ret     := idu.io.halt_ret
+  io.src1         := idu.io.src1
+  io.src2         := idu.io.src2
   io.DataOut      := wbu.io.DataOut
-  io.mDataOut     := wbu.io.mDataOut
-  io.RegData      := wbu.io.RegData
   io.MemNum       := idu.io.MemNum
   io.MemtoReg     := idu.io.MemtoReg
   io.AluMux       := idu.io.AluMux
@@ -112,7 +103,6 @@ class NPC extends Module {
   io.rd           := idu.io.rd
   io.RegWr        := idu.io.RegWr
   io.MemWr        := idu.io.MemWr
-  io.Ref          := wbu.io.Ref
 
   io.PC           := pc
   pc              := Mux(io.reset, npc, exu.io.dnpc)

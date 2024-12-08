@@ -12,9 +12,6 @@ class IFU extends BlackBox with HasBlackBoxInline{
     val inst     = Output(UInt(32.W))
   })
 
-  val inst = Wire(UInt(32.W))
-
-  io.inst := inst
 
   setInline(
     "ifu.sv",
@@ -22,7 +19,6 @@ class IFU extends BlackBox with HasBlackBoxInline{
     | module IFU(
     |   input clock,
     |   input halt,
-    |   input MemtoReg,
     |   input [31:0] Maddr,
     |   output reg [31:0] inst
     | );

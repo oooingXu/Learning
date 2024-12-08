@@ -80,7 +80,7 @@ class EXU extends Module{
 
   io.dnpc := Mux(io.halt,  io.pc, 
              Mux(io.ecall, io.mtvec, 
-             Mux(io.mret,  io.mepc, pcadd))))
+             Mux(io.mret,  io.mepc, pcadd)))
 }
 
 
