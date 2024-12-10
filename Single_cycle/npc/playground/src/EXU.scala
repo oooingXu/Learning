@@ -20,12 +20,13 @@ class EXU extends Module{
     val mtvec  = Input(UInt(32.W))
     val mepc   = Input(UInt(32.W))
     val PcMux  = Input(UInt(2.W))
-    val AluMux = Input(UInt(3.W))
+    val AluMux = Input(UInt(4.W))
     val AluSel = Input(UInt(4.W))
     val result = Output(UInt(32.W))
     val dnpc   = Output(UInt(32.W))
     val ina    = Output(UInt(32.W))
     val inb    = Output(UInt(32.W))
+    val rs1    = Output(UInt(32.W))
     val PCMux  = Output(UInt(4.W))
   })
 
@@ -38,6 +39,8 @@ class EXU extends Module{
 
   rs1  := Mux(io.Recsr, ~io.src1, io.src1)
   zimm := Mux(io.Recsr, ~io.zimm, io.zimm)
+
+  io.rs1 := rs1
 
   io.ina := Mux(io.AluMux === "b0111".U, io.src1,
             Mux(io.AluMux === "b0001".U, io.src1,

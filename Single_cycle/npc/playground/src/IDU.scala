@@ -22,9 +22,14 @@ class IDU extends Module{
 		val mepc		 = Output(UInt(32.W))
 		val mtvec 	 = Output(UInt(32.W))
 		val Csr   	 = Output(UInt(32.W))
+		val csr   	 = Output(UInt(32.W))
     val PcMux    = Output(UInt(2.W))
-    val AluMux   = Output(UInt(3.W))
+    val AluMux   = Output(UInt(4.W))
+    val AluMuxa  = Output(UInt(4.W))
+    val AluMuxb  = Output(UInt(4.W))
     val AluSel   = Output(UInt(4.W))
+    val AluSela  = Output(UInt(4.W))
+    val AluSelb  = Output(UInt(4.W))
     val MemNum   = Output(UInt(3.W))
     val instType = Output(UInt(4.W))
     val RegNum   = Output(UInt(3.W))
@@ -234,8 +239,8 @@ class IDU extends Module{
   val instType = Wire(UInt(4.W))
   val AluSela  = Wire(UInt(4.W))
   val AluSelb  = Wire(UInt(4.W))
-  val AluMuxa  = Wire(UInt(3.W))
-  val AluMuxb  = Wire(UInt(3.W))
+  val AluMuxa  = Wire(UInt(4.W))
+  val AluMuxb  = Wire(UInt(4.W))
   val immNum   = Wire(Bool())
 
   val rd  = io.inst(11, 7)
@@ -264,6 +269,11 @@ class IDU extends Module{
   AluSela     := decoder(Cat(func7, func3, opcode), AluSel1)
   AluSelb     := decoder(Cat(func3, opcode), AluSel2)
 
+  io.AluMuxa  := AluMuxa
+  io.AluMuxb  := AluMuxb
+  io.AluSela  := AluSela
+  io.AluSelb  := AluSelb
+
   io.AluMux   := (AluMuxa | AluMuxb)
   io.AluSel   := (AluSela | AluSelb)
   io.instType := instType
@@ -283,6 +293,8 @@ class IDU extends Module{
   val immB  = Cat(Fill(19, immB13(12)), immB13)
   val immJ  = Cat(Fill(11, immJ21(20)), immJ21)
   val wrong = 0.U(32.W)
+
+  io.csr := csr
   
   imm := Mux(instType === "b000".U, immI,
          Mux(instType === "b001".U, immS,
