@@ -1,5 +1,6 @@
-#include "../include/common.h"
 #include <sys/time.h>
+
+#include "../include/common.h"
 #include "../include/utils.h"
 
 #define CLOCKS_PER_SEC ((__clock_t)1000000)

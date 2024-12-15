@@ -59,6 +59,8 @@ void init_difftest(char *ref_so_file, long img_size){
 }
 
 static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
+	if(cpu.reset) return true;
+
 	for(int i = 0; i < R; i++){
 		if(ref->gpr[i] != cpu.gpr[i]){
 			printf("Wrong regs\n");
@@ -70,10 +72,14 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 		}
 	}
 
-	if(cpu.reset) {
-		printf("cpu reset\n");
-		
-		return true;
+	for(int i = 0; i < C; i++){
+		if(ref->csr[i] != cpu.csr[i]){
+			printf("Wrong csrs\n");
+			printf("csr[%d]: ref->csr = 0x%08x, cpu.csr = 0x%08x\n", i, ref->csr[i], cpu.csr[i]);
+			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->dnpc, cpu.dnpc, cpu.pc);
+
+			return false;
+		}
 	}
 
 	if(ref->pc != cpu.dnpc){
@@ -83,6 +89,7 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 
 		return false;
 	}
+
 	debug("All right");
 	debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->pc, cpu.dnpc, cpu.pc);
 

@@ -84,7 +84,7 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
         = vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W3_data;
     __Vdlyvval__NPC__DOT__idu__DOT__Csr_ext__DOT__Memory__v4 
         = ((0U != (IData)(vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T))
-            ? vlSelf->io_result : vlSelf->NPC__DOT__idu__DOT___Csr_ext_R2_data);
+            ? vlSelf->io_result : vlSelf->io_Csr);
     __Vdlyvdim0__NPC__DOT__idu__DOT__Csr_ext__DOT__Memory__v4 
         = (vlSelf->NPC__DOT___ifu_inst >> 0x14U);
     if (vlSelf->NPC__DOT___idu_io_halt) {
@@ -111,11 +111,17 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
     vlSelf->io_halt_ret = (1U & vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
                            [0xaU]);
     vlSelf->NPC__DOT___ifu_inst = __Vdly__NPC__DOT___ifu_inst;
+    vlSelf->io_mtvec = vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
+        [0x305U];
     vlSelf->io_PC = vlSelf->NPC__DOT__pc;
     vlSelf->io_stop = vlSelf->NPC__DOT__stop;
     vlSelf->io_halt = (0x100073U == vlSelf->NPC__DOT___ifu_inst);
     vlSelf->io_inst = vlSelf->NPC__DOT___ifu_inst;
+    vlSelf->io_csr = (vlSelf->NPC__DOT___ifu_inst >> 0x14U);
     vlSelf->NPC__DOT___idu_io_halt = (0x100073U == vlSelf->NPC__DOT___ifu_inst);
+    vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T 
+        = (((IData)((0x1073U == (0x107fU & vlSelf->NPC__DOT___ifu_inst))) 
+            << 1U) | (IData)((0x2073U == (0x207fU & vlSelf->NPC__DOT___ifu_inst))));
     vlSelf->NPC__DOT___idu_io_mret = (IData)((0x30200073U 
                                               == vlSelf->NPC__DOT___ifu_inst));
     vlSelf->NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T 
@@ -263,27 +269,38 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                                                                 & (~ 
                                                                                 (vlSelf->NPC__DOT___ifu_inst 
                                                                                 >> 0x1fU))))))))))))))))))))))))))))))))));
-    vlSelf->NPC__DOT__idu__DOT___Csr_ext_R2_data = 
-        vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
+    vlSelf->io_Csr = vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
         [(vlSelf->NPC__DOT___ifu_inst >> 0x14U)];
     vlSelf->NPC__DOT__idu__DOT__immNum_invInputs = 
         (0x7fU & (~ ((0x60U & (vlSelf->NPC__DOT___ifu_inst 
                                >> 7U)) | (0x1fU & (vlSelf->NPC__DOT___ifu_inst 
                                                    >> 2U)))));
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0f7b3c5e__0 
-        = (IData)((0x2070U == (0x2070U & vlSelf->NPC__DOT___ifu_inst)));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h14776bc0__0 
         = (IData)((0U == (0x60U & vlSelf->NPC__DOT___ifu_inst)));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0855c605__0 
         = (IData)((0x20U == (0x60U & vlSelf->NPC__DOT___ifu_inst)));
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h40c0d4db__0 
-        = (IData)((0x3000U == (0x3000U & vlSelf->NPC__DOT___ifu_inst)));
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hdf4b4597__0 
-        = (IData)((0x10U == (0x58U & vlSelf->NPC__DOT___ifu_inst)));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h7fc75f50__0 
         = (IData)((0x6000U == (0x6000U & vlSelf->NPC__DOT___ifu_inst)));
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h40c0d4db__0 
+        = (IData)((0x3000U == (0x3000U & vlSelf->NPC__DOT___ifu_inst)));
+    vlSelf->NPC__DOT__idu__DOT___AluMuxa_andMatrixOutputs_T_3 
+        = ((0x20U & (vlSelf->NPC__DOT___ifu_inst << 5U)) 
+           | ((0x10U & (vlSelf->NPC__DOT___ifu_inst 
+                        << 3U)) | ((8U & ((~ (vlSelf->NPC__DOT___ifu_inst 
+                                              >> 3U)) 
+                                          << 3U)) | 
+                                   ((4U & (vlSelf->NPC__DOT___ifu_inst 
+                                           >> 2U)) 
+                                    | ((2U & (vlSelf->NPC__DOT___ifu_inst 
+                                              >> 4U)) 
+                                       | (1U & (~ (vlSelf->NPC__DOT___ifu_inst 
+                                                   >> 6U))))))));
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hdf4b4597__0 
+        = (IData)((0x10U == (0x58U & vlSelf->NPC__DOT___ifu_inst)));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h1038d363__0 
         = (IData)((3U == (0x4fU & vlSelf->NPC__DOT___ifu_inst)));
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h049281d3__0 
+        = (IData)((0x60U == (0x60U & vlSelf->NPC__DOT___ifu_inst)));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0993e147__0 
         = ((2U & (vlSelf->NPC__DOT___ifu_inst >> 4U)) 
            | (1U & (vlSelf->NPC__DOT___ifu_inst >> 6U)));
@@ -291,13 +308,12 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
         = ((2U & ((~ (vlSelf->NPC__DOT___ifu_inst >> 5U)) 
                   << 1U)) | (1U & (~ (vlSelf->NPC__DOT___ifu_inst 
                                       >> 6U))));
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h049281d3__0 
-        = (IData)((0x60U == (0x60U & vlSelf->NPC__DOT___ifu_inst)));
     vlSelf->NPC__DOT__idu__DOT___GEN = ((0xe0U & (vlSelf->NPC__DOT___ifu_inst 
                                                   >> 7U)) 
                                         | (0x1fU & 
                                            (vlSelf->NPC__DOT___ifu_inst 
                                             >> 2U)));
+    vlSelf->io_CsrWr = (0U != (IData)(vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T));
     if ((0xffffffffU == vlSelf->NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T)) {
         vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W0_data = 0xbU;
         vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W3_data 
@@ -310,14 +326,25 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
             = vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory
             [0x341U];
     }
-    vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T 
-        = (((IData)((0x1073U == (0x107fU & vlSelf->NPC__DOT___ifu_inst))) 
-            << 1U) | (IData)(((3U == (0xfU & vlSelf->NPC__DOT___ifu_inst)) 
-                              & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0f7b3c5e__0))));
     vlSelf->io_MemWr = (IData)(((3U == (0x1fU & vlSelf->NPC__DOT___ifu_inst)) 
                                 & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0855c605__0)));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_ha09dbe48__0 
         = ((vlSelf->NPC__DOT___ifu_inst >> 0xcU) & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h7fc75f50__0));
+    vlSelf->NPC__DOT___idu_io_Recsr = (IData)(((0x73U 
+                                                == 
+                                                (0x7fU 
+                                                 & vlSelf->NPC__DOT___ifu_inst)) 
+                                               & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h40c0d4db__0)));
+    vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T 
+        = (((IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h1038d363__0) 
+            << 2U) | (((IData)((0x23U == (0x3fU & vlSelf->NPC__DOT___ifu_inst))) 
+                       << 1U) | (0x3fU == (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxa_andMatrixOutputs_T_3))));
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h03617c08__0 
+        = ((~ (vlSelf->NPC__DOT___ifu_inst >> 4U)) 
+           & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h049281d3__0));
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h036178c4__0 
+        = ((~ (vlSelf->NPC__DOT___ifu_inst >> 4U)) 
+           & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h049281d3__0));
     vlSelf->NPC__DOT__idu__DOT___instType_andMatrixOutputs_T_6 
         = ((0x20U & (vlSelf->NPC__DOT___ifu_inst << 5U)) 
            | ((0x10U & (vlSelf->NPC__DOT___ifu_inst 
@@ -350,12 +377,6 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h17a37d60__0 
         = ((4U & ((~ (vlSelf->NPC__DOT___ifu_inst >> 4U)) 
                   << 2U)) | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h171c6c87__0));
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h03617c08__0 
-        = ((~ (vlSelf->NPC__DOT___ifu_inst >> 4U)) 
-           & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h049281d3__0));
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h036178c4__0 
-        = ((~ (vlSelf->NPC__DOT___ifu_inst >> 4U)) 
-           & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h049281d3__0));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hd8e30b4d__0 
         = ((4U & ((~ ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
                       >> 4U)) << 2U)) | ((2U & ((~ 
@@ -385,6 +406,68 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                >> 5U)) & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h7fc75f50__0));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h69bb9be0__0 
         = (IData)((0U == (0xc0U & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))));
+    vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T 
+        = ((0x100U & (vlSelf->NPC__DOT___ifu_inst << 8U)) 
+           | ((0x80U & (vlSelf->NPC__DOT___ifu_inst 
+                        << 6U)) | ((0x40U & ((~ (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)) 
+                                             << 6U)) 
+                                   | ((0x20U & ((~ 
+                                                 ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                  >> 1U)) 
+                                                << 5U)) 
+                                      | ((0x10U & vlSelf->NPC__DOT___ifu_inst) 
+                                         | ((8U & (vlSelf->NPC__DOT___ifu_inst 
+                                                   >> 2U)) 
+                                            | ((4U 
+                                                & (vlSelf->NPC__DOT___ifu_inst 
+                                                   >> 4U)) 
+                                               | ((2U 
+                                                   & (vlSelf->NPC__DOT___ifu_inst 
+                                                      >> 0xbU)) 
+                                                  | (1U 
+                                                     & (~ 
+                                                        ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                         >> 6U)))))))))));
+    vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_1 
+        = ((0x80U & (vlSelf->NPC__DOT___ifu_inst << 7U)) 
+           | ((0x40U & (vlSelf->NPC__DOT___ifu_inst 
+                        << 5U)) | ((0x20U & ((~ (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)) 
+                                             << 5U)) 
+                                   | ((0x10U & ((~ 
+                                                 ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                  >> 1U)) 
+                                                << 4U)) 
+                                      | ((8U & (vlSelf->NPC__DOT___ifu_inst 
+                                                >> 1U)) 
+                                         | ((4U & (vlSelf->NPC__DOT___ifu_inst 
+                                                   >> 3U)) 
+                                            | ((2U 
+                                                & (vlSelf->NPC__DOT___ifu_inst 
+                                                   >> 5U)) 
+                                               | (1U 
+                                                  & (vlSelf->NPC__DOT___ifu_inst 
+                                                     >> 0xdU)))))))));
+    vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_4 
+        = ((0x100U & (vlSelf->NPC__DOT___ifu_inst << 8U)) 
+           | ((0x80U & (vlSelf->NPC__DOT___ifu_inst 
+                        << 6U)) | ((0x40U & ((~ (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)) 
+                                             << 6U)) 
+                                   | ((0x20U & ((~ 
+                                                 ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                  >> 1U)) 
+                                                << 5U)) 
+                                      | ((0x10U & vlSelf->NPC__DOT___ifu_inst) 
+                                         | ((8U & (vlSelf->NPC__DOT___ifu_inst 
+                                                   >> 2U)) 
+                                            | ((4U 
+                                                & (vlSelf->NPC__DOT___ifu_inst 
+                                                   >> 4U)) 
+                                               | ((2U 
+                                                   & (vlSelf->NPC__DOT___ifu_inst 
+                                                      >> 0xcU)) 
+                                                  | (1U 
+                                                     & (vlSelf->NPC__DOT___ifu_inst 
+                                                        >> 0xeU))))))))));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h62cc9b06__0 
         = (1U & ((~ ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
                      >> 6U)) & (vlSelf->NPC__DOT___ifu_inst 
@@ -396,15 +479,7 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
     vlSelf->NPC__DOT__idu__DOT__AluSela_invInputs = 
         (0x7fffU & (~ ((0x7f00U & (vlSelf->NPC__DOT___ifu_inst 
                                    >> 0x11U)) | (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))));
-    vlSelf->io_MemtoReg = (IData)(((3U == (0xfU & vlSelf->NPC__DOT___ifu_inst)) 
-                                   & (7U == (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h17a37d60__0))));
-    vlSelf->NPC__DOT__idu__DOT___instType_andMatrixOutputs_T_3 
-        = ((0x40U & (vlSelf->NPC__DOT___ifu_inst << 6U)) 
-           | ((0x20U & (vlSelf->NPC__DOT___ifu_inst 
-                        << 4U)) | ((0x10U & (vlSelf->NPC__DOT___ifu_inst 
-                                             << 2U)) 
-                                   | ((8U & vlSelf->NPC__DOT___ifu_inst) 
-                                      | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h17a37d60__0)))));
+    vlSelf->io_Recsr = vlSelf->NPC__DOT___idu_io_Recsr;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7c5ac__0 
         = ((~ (vlSelf->NPC__DOT___ifu_inst >> 3U)) 
            & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h03617c08__0));
@@ -414,6 +489,15 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7dcbc__0 
         = ((~ (vlSelf->NPC__DOT___ifu_inst >> 3U)) 
            & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h036178c4__0));
+    vlSelf->io_MemtoReg = (IData)(((3U == (0xfU & vlSelf->NPC__DOT___ifu_inst)) 
+                                   & (7U == (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h17a37d60__0))));
+    vlSelf->NPC__DOT__idu__DOT___instType_andMatrixOutputs_T_3 
+        = ((0x40U & (vlSelf->NPC__DOT___ifu_inst << 6U)) 
+           | ((0x20U & (vlSelf->NPC__DOT___ifu_inst 
+                        << 4U)) | ((0x10U & (vlSelf->NPC__DOT___ifu_inst 
+                                             << 2U)) 
+                                   | ((8U & vlSelf->NPC__DOT___ifu_inst) 
+                                      | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h17a37d60__0)))));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h859083b2__0 
         = ((vlSelf->NPC__DOT___ifu_inst >> 0xcU) & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h62cc9b06__0));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h2376aa4a__0 
@@ -432,6 +516,14 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                             & ((vlSelf->NPC__DOT___ifu_inst 
                                 >> 1U) & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hdf4b4597__0))) 
                            | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h52335523__0)));
+    vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_4 
+        = (((IData)(((0x17U == (0x1fU & vlSelf->NPC__DOT___ifu_inst)) 
+                     & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h14776bc0__0))) 
+            << 2U) | (((IData)(((0x13U == (0x1fU & vlSelf->NPC__DOT___ifu_inst)) 
+                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0855c605__0))) 
+                       << 1U) | (IData)(((3U == (7U 
+                                                 & vlSelf->NPC__DOT___ifu_inst)) 
+                                         & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7dcbc__0)))));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h33c2d558__0 
         = (vlSelf->NPC__DOT___ifu_inst & ((vlSelf->NPC__DOT___ifu_inst 
                                            >> 1U) & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7dcbc__0)));
@@ -529,6 +621,13 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                                                          (0x1fU 
                                                                           & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
                                                                         & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h859083b2__0)))))))));
+    vlSelf->NPC__DOT__idu__DOT___AluMuxb_orMatrixOutputs_T 
+        = (((IData)((((0x73U == (0x73U & vlSelf->NPC__DOT___ifu_inst)) 
+                      & (0U == (3U & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                     & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h70585f8a__0))) 
+            << 1U) | (IData)((((0x73U == (0x73U & vlSelf->NPC__DOT___ifu_inst)) 
+                               & (0U == (3U & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                              & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h859083b2__0))));
     vlSelf->io_MemNum = (((0x1ffU != ((0x100U & (vlSelf->NPC__DOT___ifu_inst 
                                                  << 8U)) 
                                       | ((0x80U & (vlSelf->NPC__DOT___ifu_inst 
@@ -574,70 +673,190 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                                           (7U 
                                                            & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
                                                       & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h2376aa4a__0))))));
+    vlSelf->io_AluSelb = (((IData)((((3U == (3U & vlSelf->NPC__DOT___ifu_inst)) 
+                                     & (0U == (3U & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                                    & (((~ ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                            >> 2U)) 
+                                        & (IData)((
+                                                   (0x60U 
+                                                    == 
+                                                    (0x60U 
+                                                     & vlSelf->NPC__DOT___ifu_inst)) 
+                                                   & (~ 
+                                                      ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                       >> 6U))))) 
+                                       | (((vlSelf->NPC__DOT___ifu_inst 
+                                            >> 4U) 
+                                           & (IData)(
+                                                     ((0U 
+                                                       == 
+                                                       (0x18U 
+                                                        & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
+                                                      & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h70585f8a__0)))) 
+                                          | ((~ ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                 >> 2U)) 
+                                             & (IData)(
+                                                       (0x4060U 
+                                                        == 
+                                                        (0x4060U 
+                                                         & vlSelf->NPC__DOT___ifu_inst)))))))) 
+                           << 3U) | (((IData)((((3U 
+                                                 == 
+                                                 (3U 
+                                                  & vlSelf->NPC__DOT___ifu_inst)) 
+                                                & (0U 
+                                                   == 
+                                                   (3U 
+                                                    & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                                               & (((~ 
+                                                    ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                     >> 2U)) 
+                                                   & (IData)(
+                                                             ((0x60U 
+                                                               == 
+                                                               (0x60U 
+                                                                & vlSelf->NPC__DOT___ifu_inst)) 
+                                                              & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h69bb9be0__0)))) 
+                                                  | ((IData)(
+                                                             ((0x2070U 
+                                                               == 
+                                                               (0x2070U 
+                                                                & vlSelf->NPC__DOT___ifu_inst)) 
+                                                              & (~ 
+                                                                 ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                                  >> 5U)))) 
+                                                     | ((IData)(
+                                                                ((0x4010U 
+                                                                  == 
+                                                                  (0x4010U 
+                                                                   & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                 & (0U 
+                                                                    == 
+                                                                    (0x38U 
+                                                                     & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))))) 
+                                                        | ((~ 
+                                                            ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                             >> 2U)) 
+                                                           & (IData)(
+                                                                     ((0x60U 
+                                                                       == 
+                                                                       (0x60U 
+                                                                        & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                      & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_ha09dbe48__0))))))))) 
+                                      << 2U) | ((2U 
+                                                 & (((IData)(
+                                                             (((0x63U 
+                                                                == 
+                                                                (0x63U 
+                                                                 & vlSelf->NPC__DOT___ifu_inst)) 
+                                                               & (0U 
+                                                                  == 
+                                                                  (7U 
+                                                                   & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                                                              & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h795fdc33__0))) 
+                                                     | ((IData)(
+                                                                (((0x13U 
+                                                                   == 
+                                                                   (0x13U 
+                                                                    & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                  & (0U 
+                                                                     == 
+                                                                     (0x1bU 
+                                                                      & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                                                                 & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h40c0d4db__0))) 
+                                                        | ((IData)(
+                                                                   ((0x3073U 
+                                                                     == 
+                                                                     (0x3073U 
+                                                                      & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                    & (0U 
+                                                                       == 
+                                                                       (3U 
+                                                                        & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))))) 
+                                                           | (IData)(
+                                                                     (((0x63U 
+                                                                        == 
+                                                                        (0x63U 
+                                                                         & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                       & (0U 
+                                                                          == 
+                                                                          (7U 
+                                                                           & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                                                                      & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hc5ce86a9__0)))))) 
+                                                    << 1U)) 
+                                                | (1U 
+                                                   & ((IData)(
+                                                              (((0x63U 
+                                                                 == 
+                                                                 (0x63U 
+                                                                  & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                & (0U 
+                                                                   == 
+                                                                   (7U 
+                                                                    & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                                                               & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h6c886094__0))) 
+                                                      | ((IData)(
+                                                                 (((0x13U 
+                                                                    == 
+                                                                    (0x13U 
+                                                                     & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                   & (0U 
+                                                                      == 
+                                                                      (0xbU 
+                                                                       & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
+                                                                  & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h2376aa4a__0))) 
+                                                         | ((IData)(
+                                                                    ((0x3073U 
+                                                                      == 
+                                                                      (0x3073U 
+                                                                       & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                     & (0U 
+                                                                        == 
+                                                                        (3U 
+                                                                         & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))))) 
+                                                            | (vlSelf->NPC__DOT___ifu_inst 
+                                                               & ((vlSelf->NPC__DOT___ifu_inst 
+                                                                   >> 1U) 
+                                                                  & (IData)(
+                                                                            ((0U 
+                                                                              == 
+                                                                              (3U 
+                                                                               & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
+                                                                             & (((vlSelf->NPC__DOT___ifu_inst 
+                                                                                >> 4U) 
+                                                                                & (IData)(
+                                                                                ((0U 
+                                                                                == 
+                                                                                (0x38U 
+                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
+                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h62cc9b06__0)))) 
+                                                                                | (((~ 
+                                                                                ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
+                                                                                >> 2U)) 
+                                                                                & (IData)(
+                                                                                ((0x60U 
+                                                                                == 
+                                                                                (0x60U 
+                                                                                & vlSelf->NPC__DOT___ifu_inst)) 
+                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h62cc9b06__0)))) 
+                                                                                | ((vlSelf->NPC__DOT___ifu_inst 
+                                                                                >> 4U) 
+                                                                                & (IData)(
+                                                                                ((0U 
+                                                                                == 
+                                                                                (0x18U 
+                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
+                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_ha09dbe48__0)))))))))))))))));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h96c0b08d__0 
         = ((vlSelf->NPC__DOT___ifu_inst >> 0xdU) & 
            (((IData)(vlSelf->NPC__DOT__idu__DOT__AluSela_invInputs) 
              >> 7U) & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h1cfc0c30__0)));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h45879115__0 
         = ((vlSelf->NPC__DOT___ifu_inst >> 0xeU) & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h1cfc0c30__0));
-    vlSelf->io_AluMux = (((0xfffffffcU & ((vlSelf->NPC__DOT___ifu_inst 
-                                           << 2U) & 
-                                          ((vlSelf->NPC__DOT___ifu_inst 
-                                            << 1U) 
-                                           & (((IData)(
-                                                       ((0x14U 
-                                                         == 
-                                                         (0x1cU 
-                                                          & vlSelf->NPC__DOT___ifu_inst)) 
-                                                        & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h14776bc0__0))) 
-                                               | ((~ 
-                                                   (vlSelf->NPC__DOT___ifu_inst 
-                                                    >> 2U)) 
-                                                  & ((IData)(
-                                                             ((0x10U 
-                                                               == 
-                                                               (0x18U 
-                                                                & vlSelf->NPC__DOT___ifu_inst)) 
-                                                              & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0855c605__0))) 
-                                                     | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7dcbc__0)))) 
-                                              << 2U)))) 
-                          | (((((IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h33c2d558__0) 
-                                | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h52335523__0)) 
-                               | (0x33U == (0x7bU & vlSelf->NPC__DOT___ifu_inst))) 
-                              << 1U) | ((IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h1038d363__0) 
-                                        | ((0x23U == 
-                                            (0x3fU 
-                                             & vlSelf->NPC__DOT___ifu_inst)) 
-                                           | (0x33U 
-                                              == (0x7bU 
-                                                  & vlSelf->NPC__DOT___ifu_inst)))))) 
-                         | ((0xfffffffcU & ((vlSelf->NPC__DOT___ifu_inst 
-                                             << 2U) 
-                                            & ((vlSelf->NPC__DOT___ifu_inst 
-                                                << 1U) 
-                                               & ((IData)(
-                                                          ((0U 
-                                                            == 
-                                                            (3U 
-                                                             & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
-                                                           & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0f7b3c5e__0))) 
-                                                  << 2U)))) 
-                            | (((IData)((((0x73U == 
-                                           (0x73U & vlSelf->NPC__DOT___ifu_inst)) 
-                                          & (0U == 
-                                             (3U & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                         & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h7fc75f50__0))) 
-                                << 1U) | (IData)(((
-                                                   (0x73U 
-                                                    == 
-                                                    (0x73U 
-                                                     & vlSelf->NPC__DOT___ifu_inst)) 
-                                                   & (0U 
-                                                      == 
-                                                      (3U 
-                                                       & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                                  & ((IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h70585f8a__0) 
-                                                     | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h859083b2__0)))))));
+    vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_2 
+        = (((IData)((0x3fU == (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxa_andMatrixOutputs_T_3))) 
+            << 2U) | (((IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h33c2d558__0) 
+                       << 1U) | (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h52335523__0)));
     vlSelf->io_instType = (((0U == (((IData)((3U == 
                                               (0x5fU 
                                                & vlSelf->NPC__DOT___ifu_inst))) 
@@ -691,9 +910,34 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                                          << 1U) 
                                                         | (0x3fU 
                                                            == (IData)(vlSelf->NPC__DOT__idu__DOT___instType_andMatrixOutputs_T_8))))))));
+    vlSelf->io_AluMuxb = (((IData)((0x1ffU == (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T))) 
+                           << 3U) | (((IData)((0xffU 
+                                               == (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_1))) 
+                                      << 2U) | (((IData)(
+                                                         (0x1ffU 
+                                                          == (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_4))) 
+                                                 << 1U) 
+                                                | (0U 
+                                                   != (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxb_orMatrixOutputs_T)))));
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h9ecf676a__0 
         = (((IData)(vlSelf->NPC__DOT__idu__DOT__AluSela_invInputs) 
             >> 6U) & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h45879115__0));
+    vlSelf->io_AluMuxa = (((IData)((0U != (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_4))) 
+                           << 2U) | (((IData)((0U != (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_2))) 
+                                      << 1U) | (0U 
+                                                != (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T))));
+    vlSelf->io_AluMux = (((IData)((0x1ffU == (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T))) 
+                          << 3U) | ((((0U != (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_4)) 
+                                      | (0xffU == (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_1))) 
+                                     << 2U) | ((((0U 
+                                                  != (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_2)) 
+                                                 | (0x1ffU 
+                                                    == (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_4))) 
+                                                << 1U) 
+                                               | ((0U 
+                                                   != (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T)) 
+                                                  | (0U 
+                                                     != (IData)(vlSelf->NPC__DOT__idu__DOT___AluMuxb_orMatrixOutputs_T))))));
     vlSelf->io_rd = (((0U == (IData)(vlSelf->io_instType)) 
                       | ((3U == (IData)(vlSelf->io_instType)) 
                          | ((4U == (IData)(vlSelf->io_instType)) 
@@ -770,7 +1014,7 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                                     == (IData)(vlSelf->io_instType)) 
                                                    | (5U 
                                                       == (IData)(vlSelf->io_instType))));
-    vlSelf->io_AluSel = ((((IData)((((0x13U == (0x13U 
+    vlSelf->io_AluSela = (((IData)((((0x13U == (0x13U 
                                                 & vlSelf->NPC__DOT___ifu_inst)) 
                                      & (3U == (3U & (IData)(vlSelf->NPC__DOT__idu__DOT__AluSela_invInputs)))) 
                                     & (((vlSelf->NPC__DOT___ifu_inst 
@@ -877,182 +1121,7 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                                                                 (0x5fe0U 
                                                                                 & (IData)(vlSelf->NPC__DOT__idu__DOT__AluSela_invInputs))) 
                                                                                 & (vlSelf->NPC__DOT___ifu_inst 
-                                                                                >> 0x1eU))))))))))))) 
-                         | (((IData)((((3U == (3U & vlSelf->NPC__DOT___ifu_inst)) 
-                                       & (0U == (3U 
-                                                 & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                      & (((~ ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
-                                              >> 2U)) 
-                                          & (IData)(
-                                                    ((0x60U 
-                                                      == 
-                                                      (0x60U 
-                                                       & vlSelf->NPC__DOT___ifu_inst)) 
-                                                     & (~ 
-                                                        ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
-                                                         >> 6U))))) 
-                                         | (((vlSelf->NPC__DOT___ifu_inst 
-                                              >> 4U) 
-                                             & (IData)(
-                                                       ((0U 
-                                                         == 
-                                                         (0x18U 
-                                                          & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
-                                                        & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h70585f8a__0)))) 
-                                            | ((~ ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
-                                                   >> 2U)) 
-                                               & (IData)(
-                                                         (0x4060U 
-                                                          == 
-                                                          (0x4060U 
-                                                           & vlSelf->NPC__DOT___ifu_inst)))))))) 
-                             << 3U) | (((IData)((((3U 
-                                                   == 
-                                                   (3U 
-                                                    & vlSelf->NPC__DOT___ifu_inst)) 
-                                                  & (0U 
-                                                     == 
-                                                     (3U 
-                                                      & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                                 & (((~ 
-                                                      ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
-                                                       >> 2U)) 
-                                                     & (IData)(
-                                                               ((0x60U 
-                                                                 == 
-                                                                 (0x60U 
-                                                                  & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h69bb9be0__0)))) 
-                                                    | ((IData)(
-                                                               ((0x2070U 
-                                                                 == 
-                                                                 (0x2070U 
-                                                                  & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                & (~ 
-                                                                   ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
-                                                                    >> 5U)))) 
-                                                       | ((IData)(
-                                                                  ((0x4010U 
-                                                                    == 
-                                                                    (0x4010U 
-                                                                     & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                   & (0U 
-                                                                      == 
-                                                                      (0x38U 
-                                                                       & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))))) 
-                                                          | ((~ 
-                                                              ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
-                                                               >> 2U)) 
-                                                             & (IData)(
-                                                                       ((0x60U 
-                                                                         == 
-                                                                         (0x60U 
-                                                                          & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                        & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_ha09dbe48__0))))))))) 
-                                        << 2U) | ((2U 
-                                                   & (((IData)(
-                                                               (((0x63U 
-                                                                  == 
-                                                                  (0x63U 
-                                                                   & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                 & (0U 
-                                                                    == 
-                                                                    (7U 
-                                                                     & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h795fdc33__0))) 
-                                                       | ((IData)(
-                                                                  (((0x13U 
-                                                                     == 
-                                                                     (0x13U 
-                                                                      & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                    & (0U 
-                                                                       == 
-                                                                       (0x1bU 
-                                                                        & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                                                   & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h40c0d4db__0))) 
-                                                          | ((IData)(
-                                                                     ((0x3073U 
-                                                                       == 
-                                                                       (0x3073U 
-                                                                        & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                      & (0U 
-                                                                         == 
-                                                                         (3U 
-                                                                          & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))))) 
-                                                             | (IData)(
-                                                                       (((0x63U 
-                                                                          == 
-                                                                          (0x63U 
-                                                                           & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                         & (0U 
-                                                                            == 
-                                                                            (7U 
-                                                                             & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                                                        & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hc5ce86a9__0)))))) 
-                                                      << 1U)) 
-                                                  | (1U 
-                                                     & ((IData)(
-                                                                (((0x63U 
-                                                                   == 
-                                                                   (0x63U 
-                                                                    & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                  & (0U 
-                                                                     == 
-                                                                     (7U 
-                                                                      & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                                                 & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h6c886094__0))) 
-                                                        | ((IData)(
-                                                                   (((0x13U 
-                                                                      == 
-                                                                      (0x13U 
-                                                                       & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                     & (0U 
-                                                                        == 
-                                                                        (0xbU 
-                                                                         & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN)))) 
-                                                                    & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h2376aa4a__0))) 
-                                                           | ((IData)(
-                                                                      ((0x3073U 
-                                                                        == 
-                                                                        (0x3073U 
-                                                                         & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                       & (0U 
-                                                                          == 
-                                                                          (3U 
-                                                                           & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))))) 
-                                                              | (vlSelf->NPC__DOT___ifu_inst 
-                                                                 & ((vlSelf->NPC__DOT___ifu_inst 
-                                                                     >> 1U) 
-                                                                    & (IData)(
-                                                                              ((0U 
-                                                                                == 
-                                                                                (3U 
-                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
-                                                                               & (((vlSelf->NPC__DOT___ifu_inst 
-                                                                                >> 4U) 
-                                                                                & (IData)(
-                                                                                ((0U 
-                                                                                == 
-                                                                                (0x38U 
-                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
-                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h62cc9b06__0)))) 
-                                                                                | (((~ 
-                                                                                ((IData)(vlSelf->NPC__DOT__idu__DOT___GEN) 
-                                                                                >> 2U)) 
-                                                                                & (IData)(
-                                                                                ((0x60U 
-                                                                                == 
-                                                                                (0x60U 
-                                                                                & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h62cc9b06__0)))) 
-                                                                                | ((vlSelf->NPC__DOT___ifu_inst 
-                                                                                >> 4U) 
-                                                                                & (IData)(
-                                                                                ((0U 
-                                                                                == 
-                                                                                (0x18U 
-                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT___GEN))) 
-                                                                                & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_ha09dbe48__0))))))))))))))))));
+                                                                                >> 0x1eU)))))))))))));
     vlSelf->NPC__DOT___idu_io_imm = ((1U & (IData)(
                                                    ((0x1013U 
                                                      == 
@@ -1080,42 +1149,60 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                               & (vlSelf->NPC__DOT___ifu_inst 
                                                  >> 0xfU))
                                            : 0U);
-    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__cin = (IData)(
-                                                        (0U 
-                                                         != 
-                                                         (9U 
-                                                          & (IData)(vlSelf->io_AluSel))));
+    vlSelf->io_AluSel = ((IData)(vlSelf->io_AluSela) 
+                         | (IData)(vlSelf->io_AluSelb));
     vlSelf->io_src2 = ((0U == (IData)(vlSelf->NPC__DOT__idu__DOT__io_rs2))
                         ? 0U : vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
                        [vlSelf->NPC__DOT__idu__DOT__io_rs2]);
     vlSelf->io_src1 = ((0U == (IData)(vlSelf->NPC__DOT__idu__DOT__io_rs1))
                         ? 0U : vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
                        [vlSelf->NPC__DOT__idu__DOT__io_rs1]);
-    vlSelf->NPC__DOT__exu__DOT__casez_tmp = ((4U & (IData)(vlSelf->io_AluMux))
-                                              ? ((2U 
-                                                  & (IData)(vlSelf->io_AluMux))
-                                                  ? 
-                                                 ((1U 
-                                                   & (IData)(vlSelf->io_AluMux))
-                                                   ? vlSelf->io_src2
-                                                   : vlSelf->NPC__DOT__idu__DOT___Csr_ext_R2_data)
+    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__cin = (IData)(
+                                                        (0U 
+                                                         != 
+                                                         (9U 
+                                                          & (IData)(vlSelf->io_AluSel))));
+    vlSelf->io_inb = ((7U == (IData)(vlSelf->io_AluMux))
+                       ? vlSelf->io_src2 : ((1U == (IData)(vlSelf->io_AluMux))
+                                             ? vlSelf->NPC__DOT___idu_io_imm
+                                             : ((2U 
+                                                 == (IData)(vlSelf->io_AluMux))
+                                                 ? 4U
+                                                 : 
+                                                ((3U 
+                                                  == (IData)(vlSelf->io_AluMux))
+                                                  ? vlSelf->NPC__DOT___idu_io_imm
                                                   : 
-                                                 ((1U 
-                                                   & (IData)(vlSelf->io_AluMux))
-                                                   ? vlSelf->NPC__DOT__idu__DOT___Csr_ext_R2_data
-                                                   : vlSelf->NPC__DOT___idu_io_imm))
-                                              : ((2U 
-                                                  & (IData)(vlSelf->io_AluMux))
-                                                  ? 
-                                                 ((1U 
-                                                   & (IData)(vlSelf->io_AluMux))
-                                                   ? vlSelf->NPC__DOT___idu_io_imm
-                                                   : 4U)
-                                                  : 
-                                                 ((1U 
-                                                   & (IData)(vlSelf->io_AluMux))
-                                                   ? vlSelf->NPC__DOT___idu_io_imm
-                                                   : 0U)));
+                                                 (((5U 
+                                                    == (IData)(vlSelf->io_AluMux)) 
+                                                   | (6U 
+                                                      == (IData)(vlSelf->io_AluMux)))
+                                                   ? vlSelf->io_Csr
+                                                   : 
+                                                  ((4U 
+                                                    == (IData)(vlSelf->io_AluMux))
+                                                    ? vlSelf->NPC__DOT___idu_io_imm
+                                                    : 0U))))));
+    vlSelf->io_rs1 = ((- (IData)((IData)(vlSelf->NPC__DOT___idu_io_Recsr))) 
+                      ^ vlSelf->io_src1);
+    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_4 
+        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
+           | (1U & vlSelf->io_inb));
+    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__AddSub__DOT__t_no_cin 
+        = ((- (IData)((IData)(vlSelf->NPC__DOT__exu__DOT__Alu__DOT__cin))) 
+           ^ vlSelf->io_inb);
+    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_3 
+        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
+           | (1U & (vlSelf->io_inb >> 1U)));
+    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_2 
+        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
+           | (1U & (vlSelf->io_inb >> 2U)));
+    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_1 
+        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
+           | (1U & (vlSelf->io_inb >> 3U)));
+    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel 
+        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
+           | (1U & (vlSelf->io_inb >> 4U)));
     vlSelf->io_ina = (((7U == (IData)(vlSelf->io_AluMux)) 
                        | (1U == (IData)(vlSelf->io_AluMux)))
                        ? vlSelf->io_src1 : ((2U == (IData)(vlSelf->io_AluMux))
@@ -1128,61 +1215,30 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                                   == (IData)(vlSelf->io_AluMux))
                                                   ? vlSelf->NPC__DOT__pc
                                                   : 
-                                                 ((5U 
-                                                   == (IData)(vlSelf->io_AluMux))
-                                                   ? 
-                                                  ((- (IData)((IData)(
-                                                                      ((0x73U 
-                                                                        == 
-                                                                        (0x7fU 
-                                                                         & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                       & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h40c0d4db__0))))) 
-                                                   ^ vlSelf->io_src1)
+                                                 (((5U 
+                                                    == (IData)(vlSelf->io_AluMux)) 
+                                                   | (8U 
+                                                      == (IData)(vlSelf->io_AluMux)))
+                                                   ? vlSelf->io_rs1
                                                    : 
-                                                  ((6U 
-                                                    == (IData)(vlSelf->io_AluMux))
+                                                  (((9U 
+                                                     == (IData)(vlSelf->io_AluMux)) 
+                                                    | (6U 
+                                                       == (IData)(vlSelf->io_AluMux)))
                                                     ? 
-                                                   ((- (IData)((IData)(
-                                                                       ((0x73U 
-                                                                         == 
-                                                                         (0x7fU 
-                                                                          & vlSelf->NPC__DOT___ifu_inst)) 
-                                                                        & (IData)(vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h40c0d4db__0))))) 
+                                                   ((- (IData)((IData)(vlSelf->NPC__DOT___idu_io_Recsr))) 
                                                     ^ 
                                                     (0x1fU 
                                                      & (vlSelf->NPC__DOT___ifu_inst 
                                                         >> 0xfU)))
                                                     : 0U))))));
-    vlSelf->io_inb = vlSelf->NPC__DOT__exu__DOT__casez_tmp;
-    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_4 
-        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
-           | (1U & vlSelf->NPC__DOT__exu__DOT__casez_tmp));
-    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__AddSub__DOT__t_no_cin 
-        = ((- (IData)((IData)(vlSelf->NPC__DOT__exu__DOT__Alu__DOT__cin))) 
-           ^ vlSelf->NPC__DOT__exu__DOT__casez_tmp);
-    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_3 
-        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
-           | (1U & (vlSelf->NPC__DOT__exu__DOT__casez_tmp 
-                    >> 1U)));
-    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_2 
-        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
-           | (1U & (vlSelf->NPC__DOT__exu__DOT__casez_tmp 
-                    >> 2U)));
-    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_1 
-        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
-           | (1U & (vlSelf->NPC__DOT__exu__DOT__casez_tmp 
-                    >> 3U)));
-    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel 
-        = ((2U & ((IData)(vlSelf->io_AluSel) << 1U)) 
-           | (1U & (vlSelf->NPC__DOT__exu__DOT__casez_tmp 
-                    >> 4U)));
-    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__leftIn 
-        = (IData)((((IData)(vlSelf->io_AluSel) >> 1U) 
-                   & (vlSelf->io_ina >> 0x1fU)));
     vlSelf->NPC__DOT__exu__DOT__Alu__DOT__AddSub__DOT___sum_T_1 
         = (0x1ffffffffULL & ((QData)((IData)(vlSelf->io_ina)) 
                              + ((QData)((IData)(vlSelf->NPC__DOT__exu__DOT__Alu__DOT__AddSub__DOT__t_no_cin)) 
                                 + (QData)((IData)(vlSelf->NPC__DOT__exu__DOT__Alu__DOT__cin)))));
+    vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__leftIn 
+        = (IData)((((IData)(vlSelf->io_AluSel) >> 1U) 
+                   & (vlSelf->io_ina >> 0x1fU)));
     if ((0U == (IData)(vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel))) {
         vlSelf->NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp 
             = (1U & vlSelf->io_ina);
@@ -2215,13 +2271,13 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                           : ((2U == (IData)(vlSelf->io_AluSel))
                               ? (~ vlSelf->io_ina) : 
                              ((3U == (IData)(vlSelf->io_AluSel))
-                               ? (vlSelf->io_ina & vlSelf->NPC__DOT__exu__DOT__casez_tmp)
+                               ? (vlSelf->io_ina & vlSelf->io_inb)
                                : ((4U == (IData)(vlSelf->io_AluSel))
                                    ? (vlSelf->io_ina 
-                                      | vlSelf->NPC__DOT__exu__DOT__casez_tmp)
+                                      | vlSelf->io_inb)
                                    : ((5U == (IData)(vlSelf->io_AluSel))
                                        ? (vlSelf->io_ina 
-                                          ^ vlSelf->NPC__DOT__exu__DOT__casez_tmp)
+                                          ^ vlSelf->io_inb)
                                        : (((6U == (IData)(vlSelf->io_AluSel)) 
                                            | ((7U == (IData)(vlSelf->io_AluSel)) 
                                               | (8U 
@@ -2757,7 +2813,7 @@ VL_INLINE_OPT void VNPC___024root___nba_sequent__TOP__0(VNPC___024root* vlSelf) 
                                                    : 
                                                   ((0U 
                                                     != (IData)(vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T))
-                                                    ? vlSelf->NPC__DOT__idu__DOT___Csr_ext_R2_data
+                                                    ? vlSelf->io_Csr
                                                     : 
                                                    vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory
                                                    [vlSelf->io_rd])));

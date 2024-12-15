@@ -51,7 +51,7 @@ VL_ATTR_COLD void VNPC___024root___eval_settle(VNPC___024root* vlSelf) {
 #ifdef VL_DEBUG
                 VNPC___024root___dump_triggers__stl(vlSelf);
 #endif
-                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/build/NPC.sv", 3451, "", "Settle region did not converge.");
+                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/build/NPC.sv", 3487, "", "Settle region did not converge.");
             }
             vlSelf->__VstlIterCount = ((IData)(1U) 
                                        + vlSelf->__VstlIterCount);
@@ -151,12 +151,22 @@ VL_ATTR_COLD void VNPC___024root___ctor_var_reset(VNPC___024root* vlSelf) {
     vlSelf->io_halt = VL_RAND_RESET_I(32);
     vlSelf->io_instType = VL_RAND_RESET_I(3);
     vlSelf->io_result = VL_RAND_RESET_I(32);
+    vlSelf->io_rs1 = VL_RAND_RESET_I(32);
     vlSelf->io_ina = VL_RAND_RESET_I(32);
     vlSelf->io_inb = VL_RAND_RESET_I(32);
     vlSelf->io_inst = VL_RAND_RESET_I(32);
+    vlSelf->io_mtvec = VL_RAND_RESET_I(32);
+    vlSelf->io_CsrWr = VL_RAND_RESET_I(32);
+    vlSelf->io_Recsr = VL_RAND_RESET_I(32);
+    vlSelf->io_Csr = VL_RAND_RESET_I(32);
+    vlSelf->io_csr = VL_RAND_RESET_I(32);
     vlSelf->io_DataOut = VL_RAND_RESET_I(32);
-    vlSelf->io_AluMux = VL_RAND_RESET_I(3);
+    vlSelf->io_AluMux = VL_RAND_RESET_I(4);
+    vlSelf->io_AluMuxa = VL_RAND_RESET_I(4);
+    vlSelf->io_AluMuxb = VL_RAND_RESET_I(4);
     vlSelf->io_AluSel = VL_RAND_RESET_I(4);
+    vlSelf->io_AluSela = VL_RAND_RESET_I(4);
+    vlSelf->io_AluSelb = VL_RAND_RESET_I(4);
     vlSelf->io_PCMux = VL_RAND_RESET_I(4);
     vlSelf->io_MemNum = VL_RAND_RESET_I(2);
     vlSelf->io_RegWr = VL_RAND_RESET_I(1);
@@ -168,11 +178,11 @@ VL_ATTR_COLD void VNPC___024root___ctor_var_reset(VNPC___024root* vlSelf) {
     vlSelf->NPC__DOT___idu_io_Branch = VL_RAND_RESET_I(1);
     vlSelf->NPC__DOT___idu_io_halt = VL_RAND_RESET_I(1);
     vlSelf->NPC__DOT___idu_io_mret = VL_RAND_RESET_I(1);
+    vlSelf->NPC__DOT___idu_io_Recsr = VL_RAND_RESET_I(1);
     vlSelf->NPC__DOT___ifu_inst = VL_RAND_RESET_I(32);
     vlSelf->NPC__DOT__stop = VL_RAND_RESET_I(1);
     vlSelf->NPC__DOT__pc = VL_RAND_RESET_I(32);
     vlSelf->NPC__DOT___DpiEbreak_io_isbreak_T = VL_RAND_RESET_I(32);
-    vlSelf->NPC__DOT__idu__DOT___Csr_ext_R2_data = VL_RAND_RESET_I(32);
     vlSelf->NPC__DOT__idu__DOT__immNum_invInputs = VL_RAND_RESET_I(7);
     vlSelf->NPC__DOT__idu__DOT___instType_andMatrixOutputs_T_2 = VL_RAND_RESET_I(6);
     vlSelf->NPC__DOT__idu__DOT___instType_andMatrixOutputs_T_3 = VL_RAND_RESET_I(7);
@@ -181,6 +191,14 @@ VL_ATTR_COLD void VNPC___024root___ctor_var_reset(VNPC___024root* vlSelf) {
     vlSelf->NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T = VL_RAND_RESET_I(32);
     vlSelf->NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T = VL_RAND_RESET_I(2);
     vlSelf->NPC__DOT__idu__DOT___GEN = VL_RAND_RESET_I(8);
+    vlSelf->NPC__DOT__idu__DOT___AluMuxa_andMatrixOutputs_T_3 = VL_RAND_RESET_I(6);
+    vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T = VL_RAND_RESET_I(3);
+    vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_2 = VL_RAND_RESET_I(3);
+    vlSelf->NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_4 = VL_RAND_RESET_I(3);
+    vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T = VL_RAND_RESET_I(9);
+    vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_1 = VL_RAND_RESET_I(8);
+    vlSelf->NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_4 = VL_RAND_RESET_I(9);
+    vlSelf->NPC__DOT__idu__DOT___AluMuxb_orMatrixOutputs_T = VL_RAND_RESET_I(2);
     vlSelf->NPC__DOT__idu__DOT__AluSela_invInputs = VL_RAND_RESET_I(15);
     vlSelf->NPC__DOT__idu__DOT__casez_tmp = VL_RAND_RESET_I(32);
     vlSelf->NPC__DOT__idu__DOT__io_rs1 = VL_RAND_RESET_I(5);
@@ -190,20 +208,11 @@ VL_ATTR_COLD void VNPC___024root___ctor_var_reset(VNPC___024root* vlSelf) {
     vlSelf->NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W0_data = VL_RAND_RESET_I(32);
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7c5ac__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h03617c08__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h14776bc0__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0855c605__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7dcbc__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h33c2d558__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h52335523__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h1038d363__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0f7b3c5e__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h7fc75f50__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h70585f8a__0 = 0;
-    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h859083b2__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h96c0b08d__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h9ecf676a__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h45879115__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h1cfc0c30__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h70585f8a__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h69bb9be0__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_ha09dbe48__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h795fdc33__0 = 0;
@@ -214,20 +223,27 @@ VL_ATTR_COLD void VNPC___024root___ctor_var_reset(VNPC___024root* vlSelf) {
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h62cc9b06__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hd8e30b4d__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hd7d880ef__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h859083b2__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0855c605__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h171c6c87__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h17a37d60__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h0993e147__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h1038d363__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hdf4b4597__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h33c2d558__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h14776bc0__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h52335523__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_hcfa7dcbc__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h6dd14589__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h049281d3__0 = 0;
     vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h036178c4__0 = 0;
+    vlSelf->NPC__DOT__idu__DOT____VdfgTmp_h7fc75f50__0 = 0;
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[__Vi0] = VL_RAND_RESET_I(32);
     }
     for (int __Vi0 = 0; __Vi0 < 4096; ++__Vi0) {
         vlSelf->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[__Vi0] = VL_RAND_RESET_I(32);
     }
-    vlSelf->NPC__DOT__exu__DOT__casez_tmp = VL_RAND_RESET_I(32);
     vlSelf->NPC__DOT__exu__DOT____VdfgTmp_h64552ae9__0 = 0;
     vlSelf->NPC__DOT__exu__DOT__Alu__DOT___AddSub_io_overflow = VL_RAND_RESET_I(1);
     vlSelf->NPC__DOT__exu__DOT__Alu__DOT__cin = VL_RAND_RESET_I(1);

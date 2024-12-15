@@ -1,5 +1,4 @@
-CXXSRC = csrc/utils/disasm.cc
-CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
-
-LIBS += $(shell llvm-config --libs)
+UTILS_HOME = $(NPC_HOME)/utils
+CSRC-y += $(UTILS_HOME)/time.c
+CSRC-y = $(UTILS_HOME)/disasm.cc
 

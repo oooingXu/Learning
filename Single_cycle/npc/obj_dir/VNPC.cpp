@@ -3,7 +3,7 @@
 
 #include "VNPC.h"
 #include "VNPC__Syms.h"
-#include "verilated_vcd_c.h"
+#include "verilated_fst_c.h"
 #include "verilated_dpi.h"
 
 //============================================================
@@ -18,7 +18,11 @@ VNPC::VNPC(VerilatedContext* _vcontextp__, const char* _vcname__)
     , io_rd{vlSymsp->TOP.io_rd}
     , io_instType{vlSymsp->TOP.io_instType}
     , io_AluMux{vlSymsp->TOP.io_AluMux}
+    , io_AluMuxa{vlSymsp->TOP.io_AluMuxa}
+    , io_AluMuxb{vlSymsp->TOP.io_AluMuxb}
     , io_AluSel{vlSymsp->TOP.io_AluSel}
+    , io_AluSela{vlSymsp->TOP.io_AluSela}
+    , io_AluSelb{vlSymsp->TOP.io_AluSelb}
     , io_PCMux{vlSymsp->TOP.io_PCMux}
     , io_MemNum{vlSymsp->TOP.io_MemNum}
     , io_RegWr{vlSymsp->TOP.io_RegWr}
@@ -32,9 +36,15 @@ VNPC::VNPC(VerilatedContext* _vcontextp__, const char* _vcname__)
     , io_NPC{vlSymsp->TOP.io_NPC}
     , io_halt{vlSymsp->TOP.io_halt}
     , io_result{vlSymsp->TOP.io_result}
+    , io_rs1{vlSymsp->TOP.io_rs1}
     , io_ina{vlSymsp->TOP.io_ina}
     , io_inb{vlSymsp->TOP.io_inb}
     , io_inst{vlSymsp->TOP.io_inst}
+    , io_mtvec{vlSymsp->TOP.io_mtvec}
+    , io_CsrWr{vlSymsp->TOP.io_CsrWr}
+    , io_Recsr{vlSymsp->TOP.io_Recsr}
+    , io_Csr{vlSymsp->TOP.io_Csr}
+    , io_csr{vlSymsp->TOP.io_csr}
     , io_DataOut{vlSymsp->TOP.io_DataOut}
     , __PVT____024unit{vlSymsp->TOP.__PVT____024unit}
     , rootp{&(vlSymsp->TOP)}
@@ -129,9 +139,9 @@ std::unique_ptr<VerilatedTraceConfig> VNPC::traceConfig() const {
 //============================================================
 // Trace configuration
 
-void VNPC___024root__trace_init_top(VNPC___024root* vlSelf, VerilatedVcd* tracep);
+void VNPC___024root__trace_init_top(VNPC___024root* vlSelf, VerilatedFst* tracep);
 
-VL_ATTR_COLD static void trace_init(void* voidSelf, VerilatedVcd* tracep, uint32_t code) {
+VL_ATTR_COLD static void trace_init(void* voidSelf, VerilatedFst* tracep, uint32_t code) {
     // Callback from tracep->open()
     VNPC___024root* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<VNPC___024root*>(voidSelf);
     VNPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
@@ -147,11 +157,11 @@ VL_ATTR_COLD static void trace_init(void* voidSelf, VerilatedVcd* tracep, uint32
     tracep->scopeEscape('.');
 }
 
-VL_ATTR_COLD void VNPC___024root__trace_register(VNPC___024root* vlSelf, VerilatedVcd* tracep);
+VL_ATTR_COLD void VNPC___024root__trace_register(VNPC___024root* vlSelf, VerilatedFst* tracep);
 
-VL_ATTR_COLD void VNPC::trace(VerilatedVcdC* tfp, int levels, int options) {
+VL_ATTR_COLD void VNPC::trace(VerilatedFstC* tfp, int levels, int options) {
     if (tfp->isOpen()) {
-        vl_fatal(__FILE__, __LINE__, __FILE__,"'VNPC::trace()' shall not be called after 'VerilatedVcdC::open()'.");
+        vl_fatal(__FILE__, __LINE__, __FILE__,"'VNPC::trace()' shall not be called after 'VerilatedFstC::open()'.");
     }
     if (false && levels && options) {}  // Prevent unused
     tfp->spTrace()->addModel(this);

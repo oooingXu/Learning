@@ -12,10 +12,15 @@ void isa_reg_display() {
 	for(int i = 0; i < len; i++) {
 		printf("%-3s --->  0x%x\n",regs[i],cpu.gpr[i]);
 	}
+	printf("\ncsr\n");
 	printf("mtvec		---> 0x%08x\n", cpu.mtvec);
 	printf("mepc		---> 0x%08x\n", cpu.mepc);
-	printf("mcause	---> 0x%08x\n", cpu.mcause);
 	printf("mstatus ---> 0x%08x\n", cpu.mstatus);
+	printf("mcause	---> 0x%08x\n", cpu.mcause);
+	printf("\n");
+	for(int i = 0; i < 4096; i++){
+		if(cpu.csr[i]) printf("%x 0x%08x\n", i, cpu.csr[i]);
+	}
 }
 
 uint32_t isa_reg_str2val(const char *s, bool *success) {

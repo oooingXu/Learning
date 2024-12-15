@@ -26,17 +26,14 @@ bool in_pmem(uint32_t addr){
 	return addr - MBASE < MSIZE;
 }
 
+
 int pmem_read(int Maddr) {
 	//Maddr = Maddr & ~0x3u;
-#ifdef CONFIG_CTRACE
-	if(host_read(guest_to_host(Maddr)) == 0x73) {
-			printf("mtvec = 0x%08x\n", cpu.mtvec);
-	}
-#endif
 
 #ifdef CONFIG_MTRACE
 	printf("pread at " FMT_PADDR ", data = " FMT_PADDR "\n", Maddr, host_read(guest_to_host(Maddr)));
 #endif
+
 	if(likely(in_pmem(Maddr))) {
 	uint32_t ret = host_read(guest_to_host(Maddr));
 	return ret;

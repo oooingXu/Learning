@@ -25,6 +25,11 @@ bool in_pmem(uint32_t addr);
 
 void assert_fall_msg();
 
+void init_ftrace(const char *elf_file);
+const char* get_func_name(uint32_t addr);
+void is_jal(uint32_t inst);
+void is_jalr(uint32_t inst);
+
 extern "C" int pmem_read(int Maddr);
 extern "C" void pmem_write(int Maddr, int DataIn, int wmask);
 

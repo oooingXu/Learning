@@ -1,28 +1,21 @@
 -include $(NPC_HOME)/include/config/auto.conf
 -include $(NPC_HOME)/include/config/auto.conf.cmd
 -include $(NPC_HOME)/scripts/config.mk
+-include $(NPC_HOME)/scripts/build.mk
 
 SIM_NAME = NPC
 VERILATOR = verilator
 BUILD_DIR = ./build
 OBJ = ./obj_dir
 
-SIM_CFLAGS += --cc --trace --exe
+SIM_CFLAGS += --cc --trace-fst --exe
+SIM_CFLAGS += -MMD -O3 $(shell sdl2-config --cflags)
+SIM_CFLAGS += $(shell llvm-config) 
 
 SIM = $(abspath $(BUILD_DIR)/$(SIM_NAME).sv)
 NPC = $(NPC_HOME)/csrc/$(SIM_NAME).cpp
 
 PRJ = playground
-
-INCFLAGS += $(NPC_HOME)/csrc/memory/pmem.c
-INCFLAGS += $(NPC_HOME)/csrc/device/device.c
-INCFLAGS += $(NPC_HOME)/csrc/device/serial.c
-INCFLAGS += $(NPC_HOME)/csrc/device/timer.c
-INCFLAGS += $(NPC_HOME)/csrc/device/map.c
-INCFLAGS += $(NPC_HOME)/csrc/device/mmio.c
-INCFLAGS += $(NPC_HOME)/csrc/cpu/cpu.c
-INCFLAGS += $(NPC_HOME)/csrc/cpu/dut.c
-INCFLAGS += $(NPC_HOME)/csrc/utils/time.c
 
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!

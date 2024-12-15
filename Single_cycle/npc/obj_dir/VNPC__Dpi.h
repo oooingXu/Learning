@@ -16,11 +16,11 @@ extern "C" {
 
 
     // DPI IMPORTS
-    // DPI import at /home/romeo/ysyx-workbench/npc/build/NPC.sv:3634:29
+    // DPI import at /home/romeo/ysyx-workbench/npc/build/NPC.sv:3692:29
     extern int pmem_read(int Maddr);
-    // DPI import at /home/romeo/ysyx-workbench/npc/build/NPC.sv:3656:30
+    // DPI import at /home/romeo/ysyx-workbench/npc/build/NPC.sv:3714:30
     extern void pmem_write(int Maddr, int DataIn, int wmask);
-    // DPI import at /home/romeo/ysyx-workbench/npc/build/NPC.sv:3684:30
+    // DPI import at /home/romeo/ysyx-workbench/npc/build/NPC.sv:3742:30
     extern void set_npc_state(int isbreak);
 
 #ifdef __cplusplus

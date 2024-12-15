@@ -24,8 +24,12 @@ class VNPC___024root final : public VerilatedModule {
         VL_IN8(io_reset,0,0);
         VL_OUT8(io_rd,4,0);
         VL_OUT8(io_instType,2,0);
-        VL_OUT8(io_AluMux,2,0);
+        VL_OUT8(io_AluMux,3,0);
+        VL_OUT8(io_AluMuxa,3,0);
+        VL_OUT8(io_AluMuxb,3,0);
         VL_OUT8(io_AluSel,3,0);
+        VL_OUT8(io_AluSela,3,0);
+        VL_OUT8(io_AluSelb,3,0);
         VL_OUT8(io_PCMux,3,0);
         VL_OUT8(io_MemNum,1,0);
         VL_OUT8(io_RegWr,0,0);
@@ -36,6 +40,7 @@ class VNPC___024root final : public VerilatedModule {
         CData/*0:0*/ NPC__DOT___idu_io_Branch;
         CData/*0:0*/ NPC__DOT___idu_io_halt;
         CData/*0:0*/ NPC__DOT___idu_io_mret;
+        CData/*0:0*/ NPC__DOT___idu_io_Recsr;
         CData/*0:0*/ NPC__DOT__stop;
         CData/*6:0*/ NPC__DOT__idu__DOT__immNum_invInputs;
         CData/*5:0*/ NPC__DOT__idu__DOT___instType_andMatrixOutputs_T_2;
@@ -44,24 +49,21 @@ class VNPC___024root final : public VerilatedModule {
         CData/*5:0*/ NPC__DOT__idu__DOT___instType_andMatrixOutputs_T_8;
         CData/*1:0*/ NPC__DOT__idu__DOT___io_CsrWr_orMatrixOutputs_T;
         CData/*7:0*/ NPC__DOT__idu__DOT___GEN;
+        CData/*5:0*/ NPC__DOT__idu__DOT___AluMuxa_andMatrixOutputs_T_3;
+        CData/*2:0*/ NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T;
+        CData/*2:0*/ NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_2;
+        CData/*2:0*/ NPC__DOT__idu__DOT___AluMuxa_orMatrixOutputs_T_4;
+        CData/*7:0*/ NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_1;
+        CData/*1:0*/ NPC__DOT__idu__DOT___AluMuxb_orMatrixOutputs_T;
         CData/*4:0*/ NPC__DOT__idu__DOT__io_rs1;
         CData/*4:0*/ NPC__DOT__idu__DOT__io_rs2;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_hcfa7c5ac__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h03617c08__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h14776bc0__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h0855c605__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_hcfa7dcbc__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h33c2d558__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h52335523__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h1038d363__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h0f7b3c5e__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h7fc75f50__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h70585f8a__0;
-        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h859083b2__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h96c0b08d__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h9ecf676a__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h45879115__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h1cfc0c30__0;
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h70585f8a__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h69bb9be0__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_ha09dbe48__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h795fdc33__0;
@@ -72,19 +74,27 @@ class VNPC___024root final : public VerilatedModule {
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h62cc9b06__0;
         CData/*2:0*/ NPC__DOT__idu__DOT____VdfgTmp_hd8e30b4d__0;
         CData/*2:0*/ NPC__DOT__idu__DOT____VdfgTmp_hd7d880ef__0;
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h859083b2__0;
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h0855c605__0;
         CData/*1:0*/ NPC__DOT__idu__DOT____VdfgTmp_h171c6c87__0;
         CData/*2:0*/ NPC__DOT__idu__DOT____VdfgTmp_h17a37d60__0;
         CData/*1:0*/ NPC__DOT__idu__DOT____VdfgTmp_h0993e147__0;
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h1038d363__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_hdf4b4597__0;
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h33c2d558__0;
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h14776bc0__0;
+    };
+    struct {
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h52335523__0;
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_hcfa7dcbc__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h6dd14589__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h049281d3__0;
         CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h036178c4__0;
+        CData/*0:0*/ NPC__DOT__idu__DOT____VdfgTmp_h7fc75f50__0;
         CData/*0:0*/ NPC__DOT__exu__DOT____VdfgTmp_h64552ae9__0;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT___AddSub_io_overflow;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__cin;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT___out13_T_1;
-    };
-    struct {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__leftIn;
         CData/*1:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel;
         CData/*1:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__io_out_sel_1;
@@ -139,6 +149,8 @@ class VNPC___024root final : public VerilatedModule {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_46;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_47;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_48;
+    };
+    struct {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_49;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_50;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_51;
@@ -149,8 +161,6 @@ class VNPC___024root final : public VerilatedModule {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_56;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_57;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_58;
-    };
-    struct {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_59;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_60;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_61;
@@ -205,6 +215,8 @@ class VNPC___024root final : public VerilatedModule {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_108;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_109;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_110;
+    };
+    struct {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_111;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_112;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_113;
@@ -215,8 +227,6 @@ class VNPC___024root final : public VerilatedModule {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_118;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_119;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_120;
-    };
-    struct {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_121;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_122;
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_123;
@@ -225,6 +235,8 @@ class VNPC___024root final : public VerilatedModule {
         CData/*0:0*/ NPC__DOT__exu__DOT__Alu__DOT__Shift__DOT__casez_tmp_126;
         CData/*0:0*/ __Vtrigrprev__TOP__clock;
         CData/*0:0*/ __VactContinue;
+        SData/*8:0*/ NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T;
+        SData/*8:0*/ NPC__DOT__idu__DOT___AluMuxb_andMatrixOutputs_T_4;
         SData/*14:0*/ NPC__DOT__idu__DOT__AluSela_invInputs;
         VL_OUT(io_src1,31,0);
         VL_OUT(io_src2,31,0);
@@ -233,21 +245,25 @@ class VNPC___024root final : public VerilatedModule {
         VL_OUT(io_NPC,31,0);
         VL_OUT(io_halt,31,0);
         VL_OUT(io_result,31,0);
+        VL_OUT(io_rs1,31,0);
         VL_OUT(io_ina,31,0);
         VL_OUT(io_inb,31,0);
         VL_OUT(io_inst,31,0);
+        VL_OUT(io_mtvec,31,0);
+        VL_OUT(io_CsrWr,31,0);
+        VL_OUT(io_Recsr,31,0);
+        VL_OUT(io_Csr,31,0);
+        VL_OUT(io_csr,31,0);
         VL_OUT(io_DataOut,31,0);
         IData/*31:0*/ NPC__DOT___idu_io_imm;
         IData/*31:0*/ NPC__DOT___ifu_inst;
         IData/*31:0*/ NPC__DOT__pc;
         IData/*31:0*/ NPC__DOT___DpiEbreak_io_isbreak_T;
-        IData/*31:0*/ NPC__DOT__idu__DOT___Csr_ext_R2_data;
         IData/*31:0*/ NPC__DOT__idu__DOT___io_ecall_andMatrixOutputs_T;
         IData/*31:0*/ NPC__DOT__idu__DOT__casez_tmp;
         IData/*31:0*/ NPC__DOT__idu__DOT____Vcellinp__Ref_ext__W0_data;
         IData/*31:0*/ NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W3_data;
         IData/*31:0*/ NPC__DOT__idu__DOT____Vcellinp__Csr_ext__W0_data;
-        IData/*31:0*/ NPC__DOT__exu__DOT__casez_tmp;
         IData/*31:0*/ NPC__DOT__exu__DOT__Alu__DOT__AddSub__DOT__t_no_cin;
         IData/*31:0*/ NPC__DOT__wbu__DOT___lsu_DataOut;
         IData/*31:0*/ __Vfunc_pmem_read__1__Vfuncout;

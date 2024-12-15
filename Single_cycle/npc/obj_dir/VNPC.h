@@ -13,7 +13,7 @@
 
 class VNPC__Syms;
 class VNPC___024root;
-class VerilatedVcdC;
+class VerilatedFstC;
 class VNPC___024unit;
 
 
@@ -33,8 +33,12 @@ class VNPC VL_NOT_FINAL : public VerilatedModel {
     VL_IN8(&io_reset,0,0);
     VL_OUT8(&io_rd,4,0);
     VL_OUT8(&io_instType,2,0);
-    VL_OUT8(&io_AluMux,2,0);
+    VL_OUT8(&io_AluMux,3,0);
+    VL_OUT8(&io_AluMuxa,3,0);
+    VL_OUT8(&io_AluMuxb,3,0);
     VL_OUT8(&io_AluSel,3,0);
+    VL_OUT8(&io_AluSela,3,0);
+    VL_OUT8(&io_AluSelb,3,0);
     VL_OUT8(&io_PCMux,3,0);
     VL_OUT8(&io_MemNum,1,0);
     VL_OUT8(&io_RegWr,0,0);
@@ -48,9 +52,15 @@ class VNPC VL_NOT_FINAL : public VerilatedModel {
     VL_OUT(&io_NPC,31,0);
     VL_OUT(&io_halt,31,0);
     VL_OUT(&io_result,31,0);
+    VL_OUT(&io_rs1,31,0);
     VL_OUT(&io_ina,31,0);
     VL_OUT(&io_inb,31,0);
     VL_OUT(&io_inst,31,0);
+    VL_OUT(&io_mtvec,31,0);
+    VL_OUT(&io_CsrWr,31,0);
+    VL_OUT(&io_Recsr,31,0);
+    VL_OUT(&io_Csr,31,0);
+    VL_OUT(&io_csr,31,0);
     VL_OUT(&io_DataOut,31,0);
 
     // CELLS
@@ -90,7 +100,7 @@ class VNPC VL_NOT_FINAL : public VerilatedModel {
     /// Returns time at next time slot. Aborts if !eventsPending()
     uint64_t nextTimeSlot();
     /// Trace signals in the model; called by application code
-    void trace(VerilatedVcdC* tfp, int levels, int options = 0);
+    void trace(VerilatedFstC* tfp, int levels, int options = 0);
     /// Retrieve name of this model instance (as passed to constructor).
     const char* name() const;
 

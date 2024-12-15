@@ -38,6 +38,7 @@ VM_USER_CFLAGS = \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
+	-lz \
 
 # User .cpp files (from .cpp's on Verilator command line)
 VM_USER_CLASSES = \
@@ -49,7 +50,11 @@ VM_USER_CLASSES = \
 	mmio \
 	serial \
 	timer \
+	ftrace \
 	pmem \
+	expr \
+	sdb \
+	watchpoint \
 	time \
 
 # User .cpp directories (from .cpp's on Verilator command line)
@@ -58,6 +63,7 @@ VM_USER_DIR = \
 	/home/romeo/ysyx-workbench/npc/csrc/cpu \
 	/home/romeo/ysyx-workbench/npc/csrc/device \
 	/home/romeo/ysyx-workbench/npc/csrc/memory \
+	/home/romeo/ysyx-workbench/npc/csrc/sdb \
 	/home/romeo/ysyx-workbench/npc/csrc/utils \
 
 
@@ -86,7 +92,15 @@ serial.o: /home/romeo/ysyx-workbench/npc/csrc/device/serial.c
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
 timer.o: /home/romeo/ysyx-workbench/npc/csrc/device/timer.c
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
+ftrace.o: /home/romeo/ysyx-workbench/npc/csrc/memory/ftrace.c
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
 pmem.o: /home/romeo/ysyx-workbench/npc/csrc/memory/pmem.c
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
+expr.o: /home/romeo/ysyx-workbench/npc/csrc/sdb/expr.c
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
+sdb.o: /home/romeo/ysyx-workbench/npc/csrc/sdb/sdb.c
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
+watchpoint.o: /home/romeo/ysyx-workbench/npc/csrc/sdb/watchpoint.c
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
 time.o: /home/romeo/ysyx-workbench/npc/csrc/utils/time.c
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<

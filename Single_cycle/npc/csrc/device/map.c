@@ -21,10 +21,12 @@ uint8_t *new_space(int size) {
 static void check_bound(IOMap *map, uint32_t addr) {
 	if(map == NULL) {
 		printf("address (0x%08x) is out of bound at pc 0x%08x\n", addr, cpu.pc);
+		assert_fall_msg();
 		assert(map != NULL);
 	} else {
 		if(addr > map->high || addr < map->low){
 			printf("address (0x%08x) is out of bound {%s} [0x%08x, 0x%08x] at pc = 0x%08x\n", addr, map->name, map->low, map->high,  cpu.pc);
+		  assert_fall_msg();
 		}
 		assert(addr <= map->high && addr >= map->low);
 	}

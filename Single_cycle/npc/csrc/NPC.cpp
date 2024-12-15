@@ -1,6 +1,6 @@
 #include<svdpi.h>
 #include<verilated.h>
-#include<verilated_vcd_c.h>
+#include<verilated_fst_c.h>
 #include "VNPC.h"
 #include "VNPC___024unit.h"
 #include "VNPC___024root.h"
@@ -43,7 +43,8 @@ CPU_state cpu = {};
 VNPC *NPC = new VNPC;
 vluint64_t sim_time = 0;
 #ifdef CONFIG_WAVE
-VerilatedVcdC *m_trace = new VerilatedVcdC;
+VerilatedFstC *m_trace = new VerilatedFstC;
+//VerilatedVcdC *m_trace = new VerilatedVcdC;
 #endif
 
 extern "C" void set_npc_state(int isebreak){
@@ -119,10 +120,19 @@ static void renew_state(){
 			cpu.gpr[i] = NPC->rootp->NPC__DOT__idu__DOT__Ref_ext__DOT__Memory[i];
 		}
 
+		for(int i = 0; i < 4096; i++){
+			cpu.csr[i] = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[i];
+		}
+
 		cpu.mepc    = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MEPC];
 		cpu.mtvec   = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MTVEC];
 		cpu.mcause  = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MCAUSE];
 		cpu.mstatus = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MSTATUS];
+
+#ifdef CONFIG_CTRACE
+		if(cpu.mtvec) printf("********************\nmtvecc = 0x%08x\n********************\n", cpu.mtvec);
+#endif
+
 }
 
 void exec_once(){
@@ -147,29 +157,15 @@ void execute(uint32_t n){
 				exec_once();
 			}
 		}
+
 		debug("dnpc = 0x%08x, pc = 0x%08x", NPC->io_NPC, NPC->io_PC);
 		debug("inst = %08x", host_read(guest_to_host(NPC->io_PC)));
 #ifdef ITRACE
-		char *p = cpu.logbuf;
-		p += snprintf(p, sizeof(cpu.logbuf), FMT_WORD ":", cpu.pc);
-		int ilen = cpu.dnpc - cpu.pc;
-		int i;
-		uint32_t ainst = pmem_read(cpu.pc);
-		uint8_t *inst = (uint8_t *)&ainst;
-		for(i = ilen - 1; i >= 0; i--){
-			p += snprintf(p , 4, " %02x", inst[i]);
-		}
-		int ilen_max = 4;
-		int space_len = ilen_max - ilen;
-		if(space_len < 0) space_len = 0;
-		space_len = space_len * 3 + 1;
-		memset(p, ' ', space_len);
-		p += space_len;
+#endif
 
-	//	void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-//		disassemble(p, cpu.logbuf + sizeof(cpu.logbuf) - p, cpu.pc, inst, ilen);
-
-		if(g_print_step) { puts(cpu.logbuf);}
+#ifdef CONFIG_FTRACE
+		  is_jal(host_read(guest_to_host(cpu.pc))); 
+			is_jalr(host_read(guest_to_host(cpu.pc)));
 #endif
 
 		debug("Success exec_once");
@@ -178,6 +174,13 @@ void execute(uint32_t n){
 		}
 		renew_state();
 		g_nr_guest_inst++;
+
+#ifdef CONFIG_CTRACE
+		if(cpu.pc == 0x80001350) {
+			npc_state.state = NPC_STOP;
+			printf("reach mtvec\n");
+		}
+#endif
 
 		debug("Success difftest");
 		if(npc_state.state != NPC_RUNNING) break;
@@ -236,8 +239,8 @@ int main(int argc, char **argv)
 #ifdef CONFIG_WAVE
 	Verilated::traceEverOn(true); //开启波形跟踪
 
-	NPC->trace(m_trace, 5);
-	m_trace->open("waveform.vcd");
+	NPC->trace(m_trace, 99);
+	m_trace->open("waveform.fst");
 #endif
 
 	img_file = argv[1];
@@ -246,9 +249,15 @@ int main(int argc, char **argv)
 	init_npc();
 	init_device();
 	long img_size = load_program();
+
 #ifdef CONFIG_DIFFTEST
 	init_difftest(argv[2], img_size);
 #endif
+
+#ifdef CONFIG_FTRACE
+	init_ftrace(argv[3]);
+#endif
+
 	welcome();
 
 #ifdef CONFIG_BATCH

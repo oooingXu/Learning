@@ -9,6 +9,7 @@
 #include<dlfcn.h>
 
 #define R 32
+#define C 4096
 
 typedef struct{
 	uint32_t gpr[32];
@@ -20,6 +21,7 @@ typedef struct{
 	uint32_t mcause;
 	uint32_t mtvec;
 	uint32_t mstatus;
+	uint32_t csr[4096];
 
 	char	logbuf[128];
 }CPU_state;
