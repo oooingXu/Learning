@@ -8,22 +8,10 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
 
-		/*
     switch (c->mcause) {
+		  case 11: ev.event = EVENT_YIELD; c->mepc += 4; break;
       default: ev.event = EVENT_ERROR; break;
     }
-		*/
-		if(c->mcause == 11) {
-			if(c->GPR1 == -1) {
-				ev.event = EVENT_YIELD;
-				c->mepc = c->mepc + 4;
-			} else if(c->GPR1 >= 0 && c->GPR1 <= 19) {
-				ev.event = EVENT_SYSCALL;
-				c->mepc += 4;
-			} else {
-				ev.event = EVENT_ERROR;
-				}
-		}
 
     c = user_handler(ev, c);
     assert(c != NULL);
@@ -50,7 +38,6 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
 	cp->gpr[10] = (uintptr_t)(arg);
 	
 	return cp;
- // return NULL;
 }
 
 void yield() {

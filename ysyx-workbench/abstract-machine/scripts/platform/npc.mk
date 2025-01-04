@@ -25,6 +25,5 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-#	@$(MAKE) -C $(NPC_HOME)/obj_dir/VNPC $(IMAGE).bin $(DIFF_REF_SO)
-	@$(NPC_HOME)/obj_dir/VNPC $(IMAGE).bin $(DIFF_REF_SO)
-	
+	@$(NPC_HOME)/obj_dir/VNPC $(IMAGE).bin $(DIFF_REF_SO) $(IMAGE).elf
+

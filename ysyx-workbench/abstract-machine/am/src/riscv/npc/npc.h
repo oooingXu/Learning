@@ -1,8 +1,6 @@
 #ifndef __NPC_H__
 #define __NPC_H__
 
-//#include <kilb-macros.h>
-
 #define npc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 
 #define DEVICE_BASE 0xa0000000

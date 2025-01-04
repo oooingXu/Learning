@@ -129,7 +129,7 @@ static void renew_state(){
 		cpu.mcause  = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MCAUSE];
 		cpu.mstatus = NPC->rootp->NPC__DOT__idu__DOT__Csr_ext__DOT__Memory[MSTATUS];
 
-#ifdef CONFIG_CTRACE
+#ifdef CONFIG_ETRACE
 		if(cpu.mtvec) printf("********************\nmtvecc = 0x%08x\n********************\n", cpu.mtvec);
 #endif
 
@@ -160,7 +160,8 @@ void execute(uint32_t n){
 
 		debug("dnpc = 0x%08x, pc = 0x%08x", NPC->io_NPC, NPC->io_PC);
 		debug("inst = %08x", host_read(guest_to_host(NPC->io_PC)));
-#ifdef ITRACE
+#ifdef CONFIG_ITRACE
+		printf("pc = 0x%08x, inst = 0x%08x\n",cpu.pc, host_read(guest_to_host(cpu.pc)));
 #endif
 
 #ifdef CONFIG_FTRACE
@@ -175,7 +176,7 @@ void execute(uint32_t n){
 		renew_state();
 		g_nr_guest_inst++;
 
-#ifdef CONFIG_CTRACE
+#ifdef CONFIG_ETRACE
 		if(cpu.pc == 0x80001350) {
 			npc_state.state = NPC_STOP;
 			printf("reach mtvec\n");
