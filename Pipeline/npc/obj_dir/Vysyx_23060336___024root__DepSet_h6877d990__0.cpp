@@ -49,18 +49,15 @@ VL_INLINE_OPT void Vysyx_23060336___024root___ico_sequent__TOP__0(Vysyx_23060336
         ((2U == vlSelf->ysyx_23060336__DOT__xbar__DOT__arid_halt) 
          & ((IData)(vlSelf->io_lsuarvalid) & (IData)(vlSelf->ysyx_23060336__DOT__xbar__DOT__rvalid)));
     if (vlSelf->io_lsuarvalid) {
-        vlSelf->io_lsurvalid = ((1U != (0xfU & vlSelf->ysyx_23060336__DOT__xbar__DOT__arid_halt)) 
-                                & (IData)(vlSelf->ysyx_23060336__DOT__xbar__DOT__rvalid));
         vlSelf->ysyx_23060336__DOT___xbar_io_ifu_rvalid 
             = ((1U == (0xfU & vlSelf->ysyx_23060336__DOT__xbar__DOT__arid_halt)) 
                & (IData)(vlSelf->ysyx_23060336__DOT__xbar__DOT__rvalid));
-        vlSelf->ysyx_23060336__DOT__lsu__DOT___io_rdata_T 
-            = vlSelf->io_lsurvalid;
+        vlSelf->io_lsurvalid = ((1U != (0xfU & vlSelf->ysyx_23060336__DOT__xbar__DOT__arid_halt)) 
+                                & (IData)(vlSelf->ysyx_23060336__DOT__xbar__DOT__rvalid));
     } else {
-        vlSelf->io_lsurvalid = 0U;
         vlSelf->ysyx_23060336__DOT___xbar_io_ifu_rvalid 
             = ((~ (IData)(vlSelf->io_lsuarvalid)) & (IData)(vlSelf->ysyx_23060336__DOT__xbar__DOT__rvalid));
-        vlSelf->ysyx_23060336__DOT__lsu__DOT___io_rdata_T = 0U;
+        vlSelf->io_lsurvalid = 0U;
     }
     vlSelf->io_ifuvalid = ((IData)(vlSelf->io_ifuready) 
                            & (((~ (IData)(vlSelf->ysyx_23060336__DOT___lsu_io_wen)) 
@@ -69,9 +66,8 @@ VL_INLINE_OPT void Vysyx_23060336___024root___ico_sequent__TOP__0(Vysyx_23060336
                                  & ((IData)(vlSelf->ysyx_23060336__DOT__ifu__DOT__delay3) 
                                     & ((IData)(vlSelf->io_lsuwready) 
                                        | (IData)(vlSelf->ysyx_23060336__DOT___xbar_io_ifu_rvalid))))));
-    vlSelf->io_lsurdata = ((IData)(vlSelf->ysyx_23060336__DOT__lsu__DOT___io_rdata_T)
-                            ? vlSelf->ysyx_23060336__DOT__xbar__DOT__rdata
-                            : 0U);
+    vlSelf->ysyx_23060336__DOT__lsu__DOT___io_rdata_T 
+        = ((IData)(vlSelf->io_lsuarvalid) & (IData)(vlSelf->io_lsurvalid));
     if (vlSelf->io_ifuvalid) {
         vlSelf->io_inst = vlSelf->ysyx_23060336__DOT__xbar__DOT__rdata;
         vlSelf->ysyx_23060336__DOT___reg_io_wen_T = vlSelf->ysyx_23060336__DOT__wbu_io_in_bits_r_RegWr;
@@ -79,7 +75,21 @@ VL_INLINE_OPT void Vysyx_23060336___024root___ico_sequent__TOP__0(Vysyx_23060336
         vlSelf->io_inst = 0U;
         vlSelf->ysyx_23060336__DOT___reg_io_wen_T = 0U;
     }
+    vlSelf->io_lsurdata = ((IData)(vlSelf->ysyx_23060336__DOT__lsu__DOT___io_rdata_T)
+                            ? vlSelf->ysyx_23060336__DOT__xbar__DOT__rdata
+                            : 0U);
+    vlSelf->ysyx_23060336__DOT__lsu__DOT__delay = (
+                                                   ((IData)(vlSelf->ysyx_23060336__DOT__lsu__DOT___io_rdata_T) 
+                                                    & (IData)(vlSelf->ysyx_23060336__DOT__lsu_io_in_bits_r_MemtoReg)) 
+                                                   | ((IData)(vlSelf->io_lsuawvalid) 
+                                                      & ((IData)(vlSelf->io_lsuwready) 
+                                                         & (IData)(vlSelf->ysyx_23060336__DOT__lsu_io_in_bits_r_MemWr))));
     vlSelf->io_regwen = vlSelf->ysyx_23060336__DOT___reg_io_wen_T;
+    vlSelf->io_lsuvalid = (1U & ((~ (IData)(vlSelf->ysyx_23060336__DOT__lsu_io_in_bits_r_MemtoReg)) 
+                                 | (IData)(vlSelf->ysyx_23060336__DOT__lsu__DOT__delay)));
+    vlSelf->io_lsuready = (1U & (((~ (IData)(vlSelf->ysyx_23060336__DOT__lsu_io_in_bits_r_MemtoReg)) 
+                                  & (~ (IData)(vlSelf->ysyx_23060336__DOT__lsu_io_in_bits_r_MemWr))) 
+                                 | (IData)(vlSelf->ysyx_23060336__DOT__lsu__DOT__delay)));
 }
 
 void Vysyx_23060336___024root___eval_ico(Vysyx_23060336___024root* vlSelf) {
@@ -145,7 +155,7 @@ void Vysyx_23060336___024root___eval(Vysyx_23060336___024root* vlSelf) {
 #ifdef VL_DEBUG
                 Vysyx_23060336___024root___dump_triggers__ico(vlSelf);
 #endif
-                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv", 3841, "", "Input combinational region did not converge.");
+                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv", 3924, "", "Input combinational region did not converge.");
             }
             vlSelf->__VicoIterCount = ((IData)(1U) 
                                        + vlSelf->__VicoIterCount);
@@ -168,7 +178,7 @@ void Vysyx_23060336___024root___eval(Vysyx_23060336___024root* vlSelf) {
 #ifdef VL_DEBUG
                     Vysyx_23060336___024root___dump_triggers__act(vlSelf);
 #endif
-                    VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv", 3841, "", "Active region did not converge.");
+                    VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv", 3924, "", "Active region did not converge.");
                 }
                 vlSelf->__VactIterCount = ((IData)(1U) 
                                            + vlSelf->__VactIterCount);
@@ -183,7 +193,7 @@ void Vysyx_23060336___024root___eval(Vysyx_23060336___024root* vlSelf) {
 #ifdef VL_DEBUG
                 Vysyx_23060336___024root___dump_triggers__nba(vlSelf);
 #endif
-                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv", 3841, "", "NBA region did not converge.");
+                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv", 3924, "", "NBA region did not converge.");
             }
             __VnbaIterCount = ((IData)(1U) + __VnbaIterCount);
             Vysyx_23060336___024root___eval_nba(vlSelf);

@@ -15,7 +15,7 @@ class ysyx_23060336_IDUdata extends Bundle{
  val csr      = Output(UInt(12.W))
  val Csr      = Output(UInt(32.W))
  val PcMux    = Output(UInt(2.W))
- val AluMux   = Output(UInt(3.W))
+ val AluMux   = Output(UInt(4.W))
  val AluSel   = Output(UInt(4.W))
  val MemNum   = Output(UInt(3.W))
  val RegNum   = Output(UInt(3.W))
@@ -37,6 +37,9 @@ class ysyx_23060336_IDU extends Module{
     val Csr      = Input(UInt(32.W))
     val src1     = Input(UInt(32.W))
     val src2     = Input(UInt(32.W))
+    val exu_rd   = Input(UInt(5.W))
+    val lsu_rd   = Input(UInt(5.W))
+    val wbu_rd   = Input(UInt(5.W))
     val rs1      = Output(UInt(5.W))
     val rs2      = Output(UInt(5.W))
     val csr      = Output(UInt(12.W))
@@ -49,7 +52,6 @@ class ysyx_23060336_IDU extends Module{
     val ready    = Output(Bool())
     val iduMemWr = Output(Bool())
 	})
-
   val PcMux = TruthTable(
     Map(
       BitPat("b0110111") -> BitPat("b00"), // U pc += 4 
@@ -239,6 +241,8 @@ class ysyx_23060336_IDU extends Module{
     ),
   BitPat("b0"))
 
+  val isRAW = Wire(Bool())
+
   val d_idle :: d_wait_ready :: Nil = Enum(2)
   val state = RegInit(d_idle)
 
@@ -247,8 +251,8 @@ class ysyx_23060336_IDU extends Module{
     d_wait_ready -> Mux(io.out.ready, d_idle, d_wait_ready)
   ))
 
-  io.out.valid := true.B 
-  io.in.ready  := true.B
+  io.out.valid := ~isRAW
+  io.in.ready  := ~isRAW
 
   io.valid := io.out.valid
   io.ready := io.in.ready
@@ -257,10 +261,9 @@ class ysyx_23060336_IDU extends Module{
   val instType = Wire(UInt(4.W))
   val AluSela  = Wire(UInt(4.W))
   val AluSelb  = Wire(UInt(4.W))
-  val AluMuxa  = Wire(UInt(3.W))
-  val AluMuxb  = Wire(UInt(3.W))
+  val AluMuxa  = Wire(UInt(4.W))
+  val AluMuxb  = Wire(UInt(4.W))
   val immNum   = Wire(Bool())
-
 
   val rd     = io.in.bits.inst(11, 7)
   val rs1    = io.in.bits.inst(19, 15)
@@ -332,6 +335,37 @@ class ysyx_23060336_IDU extends Module{
   io.inst   := io.in.bits.inst
   io.pc     := io.in.bits.pc
   io.imm    := imm
+
+  def conflict(rs: UInt, rd: UInt) = (rs === rd) && !(rs === 0.U)
+
+  val isRAWa = ((conflict(rs1, io.exu_rd)  ||
+                 conflict(rs1, io.lsu_rd)  ||
+                 conflict(rs1, io.wbu_rd)) &&
+                (instType === "b000".U   || 
+                 instType === "b001".U   ||
+                 instType === "b010".U   ||
+                 instType === "b101".U)) 
+
+  val isRAWb = ((conflict(rs2, io.exu_rd)  ||
+                 conflict(rs2, io.lsu_rd)  ||
+                 conflict(rs2, io.wbu_rd)) &&
+                (instType === "b001".U   ||
+                 instType === "b010".U   ||
+                 instType === "b101".U)) 
+
+  val isRAWn = RegInit(0.U(1.W))
+  val israwn = Wire(Bool())
+  isRAWn := (conflict(rs2, io.exu_rd)  &&
+             conflict(rs2, io.lsu_rd)  &&
+             conflict(rs2, io.wbu_rd)) ||   
+            (conflict(rs1, io.exu_rd)  &&
+             conflict(rs1, io.lsu_rd)  &&
+             conflict(rs1, io.wbu_rd))   
+
+  israwn := isRAWn
+
+  isRAW := (isRAWa || isRAWb) && ~israwn
+
 }
 
 /*

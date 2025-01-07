@@ -41,6 +41,11 @@ Vysyx_23060336::Vysyx_23060336(VerilatedContext* _vcontextp__, const char* _vcna
     , io_exuMemWr{vlSymsp->TOP.io_exuMemWr}
     , io_lsuMemWr{vlSymsp->TOP.io_lsuMemWr}
     , io_alumux{vlSymsp->TOP.io_alumux}
+    , io_idurs1{vlSymsp->TOP.io_idurs1}
+    , io_idurs2{vlSymsp->TOP.io_idurs2}
+    , io_exurd{vlSymsp->TOP.io_exurd}
+    , io_lsurd{vlSymsp->TOP.io_lsurd}
+    , io_wburd{vlSymsp->TOP.io_wburd}
     , io_regrs1{vlSymsp->TOP.io_regrs1}
     , io_regrs2{vlSymsp->TOP.io_regrs2}
     , io_halt_ret{vlSymsp->TOP.io_halt_ret}

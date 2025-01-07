@@ -53,6 +53,11 @@ class ysyx_23060336 extends Module {
     val pcb       = Output(UInt(32.W))
     val ina       = Output(UInt(32.W))
     val inb       = Output(UInt(32.W))
+    val idurs1    = Output(UInt(5.W))
+    val idurs2    = Output(UInt(5.W))
+    val exurd     = Output(UInt(5.W))
+    val lsurd     = Output(UInt(5.W))
+    val wburd     = Output(UInt(5.W))
     val lsuaraddr = Output(UInt(32.W))
     val lsurdata  = Output(UInt(32.W))
     val lsuawaddr = Output(UInt(32.W))
@@ -129,21 +134,23 @@ class ysyx_23060336 extends Module {
   sdram.io.clock        := clock
   sdram.io.reset        := reset
 
-
   reg.io.raddr1 := idu.io.rs1
   reg.io.raddr2 := idu.io.rs2
 
   idu.io.src1   := reg.io.rdata1
   idu.io.src2   := reg.io.rdata2
+  idu.io.exu_rd := exu.io.rd
+  idu.io.lsu_rd := lsu.io.rd
+  idu.io.wbu_rd := wbu.io.rd
 
   io.halt_ret   := reg.io.halt_ret
-  io.regrs1        := idu.io.rs1 
-  io.regrs2        := idu.io.rs2 
-  io.regsrc1       := reg.io.rdata1
-  io.regsrc2       := reg.io.rdata2
-  io.regrd         := reg.io.wdata
-  io.regwen        := reg.io.wen
-  io.regwaddr      := reg.io.waddr
+  io.regrs1     := idu.io.rs1 
+  io.regrs2     := idu.io.rs2 
+  io.regsrc1    := reg.io.rdata1
+  io.regsrc2    := reg.io.rdata2
+  io.regrd      := reg.io.wdata
+  io.regwen     := reg.io.wen
+  io.regwaddr   := reg.io.waddr
 
   io.imm        := idu.io.imm
   wbu.io.wen    := ifu.io.valid
@@ -165,33 +172,39 @@ class ysyx_23060336 extends Module {
   ifu.io.wen    := lsu.io.wen
   io.inst       := ifu.io.inst
 
-  io.ifuvalid      := ifu.io.valid
-  io.ifuready      := ifu.io.ready
-  io.iduvalid      := idu.io.valid
-  io.iduready      := idu.io.ready
-  io.exuvalid      := exu.io.valid
-  io.exuready      := exu.io.ready
-  io.lsuvalid      := lsu.io.valid
-  io.lsuready      := lsu.io.ready
-  io.wbuvalid      := wbu.io.valid
-  io.wbuready      := wbu.io.ready
+  io.ifuvalid   := ifu.io.valid
+  io.ifuready   := ifu.io.ready
+  io.iduvalid   := idu.io.valid
+  io.iduready   := idu.io.ready
+  io.exuvalid   := exu.io.valid
+  io.exuready   := exu.io.ready
+  io.lsuvalid   := lsu.io.valid
+  io.lsuready   := lsu.io.ready
+  io.wbuvalid   := wbu.io.valid
+  io.wbuready   := wbu.io.ready
+
+  io.idurs1     := idu.io.rs1
+  io.idurs2     := idu.io.rs2
+  io.exurd      := exu.io.rd
+  io.lsurd      := lsu.io.rd
+  io.wburd      := wbu.io.rd
 
   io.idupc      := idu.io.pc
   io.exupc      := exu.io.pc
 
-  io.iduMemWr     := idu.io.iduMemWr
-  io.exuMemWr     := exu.io.exuMemWr
-  io.lsuMemWr     := lsu.io.lsuMemWr
-  io.MemtoReg  := lsu.io.MemtoReg
+  io.iduMemWr   := idu.io.iduMemWr
+  io.exuMemWr   := exu.io.exuMemWr
+  io.lsuMemWr   := lsu.io.lsuMemWr
+  io.MemtoReg   := lsu.io.MemtoReg
 
-  io.lsuaraddr := lsu.io.axi.araddr
-  io.lsuawaddr := lsu.io.axi.awaddr
-  io.lsurdata  := lsu.io.rdata
-  io.lsuwdata  := lsu.io.axi.wdata
-  io.lsuarready  := lsu.io.axi.arready
-  io.lsuarvalid  := lsu.io.axi.arvalid
-  io.lsuawvalid  := lsu.io.axi.awvalid
-  io.lsuawready  := lsu.io.axi.awready
+  io.lsuaraddr  := lsu.io.axi.araddr
+  io.lsuawaddr  := lsu.io.axi.awaddr
+  io.lsurdata   := lsu.io.rdata
+  io.lsuwdata   := lsu.io.axi.wdata
+  io.lsuarready := lsu.io.axi.arready
+  io.lsuarvalid := lsu.io.axi.arvalid
+  io.lsuawvalid := lsu.io.axi.awvalid
+  io.lsuawready := lsu.io.axi.awready
   io.lsurready  := lsu.io.axi.rready
   io.lsurvalid  := lsu.io.axi.rvalid
   io.lsuwvalid  := lsu.io.axi.wvalid
@@ -199,20 +212,22 @@ class ysyx_23060336 extends Module {
 
   exu.io.mepc   := csr.io.mepc
   exu.io.mtvec  := csr.io.mtvec
-  
-  io.ina       := exu.io.ina
-  io.inb       := exu.io.inb
-  io.pca       := exu.io.pca
-  io.pcb       := exu.io.pcb
-  io.alumux    := exu.io.alumux
-  io.pcadd     := exu.io.pcadd
-  io.idupcmux  := idu.io.pcmux
-  io.exupcmux  := exu.io.pcmux
-  io.iduopcode := idu.io.opcode
-  io.iduinst   := idu.io.inst
-  io.PC        := ifu.io.pc
-  io.NPC       := exu.io.dnpc
 
+  csr.io.mepc_in := exu.io.mepc_in
+  csr.io.ecall  := exu.io.ecall
+  
+  io.ina        := exu.io.ina
+  io.inb        := exu.io.inb
+  io.pca        := exu.io.pca
+  io.pcb        := exu.io.pcb
+  io.alumux     := exu.io.alumux
+  io.pcadd      := exu.io.pcadd
+  io.idupcmux   := idu.io.pcmux
+  io.exupcmux   := exu.io.pcmux
+  io.iduopcode  := idu.io.opcode
+  io.iduinst    := idu.io.inst
+  io.PC         := ifu.io.pc
+  io.NPC        := exu.io.dnpc
 
   ebreak.io.isbreak := ifu.io.pc
   ebreak.io.clock   := clock

@@ -57,6 +57,11 @@ class Vysyx_23060336 VL_NOT_FINAL : public VerilatedModel {
     VL_OUT8(&io_exuMemWr,0,0);
     VL_OUT8(&io_lsuMemWr,0,0);
     VL_OUT8(&io_alumux,3,0);
+    VL_OUT8(&io_idurs1,4,0);
+    VL_OUT8(&io_idurs2,4,0);
+    VL_OUT8(&io_exurd,4,0);
+    VL_OUT8(&io_lsurd,4,0);
+    VL_OUT8(&io_wburd,4,0);
     VL_OUT8(&io_regrs1,4,0);
     VL_OUT8(&io_regrs2,4,0);
     VL_OUT(&io_halt_ret,31,0);

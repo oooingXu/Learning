@@ -24,8 +24,12 @@ class ysyx_23060336_EXU extends Module{
     val out   = Decoupled(new ysyx_23060336_EXUdata)
     val mepc  = Input(UInt(32.W))
     val mtvec = Input(UInt(32.W))
+    val valid = Output(Bool())
+    val ready = Output(Bool())
+    val ecall = Output(UInt(2.W))
     val pcmux = Output(UInt(2.W))
     val alumux= Output(UInt(4.W))
+    val rd    = Output(UInt(5.W))
     val pcadd = Output(UInt(32.W))
     val ina   = Output(UInt(32.W))
     val inb   = Output(UInt(32.W))
@@ -33,8 +37,7 @@ class ysyx_23060336_EXU extends Module{
     val pcb   = Output(UInt(32.W))
     val pc    = Output(UInt(32.W))
     val dnpc  = Output(UInt(32.W))
-    val valid = Output(Bool())
-    val ready = Output(Bool())
+    val mepc_in  = Output(UInt(32.W))
     val exuMemWr = Output(Bool())
   })
 
@@ -123,7 +126,11 @@ class ysyx_23060336_EXU extends Module{
   io.pcmux  := io.in.bits.PcMux
   io.pca    := pca
   io.pcb    := pcb
+
+  io.rd       := io.in.bits.rd
   io.exuMemWr := io.in.bits.MemWr
+  io.ecall    := io.in.bits.ecall
+  io.mepc_in  := io.in.bits.pc
 
    
   io.dnpc := Mux(io.in.bits.halt,  io.in.bits.pc, 

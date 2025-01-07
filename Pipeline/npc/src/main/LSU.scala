@@ -20,9 +20,10 @@ class ysyx_23060336_LSU extends Module{
     val in       = Flipped(Decoupled(new ysyx_23060336_EXUdata))
     val valid    = Output(Bool())
     val ready    = Output(Bool())
-    val lsuMemWr    = Output(Bool())
+    val lsuMemWr = Output(Bool())
     val MemtoReg = Output(Bool())
     val wen      = Output(Bool())
+    val rd       = Output(UInt(5.W))
     val rdata    = Output(UInt(32.W))
     val axi      = new ysyx_23060336_AXI4Master()
   })
@@ -30,26 +31,16 @@ class ysyx_23060336_LSU extends Module{
   val l_idle :: l_wait_ready :: Nil = Enum(2)
   val state  = RegInit(l_idle)
 
-  val delay1 = RegInit(0.U(1.W))
-  val delay2 = RegInit(0.U(1.W))
-  val delay  = Wire(Bool())
-
-  val rdatadelay1 = RegInit(0.U(32.W))
-  val rdatadelay2 = RegInit(0.U(32.W))
-  val rdatadelay  = RegInit(0.U(32.W))
+  val delay       = Wire(Bool())
+  val rdatadelay  = Wire(UInt(32.W))
 
   state := MuxLookup(state, l_idle)(List(
     l_idle       -> Mux(io.out.valid, l_wait_ready, l_idle),
     l_wait_ready -> Mux(io.out.ready, l_idle, l_wait_ready)
   ))
 
-  delay1 := (io.axi.rready && io.axi.rvalid && io.in.bits.MemtoReg) || (io.axi.wvalid && io.axi.wready && io.in.bits.MemWr) 
-  delay2 := delay1
-  delay  := delay2
-
-  rdatadelay1 := Mux(io.axi.rready && io.axi.rvalid, io.axi.rdata, 0.U)
-  rdatadelay2 := rdatadelay1
-  rdatadelay  := rdatadelay2
+  delay := (io.axi.rready && io.axi.rvalid && io.in.bits.MemtoReg) || (io.axi.wvalid && io.axi.wready && io.in.bits.MemWr) 
+  rdatadelay := Mux(io.axi.rready && io.axi.rvalid, io.axi.rdata, 0.U)
 
   io.out.valid := delay || ~io.in.bits.MemtoReg
   io.in.ready  := Mux((~io.in.bits.MemtoReg && ~io.in.bits.MemWr), true.B, delay)
@@ -83,12 +74,13 @@ class ysyx_23060336_LSU extends Module{
   io.axi.arburst := "h1".U
   io.axi.rready  := io.in.bits.MemtoReg && ~io.in.bits.halt
 
+  io.rd       := io.in.bits.rd
   io.MemtoReg := io.in.bits.MemtoReg
   io.lsuMemWr := io.in.bits.MemWr
   io.wen      := io.in.bits.MemtoReg || io.in.bits.MemWr
   io.rdata    := Mux(io.axi.rready && io.axi.rvalid, io.axi.rdata, 0.U)
   io.ready    := io.in.ready
-  io.valid  := io.out.valid
+  io.valid    := io.out.valid
 }
 
 
