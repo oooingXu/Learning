@@ -1,0 +1,13 @@
+INCFLAGS += $(NPC_HOME)/csrc/memory/pmem.c
+INCFLAGS += $(NPC_HOME)/csrc/memory/ftrace.c
+INCFLAGS += $(NPC_HOME)/csrc/device/device.c
+INCFLAGS += $(NPC_HOME)/csrc/device/serial.c
+INCFLAGS += $(NPC_HOME)/csrc/device/timer.c
+INCFLAGS += $(NPC_HOME)/csrc/device/map.c 
+INCFLAGS += $(NPC_HOME)/csrc/device/mmio.c
+INCFLAGS += $(NPC_HOME)/csrc/sdb/sdb.c   
+INCFLAGS += $(NPC_HOME)/csrc/sdb/watchpoint.c
+INCFLAGS += $(NPC_HOME)/csrc/sdb/expr.c  
+INCFLAGS += $(NPC_HOME)/csrc/cpu/cpu.c  
+INCFLAGS += $(NPC_HOME)/csrc/cpu/dut.c 
+INCFLAGS += $(NPC_HOME)/csrc/utils/time.c

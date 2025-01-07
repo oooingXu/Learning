@@ -1,0 +1,135 @@
+mainmenu "ysyx_23060336 Configuration Menu"
+
+choice
+	prompt "Running mode"
+	default MODE_SYSTEM
+
+config MODE_SYSTEM
+	bool "System mode"
+endchoice
+
+menu "Build Options"
+choice
+	prompt "Compiler"
+	default CC_GCC
+config CC_GCC
+	bool "gcc"
+config CC_GPP
+	bool "g++"
+config CC_CLANG
+	bool "clang"
+endchoice
+
+config CC
+	string
+	default "gcc" if CC_GCC
+	default "g++" if CC_GPP
+	default "clang" if CC_CLANG
+	default "none"
+
+choice 
+	prompt "Optimization Level"
+	default CC_O2
+config CC_O0
+	bool "O0"
+config CC_O1
+	bool "O1"
+config CC_O2
+	bool "O2"
+config CC_O3
+	bool "O3"
+endchoice
+
+config CC_OPT
+	string
+	default "-O0" if CC_O0
+	default "-O1" if CC_O1
+	default "-O2" if CC_O2
+	default "-O3" if CC_O3
+	default "none"
+
+config CC_LTO
+	bool "Enable link-time optimizatin"
+	default n
+
+config CC_DEBUG
+	bool "Enable debug information"
+	default n
+
+config CC_ASAN
+	depends on MODE_SYSTEM
+	bool "Enable address sanitizer"
+	default n
+endmenu
+
+
+config BATCH
+	bool "Enable batch"
+	default y
+
+menu "Testing and Debugging"
+
+config TRACE
+	bool "Enable tracer"
+	default y
+
+config TRACE_START
+	depends on TRACE
+	int "When tracing is enabled (uint: number of instructions)"
+	default 0
+
+config TRACE_END
+	depends on TRACE
+	int "When tracing is disabled (uint: number of instructions)"
+	default 10000
+
+config ITRACE
+	depends on TRACE
+	bool "Enable instruction tracer"
+	default y
+
+config ITRACE_COND
+	depends on IRACE
+	string "Only trace instructions when the condition is true"
+	default "true"
+
+config MTRACE
+	depends on TRACE
+	bool "Enable instruction mtracer"
+	default n
+
+config DTRACE
+	depends on TRACE
+	bool "Enable instruction dtracer"
+	default n
+
+config MFRACE
+	depends on TRACE
+	bool "Enable instruction ftracer"
+	default n
+
+config RFRACE
+	depends on TRACE
+	bool "Enable instruction rtracer"
+	default n
+
+config WAVE
+	depends on TRACE
+	bool "Enable instruction gtkwave"
+	default n
+
+config CTRACE
+	depends on TRACE
+	bool "Enable instruction ctrace"
+	default n
+
+config DIFFTEST
+ depends on TRACE
+ bool "Enable instruction difftest"
+ default n
+endmenu
+
+if MODE_SYSTEM
+source "csrc/device/Kconfig"
+endif
+

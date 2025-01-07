@@ -1,0 +1,1 @@
+CSCS-y += pmem.c
