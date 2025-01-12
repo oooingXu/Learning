@@ -30,8 +30,8 @@ const char* get_func_name(uint32_t addr);
 void is_jal(uint32_t inst);
 void is_jalr(uint32_t inst);
 
-extern "C" int pmem_read(int Maddr);
-extern "C" void pmem_write(int Maddr, int DataIn, int wmask);
+extern "C" int pmem_read(int araddr);
+extern "C" int pmem_write(int awaddr, int wdata, int wstrb);
 
 #endif
 

@@ -9,6 +9,8 @@ class ysyx_23060336_XBAR extends Module{
     val lsu = new ysyx_23060336_AXI4Slave()
     val sdram = new ysyx_23060336_AXI4Master()
     val clint = new ysyx_23060336_AXI4Master()
+    val arid_halt = Output(UInt(4.W))
+    val awid_halt = Output(UInt(4.W))
   })
 
   def DEVICE_BASE      = "ha0000000".U
@@ -47,14 +49,26 @@ class ysyx_23060336_XBAR extends Module{
   val rlast   = Wire(Bool())
   val rid     = Wire(UInt(4.W))
 
-  val arid_halt = RegInit(1.U(32.W))
-  val awid_halt = RegInit(1.U(32.W))
+  val arid_halt = RegInit(1.U(4.W))
+  val awid_halt = RegInit(1.U(4.W))
+
+  io.arid_halt := arid_halt
+  io.awid_halt := awid_halt
 
   // ********** Arbiter **********
   
   // AR
-  when(io.ifu.arvalid && io.lsu.arvalid) {
-    when(arid_halt(3,0) === io.ifu.arid.asUInt) {
+   /*
+  when(io.lsu.arvalid) {
+      arid          := io.lsu.arid
+      arlen         := io.lsu.arlen
+      araddr        := io.lsu.araddr
+      arsize        := io.lsu.arsize
+      arvalid       := io.lsu.arvalid
+      arburst       := io.lsu.arburst
+      io.ifu.rvalid := rvalid && false.B
+      io.lsu.rvalid := rvalid && true.B
+  }.elsewhen(io.ifu.arvalid) {
       arid          := io.ifu.arid
       arlen         := io.ifu.arlen
       araddr        := io.ifu.araddr
@@ -64,6 +78,21 @@ class ysyx_23060336_XBAR extends Module{
       io.ifu.rvalid := rvalid && true.B
       io.lsu.rvalid := rvalid && false.B
   } .otherwise {
+      arid          := io.ifu.arid
+      arlen         := io.ifu.arlen
+      araddr        := io.ifu.araddr
+      arsize        := io.ifu.arsize
+      arvalid       := false.B
+      arburst       := io.ifu.arburst
+      arid_halt     := io.ifu.arid
+      io.ifu.rvalid := rvalid && false.B
+      io.lsu.rvalid := rvalid && false.B
+  }
+  */
+
+ ///*
+  when(io.ifu.arvalid && io.lsu.arvalid) {
+    when(arid_halt === io.lsu.arid) {
       arid          := io.lsu.arid
       arlen         := io.lsu.arlen
       araddr        := io.lsu.araddr
@@ -72,6 +101,15 @@ class ysyx_23060336_XBAR extends Module{
       arburst       := io.lsu.arburst
       io.ifu.rvalid := rvalid && false.B
       io.lsu.rvalid := rvalid && true.B
+  } .otherwise {
+      arid          := io.ifu.arid
+      arlen         := io.ifu.arlen
+      araddr        := io.ifu.araddr
+      arsize        := io.ifu.arsize
+      arvalid       := io.ifu.arvalid
+      arburst       := io.ifu.arburst
+      io.ifu.rvalid := rvalid && true.B
+      io.lsu.rvalid := rvalid && false.B
     } 
   }.elsewhen(io.ifu.arvalid && ~io.lsu.arvalid) {
       arid          := io.ifu.arid
@@ -104,6 +142,7 @@ class ysyx_23060336_XBAR extends Module{
       io.ifu.rvalid := rvalid && false.B
       io.lsu.rvalid := rvalid && false.B
   }
+//  */
 
   io.ifu.arready:= arready
   io.lsu.arready:= arready
@@ -117,6 +156,7 @@ class ysyx_23060336_XBAR extends Module{
       arid_halt     := io.ifu.arid
   } .otherwise {
       rready        := false.B
+      //arid_halt     := Mux(arid_halt === io.ifu.arid, io.lsu.arid, io.ifu.arid)
       arid_halt     := arid_halt
   }
 

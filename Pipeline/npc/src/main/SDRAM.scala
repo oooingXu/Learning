@@ -87,21 +87,22 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     |
     | assign awready = 1'b1;
     | assign arready = 1'b1;
-    | assign bid     = 4'b1;
     | assign rresp   = 2'b0;
+    | assign bresp   = resp[1:0];
     | assign rlast   = 1'b1;
     | assign rid     = 4'b10;
-    | assign bresp   = resp[1:0];
+    | assign bid     = 4'b1;
     | assign strb    = {{28{1'b0}},wstrb};
+    | assign wready  = 1'b1;
     |
     | always@(posedge clock) begin
     |   if(reset) begin
-    |     wready  <= 1'b1;
     |     bvalid  <= 1'b0;
     |     rvalid  <= 1'b0;
     |   end else begin
-
-    |     if(arvalid) begin
+    |
+    |   /* //test
+    |     if(arvalid && arready) begin
     |       if(RLFSR >= 5'b11) begin
     |         RLFSR  <= 5'b0;
     |         rvalid <= 1'b1;
@@ -117,23 +118,44 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     |       rvalid <= 1'b0;
     |       rdata <= rdata;
     |     end
+    |   */
     |
+    |     if(arvalid && arready) begin
+    |       rvalid <= 1'b1;
+    |       rdata  <= pmem_read(araddr);
+    |     end else begin
+    |       rdata  <= rdata;
+    |       rvalid <= 1'b0;
+    |     end
+    |
+    |   /* //test
     |     if(wvalid) begin
     |       if(WLFSR >= 5'b10010) begin
     |         WLFSR  <= 5'b0;
     |         resp   <= pmem_write(awaddr, wdata, strb);
-    |         wready <= 1'b1;
     |     //  data_memory[awaddr] <= wdata;
     |       end else begin
     |         WLFSR  <= WLFSR + 5'b1;
-    |         wready <= 1'b0;
     |         resp   <= 32'b10;
     |       end
     |     end else begin
     |       WLFSR  <= 5'b0;
-    |       wready <= 1'b0;
     |       resp   <= resp;
     |     end
+    |   */
+    |
+    |   if(wvalid) begin
+    |     resp   <= pmem_write(awaddr, wdata, strb);
+    |   end else begin
+    |     resp   <= resp;
+    |   end
+    |
+    |   if(wvalid && wready && wlast) begin
+    |     bvalid <= 1'b1;
+    |   end else begin
+    |     bvalid <= 1'b0;
+    |   end
+    |
     |   end
     | end
     |

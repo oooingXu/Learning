@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 
 class ysyx_23060336_EXUdata extends Bundle{
+   val pc       = Output(UInt(32.W))
    val result   = Output(UInt(32.W))
    val src2     = Output(UInt(32.W))
    val Csr      = Output(UInt(32.W))
@@ -15,30 +16,32 @@ class ysyx_23060336_EXUdata extends Bundle{
    val MemWr    = Output(Bool())
    val RegWr    = Output(Bool())
    val CsrWr    = Output(Bool())
-   val halt     = Output(Bool())
+   val ebreak   = Output(Bool())
 }
 
 class ysyx_23060336_EXU extends Module{
   val io = IO(new Bundle{
-    val in    = Flipped(Decoupled(new ysyx_23060336_IDUdata))
-    val out   = Decoupled(new ysyx_23060336_EXUdata)
-    val mepc  = Input(UInt(32.W))
-    val mtvec = Input(UInt(32.W))
-    val valid = Output(Bool())
-    val ready = Output(Bool())
-    val ecall = Output(UInt(2.W))
-    val pcmux = Output(UInt(2.W))
-    val alumux= Output(UInt(4.W))
-    val rd    = Output(UInt(5.W))
-    val pcadd = Output(UInt(32.W))
-    val ina   = Output(UInt(32.W))
-    val inb   = Output(UInt(32.W))
-    val pca   = Output(UInt(32.W))
-    val pcb   = Output(UInt(32.W))
-    val pc    = Output(UInt(32.W))
-    val dnpc  = Output(UInt(32.W))
-    val mepc_in  = Output(UInt(32.W))
-    val exuMemWr = Output(Bool())
+    val in        = Flipped(Decoupled(new ysyx_23060336_IDUdata))
+    val out       = Decoupled(new ysyx_23060336_EXUdata)
+    val mepc      = Input(UInt(32.W))
+    val mtvec     = Input(UInt(32.W))
+    val checkfail = Output(Bool())
+    val valid     = Output(Bool())
+    val ready     = Output(Bool())
+    val ecall     = Output(UInt(2.W))
+    val pcmux     = Output(UInt(2.W))
+    val alumux    = Output(UInt(4.W))
+    val rd        = Output(UInt(5.W))
+    val pcadd     = Output(UInt(32.W))
+    val ina       = Output(UInt(32.W))
+    val inb       = Output(UInt(32.W))
+    val pca       = Output(UInt(32.W))
+    val pcb       = Output(UInt(32.W))
+    val pc        = Output(UInt(32.W))
+    val dnpc      = Output(UInt(32.W))
+    val mepc_in   = Output(UInt(32.W))
+    val exuMemWr  = Output(Bool())
+    val ebreak    = Output(Bool())
   })
 
   val ina   = Wire(UInt(32.W))
@@ -62,7 +65,7 @@ class ysyx_23060336_EXU extends Module{
   ))
 
   io.out.valid := true.B 
-  io.in.ready  := true.B
+  io.in.ready  := true.B && !io.ebreak
 
   io.valid  := io.out.valid
   io.ready  := io.in.ready
@@ -70,23 +73,23 @@ class ysyx_23060336_EXU extends Module{
   rs1  := Mux(io.in.bits.Recsr, ~io.in.bits.src1, io.in.bits.src1)
   zimm := Mux(io.in.bits.Recsr, ~io.in.bits.zimm, io.in.bits.zimm)
 
-  ina := Mux(io.in.bits.AluMux === "b0111".U, io.in.bits.src1,
-                Mux(io.in.bits.AluMux === "b0001".U, io.in.bits.src1,
-                Mux(io.in.bits.AluMux === "b0010".U, io.in.bits.pc,
-                Mux(io.in.bits.AluMux === "b0011".U, 0.U,
-                Mux(io.in.bits.AluMux === "b0100".U, io.in.bits.pc, 
-                Mux(io.in.bits.AluMux === "b0101".U, rs1,
-                Mux(io.in.bits.AluMux === "b1000".U, rs1,
-                Mux(io.in.bits.AluMux === "b1001".U, zimm,
-                Mux(io.in.bits.AluMux === "b0110".U, zimm, 0.U(32.W))))))))))
+  ina  := Mux(io.in.bits.AluMux === "b0111".U, io.in.bits.src1,
+          Mux(io.in.bits.AluMux === "b0001".U, io.in.bits.src1,
+          Mux(io.in.bits.AluMux === "b0010".U, io.in.bits.pc,
+          Mux(io.in.bits.AluMux === "b0011".U, 0.U,
+          Mux(io.in.bits.AluMux === "b0100".U, io.in.bits.pc, 
+          Mux(io.in.bits.AluMux === "b0101".U, rs1,
+          Mux(io.in.bits.AluMux === "b1000".U, rs1,
+          Mux(io.in.bits.AluMux === "b1001".U, zimm,
+          Mux(io.in.bits.AluMux === "b0110".U, zimm, 0.U(32.W))))))))))
 
-  inb := Mux(io.in.bits.AluMux === "b0111".U, io.in.bits.src2,
-                Mux(io.in.bits.AluMux === "b0001".U, io.in.bits.imm,
-                Mux(io.in.bits.AluMux === "b0010".U, 4.U,
-                Mux(io.in.bits.AluMux === "b0011".U, io.in.bits.imm,
-                Mux(io.in.bits.AluMux === "b0101".U, io.in.bits.Csr,
-                Mux(io.in.bits.AluMux === "b0110".U, io.in.bits.Csr,
-                Mux(io.in.bits.AluMux === "b0100".U, io.in.bits.imm, 0.U(32.W))))))))
+  inb  := Mux(io.in.bits.AluMux === "b0111".U, io.in.bits.src2,
+          Mux(io.in.bits.AluMux === "b0001".U, io.in.bits.imm,
+          Mux(io.in.bits.AluMux === "b0010".U, 4.U,
+          Mux(io.in.bits.AluMux === "b0011".U, io.in.bits.imm,
+          Mux(io.in.bits.AluMux === "b0101".U, io.in.bits.Csr,
+          Mux(io.in.bits.AluMux === "b0110".U, io.in.bits.Csr,
+          Mux(io.in.bits.AluMux === "b0100".U, io.in.bits.imm, 0.U(32.W))))))))
 
   io.out.bits.MemtoReg := io.in.bits.MemtoReg
   io.out.bits.MemNum   := io.in.bits.MemNum
@@ -98,7 +101,8 @@ class ysyx_23060336_EXU extends Module{
   io.out.bits.csr      := io.in.bits.csr  
   io.out.bits.src2     := io.in.bits.src2
   io.out.bits.rd       := io.in.bits.rd
-  io.out.bits.halt     := io.in.bits.halt
+  io.out.bits.pc       := io.in.bits.pc
+  io.out.bits.ebreak   := io.in.bits.ebreak
 
   val alu = Module(new ysyx_23060336_ALU(32))
   alu.io.ina         := ina
@@ -117,32 +121,27 @@ class ysyx_23060336_EXU extends Module{
            Mux(PCMux === "b0101".U, io.in.bits.imm,
            Mux(PCMux === "b1101".U, io.in.bits.imm, 4.U)))))
 
-  pcadd     := pca + pcb
-  io.pcadd  := pcadd
-  io.ina    := ina
-  io.inb    := inb
-  io.alumux := io.in.bits.AluMux
-  io.pc     := io.in.bits.pc
-  io.pcmux  := io.in.bits.PcMux
-  io.pca    := pca
-  io.pcb    := pcb
+  pcadd        := pca + pcb
+  io.pcadd     := pcadd
+  io.ina       := ina
+  io.inb       := inb
+  io.alumux    := io.in.bits.AluMux
+  io.pc        := io.in.bits.pc
+  io.pcmux     := io.in.bits.PcMux
+  io.pca       := pca
+  io.pcb       := pcb
+  io.ebreak    := io.in.bits.ebreak
 
-  io.rd       := io.in.bits.rd
-  io.exuMemWr := io.in.bits.MemWr
-  io.ecall    := io.in.bits.ecall
-  io.mepc_in  := io.in.bits.pc
+  io.rd        := io.in.bits.rd
+  io.exuMemWr  := io.in.bits.MemWr
+  io.ecall     := io.in.bits.ecall
+  io.mepc_in   := io.in.bits.pc
+  io.checkfail := (io.in.bits.Check && !(io.dnpc === (io.in.bits.pc + 4.U)))
 
    
-  io.dnpc := Mux(io.in.bits.halt,  io.in.bits.pc, 
+  io.dnpc := Mux(io.in.bits.ebreak,  io.in.bits.pc, 
              Mux(io.in.bits.ecall, io.mtvec, 
              Mux(io.in.bits.mret,  io.mepc, pcadd)))
-  /*
-  io.dnpc := Mux(reset.asBool, pc,
-             Mux(empty, pc,
-             Mux(io.in.bits.halt,  io.in.bits.pc, 
-             Mux(io.in.bits.ecall, io.mtvec, 
-             Mux(io.in.bits.mret,  io.mepc, pcadd)))))
-  */
 
 }
 

@@ -10,9 +10,9 @@ uint32_t host_read(void *addr){ return *(uint32_t *)addr; }
 
 void host_write(void *addr, int len, uint32_t data) { 
 	switch(len){
-		case 1: *(uint8_t  *)addr = data; return;
-		case 2: *(uint16_t *)addr = data; return;
-		case 4: *(uint32_t *)addr = data; return;
+		case 0: *(uint8_t  *)addr = data; return;
+		case 1: *(uint16_t *)addr = data; return;
+		case 3: *(uint32_t *)addr = data; return;
 	default: assert(0);	
 	}
 }
@@ -27,35 +27,35 @@ bool in_pmem(uint32_t addr){
 }
 
 
-int pmem_read(int Maddr) {
-	//Maddr = Maddr & ~0x3u;
+int pmem_read(int araddr) {
+	//araddr = araddr & ~0x3u;
 
 #ifdef CONFIG_MTRACE
-	printf("pread at " FMT_PADDR ", data = " FMT_PADDR "\n", Maddr, host_read(guest_to_host(Maddr)));
+	printf("pread at " FMT_PADDR ", data = " FMT_PADDR "\n", araddr, host_read(guest_to_host(araddr)));
 #endif
 
-	if(likely(in_pmem(Maddr))) {
-	uint32_t ret = host_read(guest_to_host(Maddr));
+	if(likely(in_pmem(araddr))) {
+	uint32_t ret = host_read(guest_to_host(araddr));
 	return ret;
 	} else {
-		return mmio_read(Maddr);
+		return mmio_read(araddr);
 	}
 	printf("read out of bound\b");
-	out_of_bound(Maddr);
+	out_of_bound(araddr);
 	return 0;
 }
 
-void pmem_write(int Maddr, int DataIn, int wmask) {
-	//Maddr = Maddr & ~0x3u;
+int pmem_write(int awaddr, int wdata, int wstrb) {
+	//awaddr = awaddr & ~0x3u;
 
 #ifdef CONFIG_MTRACE
-	printf("pwrite at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", Maddr, DataIn, wmask);
+	printf("pwrite at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", awaddr, wdata, wstrb);
 #endif
-	if(likely(in_pmem(Maddr))){
-		host_write(guest_to_host(Maddr), wmask, DataIn); return;
+	if(likely(in_pmem(awaddr))){
+		host_write(guest_to_host(awaddr), wstrb, wdata); return 0;
 	} else {
-		mmio_write(Maddr, wmask, DataIn); return;
+		mmio_write(awaddr, wstrb, wdata); return 0;
 	}
 	printf("write out of bound\b");
-		out_of_bound(Maddr);
+		out_of_bound(awaddr);
 }

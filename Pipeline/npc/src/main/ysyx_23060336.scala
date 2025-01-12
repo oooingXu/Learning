@@ -12,8 +12,7 @@ import chisel3.util.experimental.loadMemoryFromFile
   */
 class ysyx_23060336 extends Module {
 	val io = IO(new Bundle{
-    val halt      = Output(Bool())
-    val halt_ret  = Output(UInt(32.W))
+    val ebreak    = Output(Bool())
     val NPC       = Output(UInt(32.W))
     val PC        = Output(UInt(32.W))
     val inst      = Output(UInt(32.W))
@@ -22,7 +21,7 @@ class ysyx_23060336 extends Module {
     val iduopcode = Output(UInt(7.W))
     val idupcmux  = Output(UInt(2.W))
     val iduinst   = Output(UInt(32.W))
-    val exupcmux  = Output(UInt(2.W))
+    val exupcmux  = Output(UInt(4.W))
     val ifuvalid  = Output(Bool())
     val ifuready  = Output(Bool())
     val iduvalid  = Output(Bool())
@@ -39,12 +38,19 @@ class ysyx_23060336 extends Module {
     val lsurvalid = Output(Bool())
     val lsuwready = Output(Bool())
     val lsuwvalid = Output(Bool())
+    val ifurvalid = Output(Bool())
+    val ifuarvalid= Output(Bool())
     val wbuvalid  = Output(Bool())
     val wbuready  = Output(Bool())
     val MemtoReg  = Output(Bool())
     val iduMemWr  = Output(Bool())
     val exuMemWr  = Output(Bool())
     val lsuMemWr  = Output(Bool())
+    val isRAW     = Output(Bool())
+    val checkright= Output(Bool())
+    val checkfail = Output(Bool())
+    val arid_halt = Output(UInt(4.W))
+    val awid_halt = Output(UInt(4.W))
     val idupc     = Output(UInt(32.W))
     val exupc     = Output(UInt(32.W))
     val alumux    = Output(UInt(4.W))
@@ -58,19 +64,23 @@ class ysyx_23060336 extends Module {
     val exurd     = Output(UInt(5.W))
     val lsurd     = Output(UInt(5.W))
     val wburd     = Output(UInt(5.W))
+    val ifuaraddr = Output(UInt(32.W))
     val lsuaraddr = Output(UInt(32.W))
     val lsurdata  = Output(UInt(32.W))
+    val ifurdata  = Output(UInt(32.W))
     val lsuawaddr = Output(UInt(32.W))
-    val lsuwdata = Output(UInt(32.W))
-    val wburesult= Output(UInt(32.W))
-    val regrs1   = Output(UInt(5.W))
-    val regrs2   = Output(UInt(5.W))
-    val regsrc1  = Output(UInt(32.W))
-    val regsrc2  = Output(UInt(32.W))
-    val regrd    = Output(UInt(32.W))
-    val regwen   = Output(UInt(32.W))
-    val regwaddr = Output(UInt(32.W))
-    val imm      = Output(UInt(32.W))
+    val lsuwdata  = Output(UInt(32.W))
+    val wburesult = Output(UInt(32.W))
+    val wbupc     = Output(UInt(32.W))
+    val lsupc     = Output(UInt(32.W))
+    val regrs1    = Output(UInt(5.W))
+    val regrs2    = Output(UInt(5.W))
+    val regsrc1   = Output(UInt(32.W))
+    val regsrc2   = Output(UInt(32.W))
+    val regwen    = Output(Bool())
+    val regwaddr  = Output(UInt(5.W))
+    val regwdata  = Output(UInt(32.W))
+    val imm       = Output(UInt(32.W))
 })
 
   val ifu    = Module(new ysyx_23060336_IFU())
@@ -83,7 +93,7 @@ class ysyx_23060336 extends Module {
   val xbar   = Module(new ysyx_23060336_XBAR())
   val sdram  = Module(new ysyx_23060336_SDRAM())
   val clint  = Module(new ysyx_23060336_CLINT())
-  val ebreak = Module(new ysyx_23060336_EBREAK())
+//  val ebreak = Module(new ysyx_23060336_EBREAK())
 
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T], thisIn: DecoupledIO[T], thisOut: DecoupledIO[T2]) = {
     prevOut.ready := thisIn.ready
@@ -134,6 +144,8 @@ class ysyx_23060336 extends Module {
   sdram.io.clock        := clock
   sdram.io.reset        := reset
 
+  io.arid_halt  := xbar.io.arid_halt
+  io.awid_halt  := xbar.io.awid_halt
   reg.io.raddr1 := idu.io.rs1
   reg.io.raddr2 := idu.io.rs2
 
@@ -142,20 +154,20 @@ class ysyx_23060336 extends Module {
   idu.io.exu_rd := exu.io.rd
   idu.io.lsu_rd := lsu.io.rd
   idu.io.wbu_rd := wbu.io.rd
+  idu.io.exu_pc := exu.io.pc
+  idu.io.checkfail := exu.io.checkfail
 
-  io.halt_ret   := reg.io.halt_ret
   io.regrs1     := idu.io.rs1 
   io.regrs2     := idu.io.rs2 
   io.regsrc1    := reg.io.rdata1
   io.regsrc2    := reg.io.rdata2
-  io.regrd      := reg.io.wdata
   io.regwen     := reg.io.wen
   io.regwaddr   := reg.io.waddr
+  io.regwdata   := reg.io.wdata
 
   io.imm        := idu.io.imm
-  wbu.io.wen    := ifu.io.valid
 
-  reg.io.wen    := wbu.io.RegWr && ifu.io.valid
+  reg.io.wen    := wbu.io.RegWr 
   reg.io.waddr  := wbu.io.rd
   reg.io.wdata  := wbu.io.DataOut
 
@@ -167,10 +179,17 @@ class ysyx_23060336 extends Module {
   io.mcause     := csr.io.mcause
   io.mstatus    := csr.io.mstatus
 
-  io.wburesult  := wbu.io.result
-  ifu.io.dnpc   := exu.io.dnpc
-  ifu.io.wen    := lsu.io.wen
   io.inst       := ifu.io.inst
+  io.wbupc      := wbu.io.pc
+  io.lsupc      := lsu.io.pc
+  io.wburesult  := wbu.io.result
+  ifu.io.isRAW  := idu.io.isRAW
+  ifu.io.dnpc   := exu.io.dnpc
+  ifu.io.checkfail := exu.io.checkfail
+
+  io.checkfail  := exu.io.checkfail
+  io.checkright := ifu.io.checkright
+  io.isRAW      := idu.io.isRAW
 
   io.ifuvalid   := ifu.io.valid
   io.ifuready   := ifu.io.ready
@@ -197,9 +216,13 @@ class ysyx_23060336 extends Module {
   io.lsuMemWr   := lsu.io.lsuMemWr
   io.MemtoReg   := lsu.io.MemtoReg
 
+  io.ifurvalid  := ifu.io.axi.rvalid
+  io.ifuarvalid := ifu.io.axi.arvalid
+  io.ifuaraddr  := ifu.io.axi.araddr
   io.lsuaraddr  := lsu.io.axi.araddr
   io.lsuawaddr  := lsu.io.axi.awaddr
-  io.lsurdata   := lsu.io.rdata
+  io.lsurdata   := lsu.io.axi.rdata
+  io.ifurdata   := ifu.io.axi.rdata
   io.lsuwdata   := lsu.io.axi.wdata
   io.lsuarready := lsu.io.axi.arready
   io.lsuarvalid := lsu.io.axi.arvalid
@@ -229,46 +252,59 @@ class ysyx_23060336 extends Module {
   io.PC         := ifu.io.pc
   io.NPC        := exu.io.dnpc
 
+  io.ebreak     := exu.io.ebreak
+  ifu.io.ebreak := exu.io.ebreak
+  idu.io.ebreak := exu.io.ebreak
+
+  /*
   ebreak.io.isbreak := ifu.io.pc
   ebreak.io.clock   := clock
   ebreak.io.reset   := reset
+  ebreak.io.checkfail   := exu.io.checkfail
   ifu.io.halt       := ebreak.io.halt
   io.halt           := ebreak.io.halt
+  */
 }
 
+/*
 class ysyx_23060336_EBREAK extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
     val clock   = Input(Clock())
     val reset   = Input(Bool())
+    val checkfail =  Input(Bool())
     val isbreak = Input(UInt(32.W))
     val halt    = Output(Bool())
   })
 
   setInline(
     "ebreak.sv",
-    """import "DPI-C" function int set_npc_state(input int isbreak);
+    """import "DPI-C" function int set_npc_state(input int isbreak, input int tmp_check);
       | module ysyx_23060336_EBREAK(
       |   input clock,
       |   input reset,
       |   input [31:0] isbreak,
+      |   input checkfail,
       |   output reg halt
       | );
       |
       | reg [31:0] tmp_halt;
+      | wire [31:0] tmp_check;
       |
       | assign halt = tmp_halt[0];
+      | assign tmp_check = {31'b0, checkfail} ;
       |
       | always@(posedge clock) begin
       |   if(reset) begin
       |     tmp_halt = 32'b0;
       |   end else begin
-      |     tmp_halt = set_npc_state(isbreak);
+      |     tmp_halt = set_npc_state(isbreak + 4, tmp_check);
       |   end 
       | end
       |
       | endmodule
     """.stripMargin)
 }
+*/
 
 
   /*

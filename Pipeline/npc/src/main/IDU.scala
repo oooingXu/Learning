@@ -17,8 +17,9 @@ class ysyx_23060336_IDUdata extends Bundle{
  val PcMux    = Output(UInt(2.W))
  val AluMux   = Output(UInt(4.W))
  val AluSel   = Output(UInt(4.W))
- val MemNum   = Output(UInt(3.W))
+ val MemNum   = Output(UInt(4.W))
  val RegNum   = Output(UInt(3.W))
+ val Check    = Output(Bool())
  val CsrWr    = Output(Bool())
  val MemWr    = Output(Bool())
  val RegWr    = Output(Bool())
@@ -26,8 +27,8 @@ class ysyx_23060336_IDUdata extends Bundle{
  val Branch   = Output(Bool())
  val mret     = Output(Bool())
  val ecall    = Output(Bool())
+ val ebreak   = Output(Bool())
  val Recsr    = Output(Bool())
- val halt     = Output(Bool())
 }
 
 class ysyx_23060336_IDU extends Module{
@@ -40,6 +41,9 @@ class ysyx_23060336_IDU extends Module{
     val exu_rd   = Input(UInt(5.W))
     val lsu_rd   = Input(UInt(5.W))
     val wbu_rd   = Input(UInt(5.W))
+    val exu_pc   = Input(UInt(32.W))
+    val checkfail= Input(Bool())
+    val ebreak   = Input(Bool())
     val rs1      = Output(UInt(5.W))
     val rs2      = Output(UInt(5.W))
     val csr      = Output(UInt(12.W))
@@ -48,6 +52,7 @@ class ysyx_23060336_IDU extends Module{
     val opcode   = Output(UInt(7.W))
     val inst     = Output(UInt(32.W))
     val imm      = Output(UInt(32.W))
+    val isRAW    = Output(Bool())
     val valid    = Output(Bool())
     val ready    = Output(Bool())
     val iduMemWr = Output(Bool())
@@ -72,6 +77,13 @@ class ysyx_23060336_IDU extends Module{
       BitPat("b00000000000000000000000001110011") -> BitPat("b1")
     ),
   BitPat("b0"))
+
+  val Ebreak = TruthTable(
+    Map(
+      BitPat("b00000000000100000000000001110011") -> BitPat("b1")
+    ),
+  BitPat("b0"))
+
 
   val Mret = TruthTable(
     Map(
@@ -130,11 +142,11 @@ class ysyx_23060336_IDU extends Module{
 
   val MemNum = TruthTable(
     Map(
-      BitPat("b0000100011") -> BitPat("b001"), // sb  
-      BitPat("b0010100011") -> BitPat("b010"), // sh  
-      BitPat("b0100100011") -> BitPat("b100"), // sw  
+      BitPat("b0000100011") -> BitPat("b0000"), // sb  
+      BitPat("b0010100011") -> BitPat("b0001"), // sh  
+      BitPat("b0100100011") -> BitPat("b0011"), // sw  
     ),
-  BitPat("b111"))
+  BitPat("b1111"))
 
   val RegNum = TruthTable(
     Map(
@@ -241,7 +253,6 @@ class ysyx_23060336_IDU extends Module{
     ),
   BitPat("b0"))
 
-  val isRAW = Wire(Bool())
 
   val d_idle :: d_wait_ready :: Nil = Enum(2)
   val state = RegInit(d_idle)
@@ -251,12 +262,6 @@ class ysyx_23060336_IDU extends Module{
     d_wait_ready -> Mux(io.out.ready, d_idle, d_wait_ready)
   ))
 
-  io.out.valid := ~isRAW
-  io.in.ready  := ~isRAW
-
-  io.valid := io.out.valid
-  io.ready := io.in.ready
-
   val imm      = Wire(UInt(32.W))
   val instType = Wire(UInt(4.W))
   val AluSela  = Wire(UInt(4.W))
@@ -265,22 +270,23 @@ class ysyx_23060336_IDU extends Module{
   val AluMuxb  = Wire(UInt(4.W))
   val immNum   = Wire(Bool())
 
-  val rd     = io.in.bits.inst(11, 7)
-  val rs1    = io.in.bits.inst(19, 15)
-  val rs2    = io.in.bits.inst(24, 20)
-  val func7  = io.in.bits.inst(31, 25)
-  val func3  = io.in.bits.inst(14, 12)
-  val opcode = io.in.bits.inst(6, 0)
+  val rd       = io.in.bits.inst(11, 7)
+  val rs1      = io.in.bits.inst(19, 15)
+  val rs2      = io.in.bits.inst(24, 20)
+  val func7    = io.in.bits.inst(31, 25)
+  val func3    = io.in.bits.inst(14, 12)
+  val opcode   = io.in.bits.inst(6, 0)
 
-  immNum          := decoder(Cat(func3, opcode), ImmNum)
-  instType        := decoder(opcode, InstType)
+  immNum               := decoder(Cat(func3, opcode), ImmNum)
+  instType             := decoder(opcode, InstType)
 
-  io.rs1  := rs1
-  io.rs2  := rs2
+  io.rs1               := rs1
+  io.rs2               := rs2
 
   io.out.bits.rd       := rd
   io.out.bits.zimm     := Cat(Fill(27, 0.U), rs1)
   io.out.bits.ecall    := decoder(io.in.bits.inst, Ecall)
+  io.out.bits.ebreak   := decoder(io.in.bits.inst, Ebreak)
   io.out.bits.mret     := decoder(io.in.bits.inst, Mret)
   io.out.bits.Branch   := decoder(io.in.bits.inst, Branch)
   io.out.bits.PcMux    := decoder(opcode, PcMux)
@@ -291,14 +297,13 @@ class ysyx_23060336_IDU extends Module{
   io.out.bits.Recsr    := decoder(Cat(func3, opcode), Recsr)
   io.out.bits.MemNum   := decoder(Cat(func3, opcode), MemNum)
   io.out.bits.RegNum   := decoder(Cat(func3, opcode), RegNum)
-  io.out.bits.halt     := io.in.bits.halt 
   io.out.bits.src1     := io.src1
   io.out.bits.src2     := io.src2
 
-  AluMuxa     := decoder(opcode, AluMux1)
-  AluMuxb     := decoder(Cat(func3, opcode), AluMux2)
-  AluSela     := decoder(Cat(func7, func3, opcode), AluSel1)
-  AluSelb     := decoder(Cat(func3, opcode), AluSel2)
+  AluMuxa              := decoder(opcode, AluMux1)
+  AluMuxb              := decoder(Cat(func3, opcode), AluMux2)
+  AluSela              := decoder(Cat(func7, func3, opcode), AluSel1)
+  AluSelb              := decoder(Cat(func3, opcode), AluSel2)
 
   io.out.bits.AluMux   := (AluMuxa | AluMuxb)
   io.out.bits.AluSel   := (AluSela | AluSelb)
@@ -324,18 +329,23 @@ class ysyx_23060336_IDU extends Module{
          Mux(instType === "b011".U, immU,
          Mux(instType === "b100".U, immJ, 0.U(32.W))))))
   
-  io.out.bits.imm := Mux(immNum, Cat(Fill(27, imm(4)), imm(4, 0)), imm)
-  io.out.bits.pc  := io.in.bits.pc
-  io.out.bits.Csr := io.Csr
-  io.out.bits.csr := csr
+  io.out.bits.imm   := Mux(immNum, Cat(Fill(27, imm(4)), imm(4, 0)), imm)
+  io.out.bits.pc    := io.in.bits.pc
+  io.out.bits.Csr   := io.Csr
+  io.out.bits.csr   := csr
+  io.out.bits.Check := (instType === "b010".U || instType === "b100".U || (instType === "b000".U && opcode === "b1100111".U))
 
-  io.iduMemWr  := io.out.bits.MemWr
-  io.pcmux  := io.out.bits.PcMux
-  io.opcode := io.in.bits.inst(6, 0)
-  io.inst   := io.in.bits.inst
-  io.pc     := io.in.bits.pc
-  io.imm    := imm
+  io.iduMemWr := io.out.bits.MemWr
+  io.pcmux    := io.out.bits.PcMux
+  io.opcode   := io.in.bits.inst(6, 0)
+  io.inst     := io.in.bits.inst
+  io.pc       := io.in.bits.pc
+  io.imm      := imm
 
+  val isRAWn = RegInit(0.U(1.W))
+  val isRAW  = Wire(Bool())
+  val isRAWN = Wire(Bool())
+  val israwn = Wire(Bool())
   def conflict(rs: UInt, rd: UInt) = (rs === rd) && !(rs === 0.U)
 
   val isRAWa = ((conflict(rs1, io.exu_rd)  ||
@@ -353,18 +363,19 @@ class ysyx_23060336_IDU extends Module{
                  instType === "b010".U   ||
                  instType === "b101".U)) 
 
-  val isRAWn = RegInit(0.U(1.W))
-  val israwn = Wire(Bool())
-  isRAWn := (conflict(rs2, io.exu_rd)  &&
-             conflict(rs2, io.lsu_rd)  &&
-             conflict(rs2, io.wbu_rd)) ||   
-            (conflict(rs1, io.exu_rd)  &&
-             conflict(rs1, io.lsu_rd)  &&
-             conflict(rs1, io.wbu_rd))   
+  israwn := (conflict(rs2, io.wbu_rd) || conflict(rs1, io.wbu_rd))
 
-  israwn := isRAWn
+  io.out.valid := !isRAW && !io.checkfail || io.in.bits.checkright && !io.ebreak
+  io.in.ready  := !isRAW // israwn -> isRAWN
 
-  isRAW := (isRAWa || isRAWb) && ~israwn
+  io.valid     := io.out.valid
+  io.ready     := io.in.ready
+
+  isRAWn       := israwn
+  isRAWN       := isRAWn
+
+  isRAW        := (isRAWa || isRAWb) && !isRAWN && !io.checkfail
+  io.isRAW     := (isRAWa || isRAWb) && !israwn && !io.checkfail
 
 }
 

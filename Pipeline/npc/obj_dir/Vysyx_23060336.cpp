@@ -14,7 +14,7 @@ Vysyx_23060336::Vysyx_23060336(VerilatedContext* _vcontextp__, const char* _vcna
     , vlSymsp{new Vysyx_23060336__Syms(contextp(), _vcname__, this)}
     , clock{vlSymsp->TOP.clock}
     , reset{vlSymsp->TOP.reset}
-    , io_halt{vlSymsp->TOP.io_halt}
+    , io_ebreak{vlSymsp->TOP.io_ebreak}
     , io_iduopcode{vlSymsp->TOP.io_iduopcode}
     , io_idupcmux{vlSymsp->TOP.io_idupcmux}
     , io_exupcmux{vlSymsp->TOP.io_exupcmux}
@@ -34,12 +34,19 @@ Vysyx_23060336::Vysyx_23060336(VerilatedContext* _vcontextp__, const char* _vcna
     , io_lsurvalid{vlSymsp->TOP.io_lsurvalid}
     , io_lsuwready{vlSymsp->TOP.io_lsuwready}
     , io_lsuwvalid{vlSymsp->TOP.io_lsuwvalid}
+    , io_ifurvalid{vlSymsp->TOP.io_ifurvalid}
+    , io_ifuarvalid{vlSymsp->TOP.io_ifuarvalid}
     , io_wbuvalid{vlSymsp->TOP.io_wbuvalid}
     , io_wbuready{vlSymsp->TOP.io_wbuready}
     , io_MemtoReg{vlSymsp->TOP.io_MemtoReg}
     , io_iduMemWr{vlSymsp->TOP.io_iduMemWr}
     , io_exuMemWr{vlSymsp->TOP.io_exuMemWr}
     , io_lsuMemWr{vlSymsp->TOP.io_lsuMemWr}
+    , io_isRAW{vlSymsp->TOP.io_isRAW}
+    , io_checkright{vlSymsp->TOP.io_checkright}
+    , io_checkfail{vlSymsp->TOP.io_checkfail}
+    , io_arid_halt{vlSymsp->TOP.io_arid_halt}
+    , io_awid_halt{vlSymsp->TOP.io_awid_halt}
     , io_alumux{vlSymsp->TOP.io_alumux}
     , io_idurs1{vlSymsp->TOP.io_idurs1}
     , io_idurs2{vlSymsp->TOP.io_idurs2}
@@ -48,7 +55,8 @@ Vysyx_23060336::Vysyx_23060336(VerilatedContext* _vcontextp__, const char* _vcna
     , io_wburd{vlSymsp->TOP.io_wburd}
     , io_regrs1{vlSymsp->TOP.io_regrs1}
     , io_regrs2{vlSymsp->TOP.io_regrs2}
-    , io_halt_ret{vlSymsp->TOP.io_halt_ret}
+    , io_regwen{vlSymsp->TOP.io_regwen}
+    , io_regwaddr{vlSymsp->TOP.io_regwaddr}
     , io_NPC{vlSymsp->TOP.io_NPC}
     , io_PC{vlSymsp->TOP.io_PC}
     , io_inst{vlSymsp->TOP.io_inst}
@@ -62,16 +70,18 @@ Vysyx_23060336::Vysyx_23060336(VerilatedContext* _vcontextp__, const char* _vcna
     , io_pcb{vlSymsp->TOP.io_pcb}
     , io_ina{vlSymsp->TOP.io_ina}
     , io_inb{vlSymsp->TOP.io_inb}
+    , io_ifuaraddr{vlSymsp->TOP.io_ifuaraddr}
     , io_lsuaraddr{vlSymsp->TOP.io_lsuaraddr}
     , io_lsurdata{vlSymsp->TOP.io_lsurdata}
+    , io_ifurdata{vlSymsp->TOP.io_ifurdata}
     , io_lsuawaddr{vlSymsp->TOP.io_lsuawaddr}
     , io_lsuwdata{vlSymsp->TOP.io_lsuwdata}
     , io_wburesult{vlSymsp->TOP.io_wburesult}
+    , io_wbupc{vlSymsp->TOP.io_wbupc}
+    , io_lsupc{vlSymsp->TOP.io_lsupc}
     , io_regsrc1{vlSymsp->TOP.io_regsrc1}
     , io_regsrc2{vlSymsp->TOP.io_regsrc2}
-    , io_regrd{vlSymsp->TOP.io_regrd}
-    , io_regwen{vlSymsp->TOP.io_regwen}
-    , io_regwaddr{vlSymsp->TOP.io_regwaddr}
+    , io_regwdata{vlSymsp->TOP.io_regwdata}
     , io_imm{vlSymsp->TOP.io_imm}
     , __PVT____024unit{vlSymsp->TOP.__PVT____024unit}
     , rootp{&(vlSymsp->TOP)}

@@ -21,7 +21,7 @@ CONFIG_CC_LTO=y
 # CONFIG_CC_ASAN is not set
 # end of Build Options
 
-# CONFIG_BATCH is not set
+CONFIG_BATCH=y
 
 #
 # Testing and Debugging
@@ -31,7 +31,7 @@ CONFIG_TRACE_START=0
 CONFIG_TRACE_END=10000
 CONFIG_ITRACE=y
 # CONFIG_MTRACE is not set
-# CONFIG_DTRACE is not set
+CONFIG_DTRACE=y
 # CONFIG_MFRACE is not set
 # CONFIG_RFRACE is not set
 CONFIG_WAVE=y

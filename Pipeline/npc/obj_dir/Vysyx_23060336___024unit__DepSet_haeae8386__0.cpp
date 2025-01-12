@@ -8,6 +8,16 @@
 #include "Vysyx_23060336__Syms.h"
 #include "Vysyx_23060336___024unit.h"
 
+extern "C" void set_npc_state(int ebreak);
+
+VL_INLINE_OPT void Vysyx_23060336___024unit____Vdpiimwrap_set_npc_state_TOP____024unit(IData/*31:0*/ ebreak) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        Vysyx_23060336___024unit____Vdpiimwrap_set_npc_state_TOP____024unit\n"); );
+    // Body
+    int ebreak__Vcvt;
+    for (size_t ebreak__Vidx = 0; ebreak__Vidx < 1; ++ebreak__Vidx) ebreak__Vcvt = ebreak;
+    set_npc_state(ebreak__Vcvt);
+}
+
 extern "C" int pmem_write(int awaddr, int wdata, int wstrb);
 
 VL_INLINE_OPT void Vysyx_23060336___024unit____Vdpiimwrap_pmem_write_TOP____024unit(IData/*31:0*/ awaddr, IData/*31:0*/ wdata, IData/*31:0*/ wstrb, IData/*31:0*/ &pmem_write__Vfuncrtn) {
@@ -34,16 +44,4 @@ VL_INLINE_OPT void Vysyx_23060336___024unit____Vdpiimwrap_pmem_read_TOP____024un
     int pmem_read__Vfuncrtn__Vcvt;
     pmem_read__Vfuncrtn__Vcvt = pmem_read(araddr__Vcvt);
     pmem_read__Vfuncrtn = pmem_read__Vfuncrtn__Vcvt;
-}
-
-extern "C" int set_npc_state(int isbreak);
-
-VL_INLINE_OPT void Vysyx_23060336___024unit____Vdpiimwrap_set_npc_state_TOP____024unit(IData/*31:0*/ isbreak, IData/*31:0*/ &set_npc_state__Vfuncrtn) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        Vysyx_23060336___024unit____Vdpiimwrap_set_npc_state_TOP____024unit\n"); );
-    // Body
-    int isbreak__Vcvt;
-    for (size_t isbreak__Vidx = 0; isbreak__Vidx < 1; ++isbreak__Vidx) isbreak__Vcvt = isbreak;
-    int set_npc_state__Vfuncrtn__Vcvt;
-    set_npc_state__Vfuncrtn__Vcvt = set_npc_state(isbreak__Vcvt);
-    set_npc_state__Vfuncrtn = set_npc_state__Vfuncrtn__Vcvt;
 }

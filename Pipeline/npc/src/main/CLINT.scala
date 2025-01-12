@@ -24,7 +24,7 @@ class ysyx_23060336_CLINT extends Module{
   io.axi.bresp   := 2.U
   io.axi.bid     := 2.U
   io.axi.arready := true.B
-  io.axi.rvalid  := true.B
+  io.axi.rvalid  := Mux(reset.asBool, false.B, true.B)
   io.axi.rresp   := 0.U
   io.axi.rdata   := Mux(io.axi.araddr === "ha0000048".U, mtimel, mtimeh)
   io.axi.rlast   := 1.U

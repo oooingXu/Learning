@@ -31,7 +31,6 @@
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0;
 static bool g_print_step = false;
-static int ebreak = 0;
 
 //void device_update();
 
@@ -47,14 +46,34 @@ vluint64_t sim_time = 0;
 VerilatedFstC *m_trace = new VerilatedFstC;
 #endif
 
-extern "C" int set_npc_state(int isebreak){
-	if(pmem_read(isebreak) == 0x00100073 && ebreak == 0){
+static void check_state(){
+		switch(npc_state.state){
+			case NPC_RUNNING: npc_state.state = NPC_STOP; break;
+
+			case NPC_END: case NPC_ABORT: 
+				Log("npc: %s at pc = " FMT_WORD, 
+				(npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :  
+				(npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : 
+					ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))), 
+				npc_state.halt_pc);
+			case NPC_QUIT: ; 
+		}
+}
+
+extern "C" void set_npc_state(int ebreak){
+	if(ebreak){
+//		printf("Before npc state = %d\n", npc_state.state);
 		npc_state.state = NPC_END;
-		ebreak++;
-		printf("ebreak = %d\n",ebreak);
-		return 1;
-	} else {
-		return 0;
+//		printf("After npc state = %d\n", npc_state.state);
+//		printf("NPC_END = %d\n", NPC_END);
+		check_state();
+
+#ifdef CONFIG_WAVE
+	m_trace->close();
+#endif
+
+	ysyx_23060336->final();
+	exit(0);
 	}
 }
 
@@ -113,7 +132,8 @@ static void trace_and_difftest(){
 }
 
 static void renew_state(){
-		npc_state.halt_ret = ysyx_23060336->io_halt_ret;
+		//npc_state.halt_ret = ysyx_23060336->io_halt_ret;
+		npc_state.halt_ret = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[10];
 		npc_state.halt_pc  = ysyx_23060336->io_PC;
 
 		cpu.pc = ysyx_23060336->io_PC;
@@ -130,7 +150,7 @@ static void renew_state(){
 }
 
 void exec_once(){
-		if(sim_time == 0) ysyx_23060336->reset = 1;
+		if(sim_time >= 0 && sim_time <= 1) ysyx_23060336->reset = 1;
 		else ysyx_23060336->reset = 0;
 
 		ysyx_23060336->clock = !ysyx_23060336->clock;
@@ -178,13 +198,16 @@ void execute(uint32_t n){
 #endif
 
 		debug("Success exec_once");
+
 		if(npc_state.state != NPC_END){
 			trace_and_difftest();
 		}
 		g_nr_guest_inst++;
 
 		debug("Success difftest");
-		if(npc_state.state != NPC_RUNNING) break;
+		if(npc_state.state != NPC_RUNNING) {
+			break;
+		}
 		device_update();
 	}
 }

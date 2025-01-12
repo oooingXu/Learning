@@ -30,10 +30,10 @@ class Vysyx_23060336 VL_NOT_FINAL : public VerilatedModel {
     // propagate new values into/out from the Verilated model.
     VL_IN8(&clock,0,0);
     VL_IN8(&reset,0,0);
-    VL_OUT8(&io_halt,0,0);
+    VL_OUT8(&io_ebreak,0,0);
     VL_OUT8(&io_iduopcode,6,0);
     VL_OUT8(&io_idupcmux,1,0);
-    VL_OUT8(&io_exupcmux,1,0);
+    VL_OUT8(&io_exupcmux,3,0);
     VL_OUT8(&io_ifuvalid,0,0);
     VL_OUT8(&io_ifuready,0,0);
     VL_OUT8(&io_iduvalid,0,0);
@@ -50,12 +50,19 @@ class Vysyx_23060336 VL_NOT_FINAL : public VerilatedModel {
     VL_OUT8(&io_lsurvalid,0,0);
     VL_OUT8(&io_lsuwready,0,0);
     VL_OUT8(&io_lsuwvalid,0,0);
+    VL_OUT8(&io_ifurvalid,0,0);
+    VL_OUT8(&io_ifuarvalid,0,0);
     VL_OUT8(&io_wbuvalid,0,0);
     VL_OUT8(&io_wbuready,0,0);
     VL_OUT8(&io_MemtoReg,0,0);
     VL_OUT8(&io_iduMemWr,0,0);
     VL_OUT8(&io_exuMemWr,0,0);
     VL_OUT8(&io_lsuMemWr,0,0);
+    VL_OUT8(&io_isRAW,0,0);
+    VL_OUT8(&io_checkright,0,0);
+    VL_OUT8(&io_checkfail,0,0);
+    VL_OUT8(&io_arid_halt,3,0);
+    VL_OUT8(&io_awid_halt,3,0);
     VL_OUT8(&io_alumux,3,0);
     VL_OUT8(&io_idurs1,4,0);
     VL_OUT8(&io_idurs2,4,0);
@@ -64,7 +71,8 @@ class Vysyx_23060336 VL_NOT_FINAL : public VerilatedModel {
     VL_OUT8(&io_wburd,4,0);
     VL_OUT8(&io_regrs1,4,0);
     VL_OUT8(&io_regrs2,4,0);
-    VL_OUT(&io_halt_ret,31,0);
+    VL_OUT8(&io_regwen,0,0);
+    VL_OUT8(&io_regwaddr,4,0);
     VL_OUT(&io_NPC,31,0);
     VL_OUT(&io_PC,31,0);
     VL_OUT(&io_inst,31,0);
@@ -78,16 +86,18 @@ class Vysyx_23060336 VL_NOT_FINAL : public VerilatedModel {
     VL_OUT(&io_pcb,31,0);
     VL_OUT(&io_ina,31,0);
     VL_OUT(&io_inb,31,0);
+    VL_OUT(&io_ifuaraddr,31,0);
     VL_OUT(&io_lsuaraddr,31,0);
     VL_OUT(&io_lsurdata,31,0);
+    VL_OUT(&io_ifurdata,31,0);
     VL_OUT(&io_lsuawaddr,31,0);
     VL_OUT(&io_lsuwdata,31,0);
     VL_OUT(&io_wburesult,31,0);
+    VL_OUT(&io_wbupc,31,0);
+    VL_OUT(&io_lsupc,31,0);
     VL_OUT(&io_regsrc1,31,0);
     VL_OUT(&io_regsrc2,31,0);
-    VL_OUT(&io_regrd,31,0);
-    VL_OUT(&io_regwen,31,0);
-    VL_OUT(&io_regwaddr,31,0);
+    VL_OUT(&io_regwdata,31,0);
     VL_OUT(&io_imm,31,0);
 
     // CELLS
