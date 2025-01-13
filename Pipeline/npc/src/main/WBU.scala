@@ -10,8 +10,8 @@ class ysyx_23060336_WBU extends Module{
     val CsrWr    = Output(Bool())
     val rd       = Output(UInt(5.W))
     val csr      = Output(UInt(12.W))
-    val result   = Output(UInt(32.W))
-    val DataOut  = Output(UInt(32.W))
+    val csrdata  = Output(UInt(32.W))
+    val regdata  = Output(UInt(32.W))
     val pc       = Output(UInt(32.W))
     val valid    = Output(Bool())
     val ready    = Output(Bool())
@@ -45,9 +45,9 @@ class ysyx_23060336_WBU extends Module{
   io.csr    := io.in.bits.csr
   io.CsrWr  := io.in.bits.CsrWr
   io.RegWr  := io.in.bits.RegWr
-  io.result := io.in.bits.result
+  io.csrdata:= io.in.bits.result
 
-  io.DataOut := Mux(io.CsrWr, io.in.bits.Csr,
+  io.regdata := Mux(io.CsrWr, io.in.bits.Csr,
                 Mux(io.in.bits.RegNum === "b010".U, io.in.bits.DataOut,
                 Mux(io.in.bits.RegNum === "b101".U, io.in.bits.DataOut, 
                 Mux(io.in.bits.RegNum === "b011".U, Cat(Fill(24, 0.U), io.in.bits.DataOut(7, 0)),

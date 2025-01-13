@@ -73,7 +73,7 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     |   input             rready,
     |   output reg        rvalid,
     |   output reg [1:0]  rresp,
-    |   output reg [31:0] rdata,
+    |   output wire [31:0] rdata,
     |   output reg        rlast,
     |   output reg [3:0]  rid     
     | );
@@ -83,6 +83,8 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     | reg  [31:0] resp;
     | reg  [4:0]  RLFSR;
     | reg  [4:0]  WLFSR;
+    | reg  [31:0] Begin;
+    | reg  [31:0] sdramdata;
     | wire [31:0] strb;
     |
     | assign awready = 1'b1;
@@ -94,37 +96,40 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     | assign bid     = 4'b1;
     | assign strb    = {{28{1'b0}},wstrb};
     | assign wready  = 1'b1;
+    | assign rdata   = (Begin == 32'b1) ? 32'h00000413 : sdramdata;
     |
-    | always@(posedge clock) begin
+    | always@(posedge clock or posedge reset) begin
     |   if(reset) begin
     |     bvalid  <= 1'b0;
     |     rvalid  <= 1'b0;
+    |     Begin   <= 32'b0;
     |   end else begin
+    |
+    |     Begin <= Begin + 32'b1;
     |
     |   /* //test
     |     if(arvalid && arready) begin
     |       if(RLFSR >= 5'b11) begin
     |         RLFSR  <= 5'b0;
     |         rvalid <= 1'b1;
-    |         rdata  <= pmem_read(araddr);
-    |     //  rdata   <= data_memory[araddr];
+    |         sdramdata  <= pmem_read(araddr);
+    |     //  sdramdata   <= data_memory[araddr];
     |       end else begin
     |         RLFSR  <= RLFSR + 5'b1;
-    |         rdata  <= rdata;
+    |         sdramdata  <= sdramdata;
     |         rvalid <= 1'b0;
     |       end
     |     end else begin
     |       RLFSR <= 5'b0;
     |       rvalid <= 1'b0;
-    |       rdata <= rdata;
+    |       sdramdata <= sdramdata;
     |     end
     |   */
     |
     |     if(arvalid && arready) begin
     |       rvalid <= 1'b1;
-    |       rdata  <= pmem_read(araddr);
+    |       sdramdata  <= pmem_read(araddr);
     |     end else begin
-    |       rdata  <= rdata;
     |       rvalid <= 1'b0;
     |     end
     |

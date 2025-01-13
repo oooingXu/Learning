@@ -68,8 +68,11 @@ Vysyx_23060336::Vysyx_23060336(VerilatedContext* _vcontextp__, const char* _vcna
     , io_pcadd{vlSymsp->TOP.io_pcadd}
     , io_pca{vlSymsp->TOP.io_pca}
     , io_pcb{vlSymsp->TOP.io_pcb}
+    , io_aluresult{vlSymsp->TOP.io_aluresult}
     , io_ina{vlSymsp->TOP.io_ina}
     , io_inb{vlSymsp->TOP.io_inb}
+    , io_regdata{vlSymsp->TOP.io_regdata}
+    , io_csrdata{vlSymsp->TOP.io_csrdata}
     , io_ifuaraddr{vlSymsp->TOP.io_ifuaraddr}
     , io_lsuaraddr{vlSymsp->TOP.io_lsuaraddr}
     , io_lsurdata{vlSymsp->TOP.io_lsurdata}

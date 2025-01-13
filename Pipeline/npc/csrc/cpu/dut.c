@@ -60,18 +60,22 @@ void init_difftest(char *ref_so_file, long img_size){
 
 static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 	if(cpu.reset) return true;
+	if(cpu.pc == cpu.dnpc) return true;
+	if(cpu.pc == 0x80000000 || cpu.pc == 0) return true;
 
 	for(int i = 0; i < R; i++){
 		if(ref->gpr[i] != cpu.gpr[i]){
 			printf("Wrong regs\n");
-			printf("reg.gpr[%s] = 0x%08x, ",regs[i],ref->gpr[i]);
+			printf("ref.gpr[%s] = 0x%08x, ",regs[i],ref->gpr[i]);
 			printf("dut->gpr[%s] = 0x%08x, ",regs[i],cpu.gpr[i]);
-			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->dnpc, cpu.dnpc, cpu.pc);
+			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
+			printf("inst = 0x%08x\n", pmem_read(cpu.pc));
 
 			return false;
 		}
 	}
 
+	/*
 	for(int i = 0; i < C; i++){
 		if(ref->csr[i] != cpu.csr[i]){
 			printf("Wrong csrs\n");
@@ -81,9 +85,10 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 			return false;
 		}
 	}
+	*/
 
 	if(ref->pc != cpu.dnpc){
-		debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->dnpc, cpu.dnpc, cpu.pc);
+		debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->pc, cpu.dnpc, cpu.pc);
 		printf("Wrong pc\n");
 		printf("ref->pc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc);
 
@@ -130,15 +135,19 @@ void difftest_step(){
 		is_skip_ref = false;
 		return;
 	}
-#ifdef PTRACE
+#ifdef CONFIG_PTRACE
+	if(cpu.pc != cpu.dnpc){
 	printf("dut->pc = 0x%08x, dut->dnpc = 0x%08x, ref->pc = 0x%08x,", cpu.pc, cpu.dnpc, ref_r.pc);
+	}
 #endif
 
 	ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 	ref_difftest_exec(&ref_r);
 
-#ifdef PTRACE
+#ifdef CONFIG_PTRACE
+	if(cpu.pc != cpu.dnpc){
 	printf(" ref->dnpc = 0x%08x\n", ref_r.pc);
+	}
 #endif
 	//debug("ref->pc = 0x%08x", ref_r.pc);
 

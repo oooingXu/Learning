@@ -103,24 +103,29 @@ config DTRACE
 	bool "Enable instruction dtracer"
 	default n
 
-config MFRACE
+config FTRACE
 	depends on TRACE
 	bool "Enable instruction ftracer"
 	default n
 
-config RFRACE
+config RTRACE
 	depends on TRACE
 	bool "Enable instruction rtracer"
 	default n
 
-config WAVE
+config PTRACE
 	depends on TRACE
-	bool "Enable instruction gtkwave"
+	bool "Enable instruction ptracer"
 	default n
 
 config CTRACE
 	depends on TRACE
 	bool "Enable instruction ctrace"
+	default n
+
+config WAVE
+	depends on TRACE
+	bool "Enable instruction gtkwave"
 	default n
 
 config DIFFTEST

@@ -40,15 +40,15 @@ class ysyx_23060336_IFU extends Module{
   */
 
  Checkright := Mux(io.checkfail, Checkright + 1.U, 0.U) 
- CheckRight := (Checkright > 0.U) && io.axi.rvalid
+ CheckRight := (Checkright > 0.U) && io.checkfail 
 
   PC := Mux(reset.asBool, npc,      
-        Mux(io.checkfail, io.dnpc,
+        Mux(io.checkfail && !CheckRight, io.dnpc,
         Mux(io.ebreak, io.dnpc,
         Mux(!io.out.valid || !io.out.ready, PC, PC + 4.U))))
 
   io.axi.araddr  := Mux(reset.asBool, npc, 
-                    Mux(io.checkfail, io.dnpc,
+                    Mux(io.checkfail && !CheckRight, io.dnpc,
                     Mux(io.ebreak, io.dnpc,
                     Mux(!io.out.ready, PC, PC + 4.U))))
 

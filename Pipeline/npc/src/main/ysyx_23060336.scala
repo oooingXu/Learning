@@ -57,8 +57,11 @@ class ysyx_23060336 extends Module {
     val pcadd     = Output(UInt(32.W))
     val pca       = Output(UInt(32.W))
     val pcb       = Output(UInt(32.W))
+    val aluresult = Output(UInt(32.W))
     val ina       = Output(UInt(32.W))
     val inb       = Output(UInt(32.W))
+    val regdata   = Output(UInt(32.W))
+    val csrdata   = Output(UInt(32.W))
     val idurs1    = Output(UInt(5.W))
     val idurs2    = Output(UInt(5.W))
     val exurd     = Output(UInt(5.W))
@@ -154,7 +157,7 @@ class ysyx_23060336 extends Module {
   idu.io.exu_rd := exu.io.rd
   idu.io.lsu_rd := lsu.io.rd
   idu.io.wbu_rd := wbu.io.rd
-  idu.io.exu_pc := exu.io.pc
+  idu.io.wbu_pc  := wbu.io.pc
   idu.io.checkfail := exu.io.checkfail
 
   io.regrs1     := idu.io.rs1 
@@ -169,11 +172,11 @@ class ysyx_23060336 extends Module {
 
   reg.io.wen    := wbu.io.RegWr 
   reg.io.waddr  := wbu.io.rd
-  reg.io.wdata  := wbu.io.DataOut
+  reg.io.wdata  := wbu.io.regdata
 
   idu.io.Csr    := csr.io.rdata
   csr.io.raddr  := idu.io.csr
-  csr.io.wdata  := wbu.io.result
+  csr.io.wdata  := wbu.io.csrdata
   csr.io.waddr  := wbu.io.csr
   csr.io.wen    := wbu.io.CsrWr
   io.mcause     := csr.io.mcause
@@ -182,7 +185,10 @@ class ysyx_23060336 extends Module {
   io.inst       := ifu.io.inst
   io.wbupc      := wbu.io.pc
   io.lsupc      := lsu.io.pc
-  io.wburesult  := wbu.io.result
+  io.regdata    := lsu.io.regdata
+  io.csrdata    := lsu.io.csrdata
+  io.wburesult  := wbu.io.csrdata
+  io.aluresult  := exu.io.aluresult
   ifu.io.isRAW  := idu.io.isRAW
   ifu.io.dnpc   := exu.io.dnpc
   ifu.io.checkfail := exu.io.checkfail

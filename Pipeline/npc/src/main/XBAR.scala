@@ -57,7 +57,7 @@ class ysyx_23060336_XBAR extends Module{
 
   // ********** Arbiter **********
   
-  // AR
+  // AR R
    /*
   when(io.lsu.arvalid) {
       arid          := io.lsu.arid
@@ -99,6 +99,7 @@ class ysyx_23060336_XBAR extends Module{
       arsize        := io.lsu.arsize
       arvalid       := io.lsu.arvalid
       arburst       := io.lsu.arburst
+      rready        := io.lsu.rready
       io.ifu.rvalid := rvalid && false.B
       io.lsu.rvalid := rvalid && true.B
   } .otherwise {
@@ -108,6 +109,7 @@ class ysyx_23060336_XBAR extends Module{
       arsize        := io.ifu.arsize
       arvalid       := io.ifu.arvalid
       arburst       := io.ifu.arburst
+      rready        := io.ifu.rready
       io.ifu.rvalid := rvalid && true.B
       io.lsu.rvalid := rvalid && false.B
     } 
@@ -119,6 +121,7 @@ class ysyx_23060336_XBAR extends Module{
       arvalid       := io.ifu.arvalid
       arburst       := io.ifu.arburst
       arid_halt     := io.ifu.arid
+      rready        := io.ifu.rready
       io.ifu.rvalid := rvalid && true.B
       io.lsu.rvalid := rvalid && false.B
   } .elsewhen(~io.ifu.arvalid && io.lsu.arvalid) {
@@ -129,6 +132,7 @@ class ysyx_23060336_XBAR extends Module{
       arvalid       := io.lsu.arvalid
       arburst       := io.lsu.arburst
       arid_halt     := io.lsu.arid
+      rready        := io.lsu.rready
       io.ifu.rvalid := rvalid && false.B
       io.lsu.rvalid := rvalid && true.B
   } .otherwise {
@@ -139,6 +143,7 @@ class ysyx_23060336_XBAR extends Module{
       arvalid       := false.B
       arburst       := io.ifu.arburst
       arid_halt     := io.ifu.arid
+      rready        := false.B
       io.ifu.rvalid := rvalid && false.B
       io.lsu.rvalid := rvalid && false.B
   }
@@ -148,8 +153,8 @@ class ysyx_23060336_XBAR extends Module{
   io.lsu.arready:= arready
 
   // R
+  /*
   when(arid_halt === io.ifu.arid && io.ifu.rready && rvalid){
-      rready        := io.ifu.rready
       arid_halt     := io.lsu.arid
   } .elsewhen(arid_halt === io.lsu.arid && io.lsu.rready && rvalid){
       rready        := io.lsu.rready
@@ -159,15 +164,16 @@ class ysyx_23060336_XBAR extends Module{
       //arid_halt     := Mux(arid_halt === io.ifu.arid, io.lsu.arid, io.ifu.arid)
       arid_halt     := arid_halt
   }
+  */
 
   io.ifu.rid    := rid       
   io.ifu.rresp  := rresp     
-  io.ifu.rdata  := rdata     
+  io.ifu.rdata  := Mux(io.ifu.rready && io.ifu.rvalid, rdata, 0.U)     
   io.ifu.rlast  := rlast     
                          
   io.lsu.rid    := rid       
   io.lsu.rresp  := rresp     
-  io.lsu.rdata  := rdata     
+  io.lsu.rdata  := Mux(io.lsu.rready && io.lsu.rvalid, rdata, 0.U)     
   io.lsu.rlast  := rlast     
 
   // AW

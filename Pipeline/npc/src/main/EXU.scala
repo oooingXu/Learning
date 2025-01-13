@@ -33,6 +33,7 @@ class ysyx_23060336_EXU extends Module{
     val alumux    = Output(UInt(4.W))
     val rd        = Output(UInt(5.W))
     val pcadd     = Output(UInt(32.W))
+    val aluresult = Output(UInt(32.W))
     val ina       = Output(UInt(32.W))
     val inb       = Output(UInt(32.W))
     val pca       = Output(UInt(32.W))
@@ -54,7 +55,6 @@ class ysyx_23060336_EXU extends Module{
   val PCMux = Wire(UInt(4.W))
 
   val pc    = "h80000000".U
-  val empty = (io.in.bits.pc === 0.U)
 
   val e_idle :: e_wait_ready :: Nil = Enum(2)
   val state = RegInit(e_idle)
@@ -125,6 +125,7 @@ class ysyx_23060336_EXU extends Module{
   io.pcadd     := pcadd
   io.ina       := ina
   io.inb       := inb
+  io.aluresult := alu.io.result
   io.alumux    := io.in.bits.AluMux
   io.pc        := io.in.bits.pc
   io.pcmux     := io.in.bits.PcMux

@@ -41,7 +41,7 @@ class ysyx_23060336_IDU extends Module{
     val exu_rd   = Input(UInt(5.W))
     val lsu_rd   = Input(UInt(5.W))
     val wbu_rd   = Input(UInt(5.W))
-    val exu_pc   = Input(UInt(32.W))
+    val wbu_pc   = Input(UInt(32.W))
     val checkfail= Input(Bool())
     val ebreak   = Input(Bool())
     val rs1      = Output(UInt(5.W))
@@ -363,10 +363,10 @@ class ysyx_23060336_IDU extends Module{
                  instType === "b010".U   ||
                  instType === "b101".U)) 
 
-  israwn := (conflict(rs2, io.wbu_rd) || conflict(rs1, io.wbu_rd))
+  israwn := (conflict(rs2, io.wbu_rd) || conflict(rs1, io.wbu_rd))  
 
   io.out.valid := !isRAW && !io.checkfail || io.in.bits.checkright && !io.ebreak
-  io.in.ready  := !isRAW // israwn -> isRAWN
+  io.in.ready  := !isRAW 
 
   io.valid     := io.out.valid
   io.ready     := io.in.ready

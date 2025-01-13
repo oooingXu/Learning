@@ -134,11 +134,11 @@ static void trace_and_difftest(){
 static void renew_state(){
 		//npc_state.halt_ret = ysyx_23060336->io_halt_ret;
 		npc_state.halt_ret = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[10];
-		npc_state.halt_pc  = ysyx_23060336->io_PC;
+		npc_state.halt_pc  = ysyx_23060336->io_lsupc;
 
-		cpu.pc = ysyx_23060336->io_PC;
-		cpu.dnpc = ysyx_23060336->io_NPC;
-		debug("renew pc = 0x%08x, dut_pc = 0x%08x, dnpc = 0x%08x, dut_dnpc = 0x%08x", ysyx_23060336->io_PC, cpu.pc, ysyx_23060336->io_NPC, cpu.dnpc);
+		cpu.pc   = ysyx_23060336->io_wbupc;
+		cpu.dnpc = ysyx_23060336->io_lsupc;
+
 		for(int i = 0; i < R; i++){
 			cpu.gpr[i] = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[i];
 		}
@@ -150,7 +150,7 @@ static void renew_state(){
 }
 
 void exec_once(){
-		if(sim_time >= 0 && sim_time <= 1) ysyx_23060336->reset = 1;
+		if(sim_time >= 0 && sim_time <= 21) ysyx_23060336->reset = 1;
 		else ysyx_23060336->reset = 0;
 
 		ysyx_23060336->clock = !ysyx_23060336->clock;
@@ -165,12 +165,17 @@ void execute(uint32_t n){
 	for(; n > 0; n--){
 		//debug("n = %ld",n);
 		uint32_t einst = ysyx_23060336->io_inst;
+		/*
 		while(einst == ysyx_23060336->io_inst){
 			einst = ysyx_23060336->io_inst;
 			for(int j = 0; j < 2; j++){
 				exec_once();
 			}
 		}
+		*/
+			for(int j = 0; j < 2; j++){
+				exec_once();
+			}
 		renew_state();
 		debug("dnpc = 0x%08x, pc = 0x%08x", ysyx_23060336->io_NPC, ysyx_23060336->io_PC);
 		debug("inst = %08x", host_read(guest_to_host(ysyx_23060336->io_PC)));
@@ -199,7 +204,7 @@ void execute(uint32_t n){
 
 		debug("Success exec_once");
 
-		if(npc_state.state != NPC_END){
+		if(npc_state.state != NPC_END && ysyx_23060336->io_lsuvalid && ysyx_23060336->io_wbuready && cpu.pc != 0){
 			trace_and_difftest();
 		}
 		g_nr_guest_inst++;

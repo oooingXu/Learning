@@ -84,8 +84,11 @@ class Vysyx_23060336 VL_NOT_FINAL : public VerilatedModel {
     VL_OUT(&io_pcadd,31,0);
     VL_OUT(&io_pca,31,0);
     VL_OUT(&io_pcb,31,0);
+    VL_OUT(&io_aluresult,31,0);
     VL_OUT(&io_ina,31,0);
     VL_OUT(&io_inb,31,0);
+    VL_OUT(&io_regdata,31,0);
+    VL_OUT(&io_csrdata,31,0);
     VL_OUT(&io_ifuaraddr,31,0);
     VL_OUT(&io_lsuaraddr,31,0);
     VL_OUT(&io_lsurdata,31,0);

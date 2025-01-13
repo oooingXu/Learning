@@ -26,8 +26,9 @@ class ysyx_23060336_LSU extends Module{
     val MemtoReg = Output(Bool())
     val wen      = Output(Bool())
     val rd       = Output(UInt(5.W))
-    val rdata    = Output(UInt(32.W))
     val pc       = Output(UInt(32.W))
+    val regdata  = Output(UInt(32.W))
+    val csrdata  = Output(UInt(32.W))
     val axi      = new ysyx_23060336_AXI4Master()
   })
 
@@ -43,7 +44,7 @@ class ysyx_23060336_LSU extends Module{
 
   prepare := (io.axi.rready && io.axi.rvalid) || (io.axi.wvalid && io.axi.wready) 
 
-  io.out.valid := prepare || ~io.in.bits.MemtoReg
+  io.out.valid := prepare || ~io.in.bits.MemtoReg 
   io.in.ready  := Mux((io.in.bits.MemtoReg || io.in.bits.MemWr), prepare, true.B)
 
   io.out.bits.pc      := io.in.bits.pc
@@ -77,12 +78,13 @@ class ysyx_23060336_LSU extends Module{
   io.axi.arburst := "h1".U
   io.axi.rready  := io.in.bits.MemtoReg && ~io.in.bits.ebreak
 
+  io.regdata  := io.out.bits.DataOut
+  io.csrdata  := io.in.bits.result
   io.pc       := io.in.bits.pc
   io.rd       := io.in.bits.rd
   io.MemtoReg := io.in.bits.MemtoReg
   io.lsuMemWr := io.in.bits.MemWr
   io.wen      := io.in.bits.MemtoReg || io.in.bits.MemWr
-  io.rdata    := Mux(io.axi.rready && io.axi.rvalid, io.axi.rdata, 0.U)
   io.ready    := io.in.ready
   io.valid    := io.out.valid
 }
