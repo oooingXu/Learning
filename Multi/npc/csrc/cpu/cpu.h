@@ -16,6 +16,7 @@ typedef struct{
 	uint32_t pc;
 	uint32_t dnpc;
 	uint32_t reset;
+	bool		 valid;
 
 	uint32_t mepc;
 	uint32_t mcause;

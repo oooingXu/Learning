@@ -62,7 +62,7 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 
 	for(int i = 0; i < R; i++){
 		if(ref->gpr[i] != cpu.gpr[i]){
-			printf("Wrong regs\n");
+			printf("\nWrong regs\n");
 			printf("ref.gpr[%s] = 0x%08x, ",regs[i],ref->gpr[i]);
 			printf("dut->gpr[%s] = 0x%08x, ",regs[i],cpu.gpr[i]);
 			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
@@ -139,6 +139,7 @@ void difftest_step(){
 	}
 #endif
 
+
 	ref_difftest_exec(1);
 	ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 
@@ -148,7 +149,6 @@ void difftest_step(){
 	}
 #endif
 	//debug("ref->pc = 0x%08x", ref_r.pc);
-
 	checkregs(&ref_r, cpu.pc);
 #ifdef PRINT_DIFF
 	debug("Success difftest_step");

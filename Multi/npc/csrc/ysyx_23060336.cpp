@@ -126,7 +126,8 @@ static void init_npc(){
 
 static void trace_and_difftest(){
 #ifdef CONFIG_DIFFTEST
-	if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !ysyx_23060336->io_lsuvalid || !ysyx_23060336->io_wbuready) {
+	//if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !ysyx_23060336->io_lsuvalid || !ysyx_23060336->io_wbuready) {
+	if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !cpu.valid) {
 		return;
 	} else {
 	difftest_step();
@@ -137,10 +138,11 @@ static void trace_and_difftest(){
 static void renew_pc(){
 		//npc_state.halt_ret = ysyx_23060336->io_halt_ret;
 		npc_state.halt_ret = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[10];
-		npc_state.halt_pc  = ysyx_23060336->io_wbupc;
+		npc_state.halt_pc  = ysyx_23060336->io_pc;
 
-		cpu.pc   = ysyx_23060336->io_wbupc;
-		cpu.dnpc = ysyx_23060336->io_lsupc;
+		cpu.pc   = ysyx_23060336->io_pc;
+		cpu.dnpc = ysyx_23060336->io_dnpc;
+		cpu.valid= ysyx_23060336->io_out_valid;
 }
 
 static void renew_reg(){

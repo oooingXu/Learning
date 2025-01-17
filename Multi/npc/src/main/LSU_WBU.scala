@@ -18,6 +18,8 @@ class ysyx_23060336_LSU_WBU extends Module{
     val MemWr     = Input(Bool())
     val MemtoReg  = Input(Bool())
     val ebreak    = Input(Bool())
+    val empty     = Input(Bool())
+    val in_valid  = Input(Bool())
     val dnpc      = Output(UInt(32.W))
     val regdata   = Output(UInt(32.W))
     val csrdata   = Output(UInt(32.W))
@@ -33,9 +35,16 @@ class ysyx_23060336_LSU_WBU extends Module{
   val prepare = Wire(Bool())
   val DataOut = Wire(UInt(32.W))
 
-  io.out_valid := Mux((io.MemtoReg || io.MemWr), prepare, true.B)
+  val s_idle :: s_wait_ready :: Nil = Enum(2)
+  val state = RegInit(s_idle)
+  state := MuxLookup(state, s_idle)(List(
+    s_idle       -> Mux(io.in_valid, s_wait_ready, s_idle),
+    s_wait_ready -> Mux((prepare || !io.MemtoReg) && !io.empty, s_idle, s_wait_ready)
+  ))
 
-  prepare := (io.axi.rready && io.axi.rvalid) || (io.axi.wvalid && io.axi.bvalid) 
+  io.out_valid := state === s_wait_ready
+
+  prepare := (io.axi.arvalid && io.axi.rvalid) 
   DataOut := Mux(prepare, io.axi.rdata, io.result)
 
   io.rd      := io.rd_in
@@ -66,7 +75,7 @@ class ysyx_23060336_LSU_WBU extends Module{
   io.axi.wvalid  := Mux(reset.asBool, false.B, io.MemWr)
   io.axi.wdata   := io.src2
   io.axi.wstrb   := io.MemNum
-  io.axi.wlast   := true.B
+  io.axi.wlast   := Mux(io.MemWr, true.B, false.B)
   io.axi.bready  := true.B
   io.axi.arvalid := Mux(reset.asBool, false.B, io.MemtoReg)
   io.axi.araddr  := io.result
@@ -74,7 +83,7 @@ class ysyx_23060336_LSU_WBU extends Module{
   io.axi.arlen   := "h0".U
   io.axi.arsize  := "h2".U
   io.axi.arburst := "h1".U
-  io.axi.rready  := io.MemtoReg 
+  io.axi.rready  := true.B
 
 }
 

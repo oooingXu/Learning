@@ -96,7 +96,8 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     | assign bid     = 4'b1;
     | assign strb    = {{28{1'b0}},wstrb};
     | assign wready  = 1'b1;
-    | assign rdata   = (Begin == 32'b1) ? 32'h00000413 : sdramdata;
+    | assign rdata   = sdramdata;
+    | //assign rdata   = (Begin == 32'b1) ? 32'h00000413 : sdramdata;
     |
     | always@(posedge clock or posedge reset) begin
     |   if(reset) begin
@@ -126,7 +127,7 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     |     end
     |   */
     |
-    |     if(arvalid && arready) begin
+    |     if(arvalid && arready && !rvalid) begin
     |       rvalid <= 1'b1;
     |       sdramdata  <= pmem_read(araddr);
     |     end else begin
@@ -155,7 +156,7 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     |     resp   <= resp;
     |   end
     |
-    |   if(wvalid && wready && wlast) begin
+    |   if(wvalid && wready && wlast && !bvalid) begin
     |     bvalid <= 1'b1;
     |   end else begin
     |     bvalid <= 1'b0;

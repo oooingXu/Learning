@@ -28,6 +28,7 @@ class ysyx_23060336_IDU_EXU extends Module{
     val MemWr    = Output(Bool())
     val RegWr    = Output(Bool())
     val MemtoReg = Output(Bool())
+    val empty    = Output(Bool())
     val ebreak   = Output(Bool())
 	})
 
@@ -347,9 +348,11 @@ class ysyx_23060336_IDU_EXU extends Module{
 
   pcadd := pca + pcb
 
-  io.dnpc := Mux(io.ecall, io.mtvec,      
-             Mux(mret,  io.mepc, pcadd))
+  io.dnpc := Mux(reset.asBool, "h80000000".U,
+             Mux(io.ecall, io.mtvec,      
+             Mux(mret,  io.mepc, pcadd)))
 
+  io.empty    := io.inst === 0.U
   io.Csr      := io.Csr_in
   io.rs1      := rs1
   io.rs2      := rs2

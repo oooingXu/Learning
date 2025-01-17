@@ -14,6 +14,7 @@ class ysyx_23060336 extends Module {
 	val io = IO(new Bundle{
     val dnpc      = Output(UInt(32.W))
     val pc        = Output(UInt(32.W))
+    val out_valid = Output(Bool())
 })
 
   val ifu     = Module(new ysyx_23060336_IFU())
@@ -21,55 +22,91 @@ class ysyx_23060336 extends Module {
   val lsu_wbu = Module(new ysyx_23060336_LSU_WBU())
   val reg     = Module(new ysyx_23060336_REG())
   val csr     = Module(new ysyx_23060336_CSR())
-  val xbar    = Module(new ysyx_23060336_XBAR())
-  val sdram   = Module(new ysyx_23060336_SDRAM())
-  val clint   = Module(new ysyx_23060336_CLINT())
+  val sdram_ifu   = Module(new ysyx_23060336_SDRAM())
+  val sdram_lsu   = Module(new ysyx_23060336_SDRAM())
+  //val xbar    = Module(new ysyx_23060336_XBAR())
+  //val clint   = Module(new ysyx_23060336_CLINT())
 
   // Xbar
-  xbar.io.ifu   <> ifu.io.axi
-  xbar.io.lsu   <> lsu_wbu.io.axi
-  xbar.io.clint <> clint.io.axi
+  //xbar.io.ifu   <> ifu.io.axi
+  //xbar.io.lsu   <> lsu_wbu.io.axi
+  //xbar.io.clint <> clint.io.axi
 
-  // Axi4Sdram
-  xbar.io.sdram.awready := sdram.io.awready
-  sdram.io.awvalid      := xbar.io.sdram.awvalid
-  sdram.io.awaddr       := xbar.io.sdram.awaddr
-  sdram.io.awid         := xbar.io.sdram.awid
-  sdram.io.awlen        := xbar.io.sdram.awlen
-  sdram.io.awsize       := xbar.io.sdram.awsize
-  sdram.io.awburst      := xbar.io.sdram.awburst
-  xbar.io.sdram.wready  := sdram.io.wready
-  sdram.io.wvalid       := xbar.io.sdram.wvalid
-  sdram.io.wdata        := xbar.io.sdram.wdata
-  sdram.io.wstrb        := xbar.io.sdram.wstrb
-  sdram.io.wlast        := xbar.io.sdram.wlast
-  sdram.io.bready       := xbar.io.sdram.bready
-  xbar.io.sdram.bvalid  := sdram.io.bvalid
-  xbar.io.sdram.bresp   := sdram.io.bresp
-  xbar.io.sdram.bid     := sdram.io.bid
-  xbar.io.sdram.arready := sdram.io.arready
-  sdram.io.arvalid      := xbar.io.sdram.arvalid
-  sdram.io.araddr       := xbar.io.sdram.araddr
-  sdram.io.arid         := xbar.io.sdram.arid
-  sdram.io.arlen        := xbar.io.sdram.arlen
-  sdram.io.arsize       := xbar.io.sdram.arsize
-  sdram.io.arburst      := xbar.io.sdram.arburst
-  sdram.io.rready       := xbar.io.sdram.rready
-  xbar.io.sdram.rvalid  := sdram.io.rvalid
-  xbar.io.sdram.rresp   := sdram.io.rresp
-  xbar.io.sdram.rdata   := sdram.io.rdata
-  xbar.io.sdram.rlast   := sdram.io.rlast
-  xbar.io.sdram.rid     := sdram.io.rid
-  sdram.io.clock        := clock
-  sdram.io.reset        := reset
+  // Axi4 sdram <-> ifu
+  ifu.io.axi.awready   := sdram_ifu.io.awready
+  sdram_ifu.io.awvalid := ifu.io.axi.awvalid
+  sdram_ifu.io.awaddr  := ifu.io.axi.awaddr
+  sdram_ifu.io.awid    := ifu.io.axi.awid
+  sdram_ifu.io.awlen   := ifu.io.axi.awlen
+  sdram_ifu.io.awsize  := ifu.io.axi.awsize
+  sdram_ifu.io.awburst := ifu.io.axi.awburst
+  ifu.io.axi.wready    := sdram_ifu.io.wready
+  sdram_ifu.io.wvalid  := ifu.io.axi.wvalid
+  sdram_ifu.io.wdata   := ifu.io.axi.wdata
+  sdram_ifu.io.wstrb   := ifu.io.axi.wstrb
+  sdram_ifu.io.wlast   := ifu.io.axi.wlast
+  sdram_ifu.io.bready  := ifu.io.axi.bready
+  ifu.io.axi.bvalid    := sdram_ifu.io.bvalid
+  ifu.io.axi.bresp     := sdram_ifu.io.bresp
+  ifu.io.axi.bid       := sdram_ifu.io.bid
+  ifu.io.axi.arready   := sdram_ifu.io.arready
+  sdram_ifu.io.arvalid := ifu.io.axi.arvalid
+  sdram_ifu.io.araddr  := ifu.io.axi.araddr
+  sdram_ifu.io.arid    := ifu.io.axi.arid
+  sdram_ifu.io.arlen   := ifu.io.axi.arlen
+  sdram_ifu.io.arsize  := ifu.io.axi.arsize
+  sdram_ifu.io.arburst := ifu.io.axi.arburst
+  sdram_ifu.io.rready  := ifu.io.axi.rready
+  ifu.io.axi.rvalid    := sdram_ifu.io.rvalid
+  ifu.io.axi.rresp     := sdram_ifu.io.rresp
+  ifu.io.axi.rdata     := sdram_ifu.io.rdata
+  ifu.io.axi.rlast     := sdram_ifu.io.rlast
+  ifu.io.axi.rid       := sdram_ifu.io.rid
+  sdram_ifu.io.clock   := clock
+  sdram_ifu.io.reset   := reset
+
+  // Axi4 sdram <-> lsu
+  lsu_wbu.io.axi.awready := sdram_lsu.io.awready
+  sdram_lsu.io.awvalid   := lsu_wbu.io.axi.awvalid
+  sdram_lsu.io.awaddr    := lsu_wbu.io.axi.awaddr
+  sdram_lsu.io.awid      := lsu_wbu.io.axi.awid
+  sdram_lsu.io.awlen     := lsu_wbu.io.axi.awlen
+  sdram_lsu.io.awsize    := lsu_wbu.io.axi.awsize
+  sdram_lsu.io.awburst   := lsu_wbu.io.axi.awburst
+  lsu_wbu.io.axi.wready  := sdram_lsu.io.wready
+  sdram_lsu.io.wvalid    := lsu_wbu.io.axi.wvalid
+  sdram_lsu.io.wdata     := lsu_wbu.io.axi.wdata
+  sdram_lsu.io.wstrb     := lsu_wbu.io.axi.wstrb
+  sdram_lsu.io.wlast     := lsu_wbu.io.axi.wlast
+  sdram_lsu.io.bready    := lsu_wbu.io.axi.bready
+  lsu_wbu.io.axi.bvalid  := sdram_lsu.io.bvalid
+  lsu_wbu.io.axi.bresp   := sdram_lsu.io.bresp
+  lsu_wbu.io.axi.bid     := sdram_lsu.io.bid
+  lsu_wbu.io.axi.arready := sdram_lsu.io.arready
+  sdram_lsu.io.arvalid   := lsu_wbu.io.axi.arvalid
+  sdram_lsu.io.araddr    := lsu_wbu.io.axi.araddr
+  sdram_lsu.io.arid      := lsu_wbu.io.axi.arid
+  sdram_lsu.io.arlen     := lsu_wbu.io.axi.arlen
+  sdram_lsu.io.arsize    := lsu_wbu.io.axi.arsize
+  sdram_lsu.io.arburst   := lsu_wbu.io.axi.arburst
+  sdram_lsu.io.rready    := lsu_wbu.io.axi.rready
+  lsu_wbu.io.axi.rvalid  := sdram_lsu.io.rvalid
+  lsu_wbu.io.axi.rresp   := sdram_lsu.io.rresp
+  lsu_wbu.io.axi.rdata   := sdram_lsu.io.rdata
+  lsu_wbu.io.axi.rlast   := sdram_lsu.io.rlast
+  lsu_wbu.io.axi.rid     := sdram_lsu.io.rid
+  sdram_lsu.io.clock     := clock
+  sdram_lsu.io.reset     := reset
 
   // ifu <-> idu_exu
   idu_exu.io.inst := ifu.io.inst
   idu_exu.io.pc   := ifu.io.pc 
+  ifu.io.empty    := idu_exu.io.empty
 
   // idu_exu <-> lsu_wbu
   lsu_wbu.io.result   := idu_exu.io.result
   lsu_wbu.io.dnpc_in  := idu_exu.io.dnpc
+  lsu_wbu.io.Csr      := idu_exu.io.Csr
   lsu_wbu.io.csr_in   := idu_exu.io.csr
   lsu_wbu.io.rd_in    := idu_exu.io.rd
   lsu_wbu.io.MemNum   := idu_exu.io.MemNum
@@ -79,14 +116,16 @@ class ysyx_23060336 extends Module {
   lsu_wbu.io.RegWr_in := idu_exu.io.RegWr
   lsu_wbu.io.MemtoReg := idu_exu.io.MemtoReg
   lsu_wbu.io.ebreak   := idu_exu.io.ebreak
-  lsu_wbu.io.Csr      := idu_exu.io.Csr
+  lsu_wbu.io.empty    := idu_exu.io.empty
 
   // ifu <-> lsu_wbu
   ifu.io.dnpc      := lsu_wbu.io.dnpc
-  ifu.io.out_valid := lsu_wbu.io.out_valid
+  ifu.io.in_valid  := lsu_wbu.io.out_valid
+  lsu_wbu.io.in_valid := ifu.io.out_valid
 
   // lsu_wbu <-> top
   io.dnpc := lsu_wbu.io.dnpc
+  io.out_valid := lsu_wbu.io.out_valid
 
   // ifu <-> top
   io.pc := ifu.io.pc
@@ -100,7 +139,7 @@ class ysyx_23060336 extends Module {
   // reg <-> lsu_wbu
   reg.io.wdata    := lsu_wbu.io.regdata
   reg.io.waddr    := lsu_wbu.io.rd
-  reg.io.wen      := lsu_wbu.io.RegWr
+  reg.io.wen      := lsu_wbu.io.RegWr && (idu_exu.io.MemtoReg ^ ifu.io.out_valid)
   lsu_wbu.io.src2 := reg.io.rdata2
 
   // csr <-> ifu
