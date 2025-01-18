@@ -5,17 +5,17 @@ import chisel3.util._
 
 class ysyx_23060336_XBAR extends Module{
   val io = IO(new Bundle{
-    val ifu = new ysyx_23060336_AXI4Slave()
-    val lsu = new ysyx_23060336_AXI4Slave()
-    val sdram = new ysyx_23060336_AXI4Master()
+    val ifu   = new ysyx_23060336_AXI4Slave()
+    val lsu   = new ysyx_23060336_AXI4Slave()
+    val sram  = new ysyx_23060336_AXI4Master()
     val clint = new ysyx_23060336_AXI4Master()
   })
 
-  def DEVICE_BASE      = "ha0000000".U
   def CLINT_ADDR_LEFT  = DEVICE_BASE + "h00000048".U
   def CLINT_ADDR_RIGHT = CLINT_ADDR_LEFT + "h00000040".U
-  def SDRAM_ADDR_LEFT  = "h80000000".U
-  def SDRAM_ADDR_RIGHT = "h80ffffff".U
+  def DEVICE_BASE      = "ha0000000".U
+  def SRAM_ADDR_LEFT   = "h80000000".U
+  def SRAM_ADDR_RIGHT  = "h80ffffff".U
 
   val awready = Wire(Bool())
   val awvalid = Wire(Bool()) 
@@ -241,16 +241,16 @@ class ysyx_23060336_XBAR extends Module{
   // ********** Xbar **********
 
   // AR R
-  when(araddr >= SDRAM_ADDR_LEFT && araddr <= SDRAM_ADDR_RIGHT) {
-    arready          := io.sdram.arready
-    rvalid           := io.sdram.rvalid
-    rresp            := io.sdram.rresp
-    rdata            := io.sdram.rdata
-    rlast            := io.sdram.rlast
-    rid              := io.sdram.rid
-    io.sdram.rready  := rready && true.B
+  when(araddr >= SRAM_ADDR_LEFT && araddr <= SRAM_ADDR_RIGHT) {
+    arready          := io.sram.arready
+    rvalid           := io.sram.rvalid
+    rresp            := io.sram.rresp
+    rdata            := io.sram.rdata
+    rlast            := io.sram.rlast
+    rid              := io.sram.rid
+    io.sram.rready   := rready && true.B
     io.clint.rready  := false.B
-    io.sdram.arvalid := arvalid && true.B
+    io.sram.arvalid  := arvalid && true.B
     io.clint.arvalid := false.B
   } .elsewhen(araddr >= CLINT_ADDR_LEFT && araddr <= CLINT_ADDR_RIGHT) {
     arready          := io.clint.arready
@@ -259,28 +259,28 @@ class ysyx_23060336_XBAR extends Module{
     rdata            := io.clint.rdata
     rlast            := io.clint.rlast
     rid              := io.clint.rid
-    io.sdram.rready  := false.B
+    io.sram.rready   := false.B
     io.clint.rready  := rready && true.B
-    io.sdram.arvalid := false.B
+    io.sram.arvalid  := false.B
     io.clint.arvalid := arvalid && true.B
   } .otherwise {
     arready          := false.B
     rvalid           := false.B
     rresp            := "b11".U// wrong
-    rdata            := io.sdram.rdata
-    rlast            := io.sdram.rlast
-    rid              := io.sdram.rid
-    io.sdram.rready  := false.B
+    rdata            := io.sram.rdata
+    rlast            := io.sram.rlast
+    rid              := io.sram.rid
+    io.sram.rready   := false.B
     io.clint.rready  := false.B
-    io.sdram.arvalid := false.B
+    io.sram.arvalid  := false.B
     io.clint.arvalid := false.B
   }
 
-  io.sdram.arid    := arid
-  io.sdram.arlen   := arlen
-  io.sdram.arsize  := arsize
-  io.sdram.araddr  := araddr
-  io.sdram.arburst := arburst
+  io.sram.arid    := arid
+  io.sram.arlen   := arlen
+  io.sram.arsize  := arsize
+  io.sram.araddr  := araddr
+  io.sram.arburst := arburst
 
   io.clint.arid    := arid
   io.clint.arlen   := arlen
@@ -289,17 +289,17 @@ class ysyx_23060336_XBAR extends Module{
   io.clint.arburst := arburst
 
   // AW W B
-  when(awaddr >= SDRAM_ADDR_LEFT && awaddr <= SDRAM_ADDR_RIGHT) {
-    awready          := io.sdram.awready
-    wready           := io.sdram.wready
-    bvalid           := io.sdram.bvalid
-    bresp            := io.sdram.bresp
-    bid              := io.sdram.bid
-    io.sdram.bready  := bready && true.B
+  when(awaddr >= SRAM_ADDR_LEFT && awaddr <= SRAM_ADDR_RIGHT) {
+    awready          := io.sram.awready
+    wready           := io.sram.wready
+    bvalid           := io.sram.bvalid
+    bresp            := io.sram.bresp
+    bid              := io.sram.bid
+    io.sram.bready   := bready && true.B
     io.clint.bready  := false.B
-    io.sdram.wvalid  := wvalid && true.B
+    io.sram.wvalid   := wvalid && true.B
     io.clint.wvalid  := false.B
-    io.sdram.awvalid := awvalid && true.B
+    io.sram.awvalid  := awvalid && true.B
     io.clint.awvalid := false.B
   } .elsewhen(awaddr >= CLINT_ADDR_LEFT && awaddr <= CLINT_ADDR_RIGHT) {
     awready          := io.clint.awready
@@ -307,34 +307,34 @@ class ysyx_23060336_XBAR extends Module{
     bvalid           := io.clint.bvalid
     bresp            := io.clint.bresp
     bid              := io.clint.bid
-    io.sdram.bready  := false.B
+    io.sram.bready   := false.B
     io.clint.bready  := bready && true.B
-    io.sdram.wvalid  := false.B
+    io.sram.wvalid   := false.B
     io.clint.wvalid  := wvalid && true.B
-    io.sdram.awvalid := false.B
+    io.sram.awvalid  := false.B
     io.clint.awvalid := awvalid && true.B
   } .otherwise {
     awready          := false.B
-    wready           := io.sdram.wready
-    bvalid           := io.sdram.bvalid
-    bresp            := io.sdram.bresp
-    bid              := io.sdram.bid
-    io.sdram.bready  := false.B
+    wready           := io.sram.wready
+    bvalid           := io.sram.bvalid
+    bresp            := io.sram.bresp
+    bid              := io.sram.bid
+    io.sram.bready   := false.B
     io.clint.bready  := false.B
-    io.sdram.wvalid  := false.B
+    io.sram.wvalid   := false.B
     io.clint.wvalid  := false.B
-    io.sdram.awvalid := false.B
+    io.sram.awvalid  := false.B
     io.clint.awvalid := false.B
   }
 
-    io.sdram.awaddr  := awaddr
-    io.sdram.awid    := awid
-    io.sdram.awlen   := awlen
-    io.sdram.awsize  := awsize
-    io.sdram.awburst := awburst
-    io.sdram.wdata   := wdata
-    io.sdram.wstrb   := wstrb
-    io.sdram.wlast   := wlast
+    io.sram.awaddr  := awaddr
+    io.sram.awid    := awid
+    io.sram.awlen   := awlen
+    io.sram.awsize  := awsize
+    io.sram.awburst := awburst
+    io.sram.wdata   := wdata
+    io.sram.wstrb   := wstrb
+    io.sram.wlast   := wlast
     
     io.clint.awaddr  := awaddr
     io.clint.awid    := awid

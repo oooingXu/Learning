@@ -6,6 +6,7 @@
 #include "Vysyx_23060336___024unit__DepSet_haeae8386__0.cpp"
 #include "Vysyx_23060336__Dpi.cpp"
 #include "Vysyx_23060336__Trace__0.cpp"
+#include "Vysyx_23060336__ConstPool_0.cpp"
 #include "Vysyx_23060336___024root__Slow.cpp"
 #include "Vysyx_23060336___024root__DepSet_h4fc39487__0__Slow.cpp"
 #include "Vysyx_23060336___024root__DepSet_h6877d990__0__Slow.cpp"

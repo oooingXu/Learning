@@ -19,7 +19,6 @@ class ysyx_23060336_LSU_WBU extends Module{
     val MemWr     = Input(Bool())
     val MemtoReg  = Input(Bool())
     val ebreak    = Input(Bool())
-    val empty     = Input(Bool())
     val in_valid  = Input(Bool())
     val dnpc      = Output(UInt(32.W))
     val regdata   = Output(UInt(32.W))
@@ -36,23 +35,26 @@ class ysyx_23060336_LSU_WBU extends Module{
   val ebreak  = Module(new ysyx_23060336_EBREAK())
   val prepare = Wire(Bool())
   val DataOut = Wire(UInt(32.W))
+  val arvalid = RegInit(0.U(1.W))
 
-  val s_idle :: s_wait_ready :: Nil = Enum(2)
+  val s_idle :: s_wait_ready :: csr_state :: reg_state :: Nil = Enum(4)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(
     s_idle       -> Mux(io.in_valid, s_wait_ready, s_idle),
-    s_wait_ready -> Mux((prepare || !io.MemtoReg) && !io.empty, s_idle, s_wait_ready)
+    s_wait_ready -> Mux((prepare || (!io.MemtoReg && !io.MemWr)), Mux(io.CsrWr_in, csr_state, reg_state), s_wait_ready),
+    csr_state    -> Mux(io.RegWr_in, reg_state, s_idle),
+    reg_state    -> s_idle
   ))
 
-  io.out_valid := state === s_wait_ready
+  io.out_valid := state === reg_state 
 
-  prepare := (io.axi.arvalid && io.axi.rvalid) 
-  DataOut := Mux(prepare, io.axi.rdata, io.result)
+  prepare := (io.axi.arvalid && io.axi.rvalid) || (io.axi.awvalid && io.axi.bvalid) 
+  DataOut := Mux(state === reg_state && io.MemtoReg, io.axi.rdata, io.result)
 
   io.rd      := io.rd_in
   io.csr     := io.csr_in
-  io.CsrWr   := io.CsrWr_in
-  io.RegWr   := io.RegWr_in   
+  io.CsrWr   := io.CsrWr_in && (state === csr_state)
+  io.RegWr   := io.RegWr_in && (state === reg_state) 
   io.ecall   := io.ecall_in   
   io.dnpc    := io.dnpc_in
   io.csrdata := io.result
@@ -80,7 +82,7 @@ class ysyx_23060336_LSU_WBU extends Module{
   io.axi.wstrb   := io.MemNum
   io.axi.wlast   := Mux(io.MemWr, true.B, false.B)
   io.axi.bready  := true.B
-  io.axi.arvalid := Mux(reset.asBool, false.B, io.MemtoReg)
+  io.axi.arvalid := Mux(reset.asBool, false.B, (arvalid === 1.U) && io.MemtoReg)
   io.axi.araddr  := io.result
   io.axi.arid    := "h2".U
   io.axi.arlen   := "h0".U
@@ -88,6 +90,11 @@ class ysyx_23060336_LSU_WBU extends Module{
   io.axi.arburst := "h1".U
   io.axi.rready  := true.B
 
+  when(io.MemtoReg && !io.axi.rvalid) {
+    arvalid := 1.U
+  } .otherwise {
+    arvalid := 0.U
+  }
 }
 
 class ysyx_23060336_EBREAK extends BlackBox with HasBlackBoxInline{

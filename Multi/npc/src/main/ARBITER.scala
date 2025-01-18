@@ -40,8 +40,45 @@ class ysyx_23060336_ARBITER extends Module{
   val rlast   = Wire(Bool())
   val rid     = Wire(UInt(4.W))
 
-  val arid_halt = RegInit(1.U(4.W))
-  val awid_halt = RegInit(1.U(4.W))
+ /*
+  val awready = RegInit(0.U(1.W))
+  val awvalid = RegInit(0.U(1.W)) 
+  val wready  = RegInit(0.U(1.W))
+  val wvalid  = RegInit(0.U(1.W)) 
+  val rlast   = RegInit(0.U(1.W))
+  val wlast   = RegInit(0.U(1.W)) 
+  val bready  = RegInit(0.U(1.W)) 
+  val bvalid  = RegInit(0.U(1.W))
+  val arready = RegInit(0.U(1.W))
+  val arvalid = RegInit(0.U(1.W)) 
+  val rready  = RegInit(0.U(1.W)) 
+  val rvalid  = RegInit(0.U(1.W))
+  val awburst = RegInit(0.U(2.W)) 
+  val bresp   = RegInit(0.U(2.W))
+  val arburst = RegInit(0.U(2.W)) 
+  val rresp   = RegInit(0.U(2.W))
+  val awsize  = RegInit(0.U(3.W)) 
+  val arsize  = RegInit(0.U(3.W)) 
+  val arid    = RegInit(0.U(4.W)) 
+  val rid     = RegInit(0.U(4.W))
+  val awid    = RegInit(0.U(4.W)) 
+  val wstrb   = RegInit(0.U(4.W)) 
+  val bid     = RegInit(0.U(4.W))
+  val awlen   = RegInit(0.U(8.W)) 
+  val arlen   = RegInit(0.U(8.W)) 
+  val araddr  = RegInit(0.U(32.W)) 
+  val awaddr  = RegInit(0.U(32.W)) 
+  val wdata   = RegInit(0.U(32.W)) 
+  val rdata   = RegInit(0.U(32.W))
+  */
+
+  val s_wait_lsu :: s_lsu :: s_ifu :: Nil = Enum(3)
+  val state = RegInit(s_ifu)
+  state := MuxLookup(state, s_wait_lsu)(List(
+    s_wait_lsu -> Mux(io.lsu.arvalid, s_lsu, s_wait_lsu),
+    s_lsu      -> Mux(rvalid === 1.U, s_ifu, s_lsu),
+    s_ifu      -> Mux(rvalid === 1.U, s_wait_lsu, s_ifu)
+  ))
 
   // ********** Arbiter **********
   io.axi.awvalid := awvalid
@@ -53,21 +90,29 @@ class ysyx_23060336_ARBITER extends Module{
   io.axi.wvalid  := wvalid
   io.axi.wdata   := wdata
   io.axi.wlast   := wlast
+  io.axi.wstrb   := wstrb
   io.axi.bready  := bready
   io.axi.arid    := arid
   io.axi.arlen   := arlen
+  io.axi.araddr  := araddr
   io.axi.arsize  := arsize
   io.axi.arburst := arburst
-  io.axi.rready  := rready
   io.axi.arvalid := arvalid
+  io.axi.rready  := rready
   awready        := io.axi.awready
+  arready        := io.axi.arready
   wready         := io.axi.wready
   bvalid         := io.axi.bvalid
-  rresp          := io.axi.rresp
   bresp          := io.axi.bresp
+  bid            := io.axi.bid
+  rid            := io.axi.rid
+  rdata          := io.axi.rdata
+  rlast          := io.axi.rlast
+  rresp          := io.axi.rresp
   rvalid         := io.axi.rvalid
 
   // AR
+  /*
   when(io.ifu.arvalid && io.lsu.arvalid) {
     when(arid_halt === io.lsu.arid) {
       arid          := io.lsu.arid
@@ -78,7 +123,7 @@ class ysyx_23060336_ARBITER extends Module{
       arburst       := io.lsu.arburst
       rready        := io.lsu.rready
       io.ifu.rvalid := false.B
-      io.lsu.rvalid := rvalid && true.B
+      io.lsu.rvalid := (1.U === rvalid) && true.B
   } .otherwise {
       arid          := io.ifu.arid
       arlen         := io.ifu.arlen
@@ -87,7 +132,7 @@ class ysyx_23060336_ARBITER extends Module{
       arvalid       := io.ifu.arvalid
       arburst       := io.ifu.arburst
       rready        := io.ifu.rready
-      io.ifu.rvalid := rvalid && true.B
+      io.ifu.rvalid := (1.U === rvalid) && true.B
       io.lsu.rvalid := false.B
     } 
   }.elsewhen(io.ifu.arvalid && ~io.lsu.arvalid) {
@@ -99,7 +144,7 @@ class ysyx_23060336_ARBITER extends Module{
       arburst       := io.ifu.arburst
       arid_halt     := io.ifu.arid
       rready        := io.ifu.rready
-      io.ifu.rvalid := rvalid && true.B
+      io.ifu.rvalid := (1.U === rvalid) && true.B
       io.lsu.rvalid := false.B
   } .elsewhen(~io.ifu.arvalid && io.lsu.arvalid) {
       arid          := io.lsu.arid
@@ -111,7 +156,7 @@ class ysyx_23060336_ARBITER extends Module{
       arid_halt     := io.lsu.arid
       rready        := io.lsu.rready
       io.ifu.rvalid := false.B
-      io.lsu.rvalid := rvalid && true.B
+      io.lsu.rvalid := (1.U === rvalid) && true.B
   } .otherwise {
       arid          := io.ifu.arid
       arlen         := io.ifu.arlen
@@ -124,56 +169,54 @@ class ysyx_23060336_ARBITER extends Module{
       io.ifu.rvalid := false.B
       io.lsu.rvalid := false.B
   }
+  */
+
+  when(io.lsu.arvalid && (state === s_lsu)) {
+      arid          := io.lsu.arid
+      arlen         := io.lsu.arlen
+      araddr        := io.lsu.araddr
+      arsize        := io.lsu.arsize
+      arvalid       := io.lsu.arvalid
+      arburst       := io.lsu.arburst
+      rready        := io.lsu.rready
+      io.ifu.rvalid := false.B
+      io.lsu.rvalid := (1.U === rvalid) && true.B
+  } .otherwise {
+      arid          := io.ifu.arid
+      arlen         := io.ifu.arlen
+      araddr        := io.ifu.araddr
+      arsize        := io.ifu.arsize
+      arvalid       := io.ifu.arvalid
+      arburst       := io.ifu.arburst
+      rready        := io.ifu.rready
+      io.ifu.rvalid := (1.U === rvalid) && true.B
+      io.lsu.rvalid := false.B
+  }
 
       io.ifu.arready:= arready 
       io.lsu.arready:= arready 
 
-  // R
-  when(arid_halt === io.ifu.arid && io.ifu.rready && rvalid){
-      arid_halt     := io.lsu.arid
-  } .elsewhen(arid_halt === io.lsu.arid && io.lsu.rready && rvalid){
-      arid_halt     := io.ifu.arid
-  } .otherwise {
-      arid_halt     := arid_halt
-  }
+
+  val ifuinst = RegInit(0.U(32.W))
+  ifuinst := Mux((arid === io.ifu.arid) && (rvalid === 1.U), rdata, ifuinst)
 
   io.ifu.rid    := rid       
   io.ifu.rresp  := rresp     
-  io.ifu.rdata  := Mux(io.ifu.rready && io.ifu.rvalid, rdata, 0.U)     
+  io.ifu.rdata  := ifuinst       
   io.ifu.rlast  := rlast     
                          
   io.lsu.rid    := rid       
   io.lsu.rresp  := rresp     
-  io.lsu.rdata  := Mux(io.lsu.rready && io.lsu.rvalid, rdata, 0.U)     
+  io.lsu.rdata  := rdata  
   io.lsu.rlast  := rlast     
 
   // AW
-  when(io.lsu.awvalid) {
-    awid           := io.lsu.awid
-    awlen          := io.lsu.awlen
-    awaddr         := io.lsu.awaddr
-    awsize         := io.lsu.awsize
-    awvalid        := io.lsu.awvalid
-    awburst        := io.lsu.awburst
-    awid_halt      := io.lsu.awid
-  } .elsewhen(io.ifu.awvalid) {
-    awid           := io.ifu.awid
-    awlen          := io.ifu.awlen
-    awaddr         := io.ifu.awaddr
-    awsize         := io.ifu.awsize
-    awvalid        := io.ifu.awvalid
-    awburst        := io.ifu.awburst
-    awid_halt      := io.ifu.awid
-  } .otherwise {
-    awid           := io.lsu.awid
-    awlen          := io.lsu.awlen
-    awaddr         := io.lsu.awaddr
-    awsize         := io.lsu.awsize
-    awvalid        := false.B
-    awburst        := io.lsu.awburst
-    awid_halt      := io.lsu.awid
-  }
-
+  awid           := io.lsu.awid
+  awlen          := io.lsu.awlen
+  awaddr         := io.lsu.awaddr
+  awsize         := io.lsu.awsize
+  awvalid        := io.lsu.awvalid
+  awburst        := io.lsu.awburst
   io.lsu.awready := awready  
   io.ifu.awready := awready  
     
@@ -197,15 +240,9 @@ class ysyx_23060336_ARBITER extends Module{
 
   io.lsu.wready := wready  
   io.ifu.wready := wready  
+  bready        := io.lsu.bready
 
   // B
-  when(awid_halt === io.lsu.awid && io.lsu.bready){
-    bready        := io.lsu.bready
-  } .elsewhen(awid_halt === io.ifu.awid && io.ifu.bready) {
-    bready        := io.ifu.bready
-  } .otherwise {
-    bready        := false.B
-  }
     
   io.lsu.bid    := bid     
   io.lsu.bresp  := bresp   

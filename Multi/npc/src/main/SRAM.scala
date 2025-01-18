@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.HasBlackBoxInline
 
-class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
+class ysyx_23060336_SRAM extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
     val clock   = Input(Clock())
     val reset   = Input(Bool())
@@ -41,10 +41,10 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
   })
 
   setInline(
-    "sdram.sv",
+    "sram.sv",
     """import "DPI-C" function int pmem_write(input int awaddr, input int wdata, input int wstrb); 
     |  import "DPI-C" function int pmem_read(input int araddr);
-    | module ysyx_23060336_SDRAM(
+    | module ysyx_23060336_SRAM(
     |   input             clock,
     |   input             reset,
     |   output reg        awready,
@@ -84,7 +84,7 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     | reg  [4:0]  RLFSR;
     | reg  [4:0]  WLFSR;
     | reg  [31:0] Begin;
-    | reg  [31:0] sdramdata;
+    | reg  [31:0] sramdata;
     | wire [31:0] strb;
     |
     | assign awready = 1'b1;
@@ -96,8 +96,7 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     | assign bid     = 4'b1;
     | assign strb    = {{28{1'b0}},wstrb};
     | assign wready  = 1'b1;
-    | assign rdata   = sdramdata;
-    | //assign rdata   = (Begin == 32'b1) ? 32'h00000413 : sdramdata;
+    | assign rdata   = sramdata;
     |
     | always@(posedge clock or posedge reset) begin
     |   if(reset) begin
@@ -106,61 +105,63 @@ class ysyx_23060336_SDRAM extends BlackBox with HasBlackBoxInline{
     |     Begin   <= 32'b0;
     |   end else begin
     |
-    |     Begin <= Begin + 32'b1;
     |
-    |   /* //test
-    |     if(arvalid && arready) begin
-    |       if(RLFSR >= 5'b11) begin
+    |     if(arvalid && arready && !rvalid) begin
+    |       if(RLFSR >= 5'b01010) begin
     |         RLFSR  <= 5'b0;
     |         rvalid <= 1'b1;
-    |         sdramdata  <= pmem_read(araddr);
-    |     //  sdramdata   <= data_memory[araddr];
+    |         sramdata  <= pmem_read(araddr);
+    |     //  sramdata   <= data_memory[araddr];
     |       end else begin
     |         RLFSR  <= RLFSR + 5'b1;
-    |         sdramdata  <= sdramdata;
     |         rvalid <= 1'b0;
     |       end
     |     end else begin
     |       RLFSR <= 5'b0;
     |       rvalid <= 1'b0;
-    |       sdramdata <= sdramdata;
     |     end
-    |   */
     |
+    | /*
     |     if(arvalid && arready && !rvalid) begin
     |       rvalid <= 1'b1;
-    |       sdramdata  <= pmem_read(araddr);
+    |       sramdata  <= pmem_read(araddr);
     |     end else begin
     |       rvalid <= 1'b0;
     |     end
+    | */
     |
-    |   /* //test
-    |     if(wvalid) begin
-    |       if(WLFSR >= 5'b10010) begin
+    |     if(wvalid && wready && wlast && !bvalid) begin
+    |       if(WLFSR >= 5'b01010) begin
     |         WLFSR  <= 5'b0;
     |         resp   <= pmem_write(awaddr, wdata, strb);
+    |         bvalid <= 1'b1;
     |     //  data_memory[awaddr] <= wdata;
     |       end else begin
     |         WLFSR  <= WLFSR + 5'b1;
     |         resp   <= 32'b10;
+    |         bvalid <= 1'b0;
     |       end
     |     end else begin
     |       WLFSR  <= 5'b0;
     |       resp   <= resp;
+    |       bvalid <= 1'b0;
     |     end
-    |   */
     |
+    |   /* //test
     |   if(wvalid) begin
     |     resp   <= pmem_write(awaddr, wdata, strb);
     |   end else begin
     |     resp   <= resp;
     |   end
+    |   */
     |
+    |   /*
     |   if(wvalid && wready && wlast && !bvalid) begin
     |     bvalid <= 1'b1;
     |   end else begin
     |     bvalid <= 1'b0;
     |   end
+    |   */
     |
     |   end
     | end
