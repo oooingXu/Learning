@@ -16,7 +16,7 @@
 #include <isa.h>
 #include <memory/paddr.h>
 
-#define MSTATUS 0x300
+#define CSR_MSTATUS 0x342
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
 static const uint32_t img [] = {
@@ -33,14 +33,7 @@ static void restart() {
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
-	for(int i = 0; i < 4096; i++){
-		if(i == MSTATUS){
-			cpu.csr[i] = 0x1800;
-		} else {
-			cpu.csr[i] = 0;
-		}
-	}
-
+	IFDEF(CONFIG_CTE, cpu.mstatus = 0x1800);
 }
 
 void init_isa() {

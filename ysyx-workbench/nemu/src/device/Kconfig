@@ -20,7 +20,7 @@ if HAS_SERIAL
 config SERIAL_PORT
   depends on HAS_PORT_IO
   hex "Port address of the serial controller"
-  default 0x3f8
+  default 0x003f8
 
 config SERIAL_MMIO
   hex "MMIO address of the serial controller"
@@ -39,7 +39,7 @@ if HAS_TIMER
 config RTC_PORT
   depends on HAS_PORT_IO
   hex "Port address of the timer"
-  default 0x48
+  default 0x00048
 
 config RTC_MMIO
   hex "MMIO address of the timer"

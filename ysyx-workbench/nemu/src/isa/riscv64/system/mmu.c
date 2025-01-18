@@ -14,20 +14,9 @@
 ***************************************************************************************/
 
 #include <isa.h>
-#include <cpu/difftest.h>
+#include <memory/vaddr.h>
 #include <memory/paddr.h>
-#include "../local-include/reg.h"
 
-bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-	for(int i = 0; i < 32; i++){
-		if(ref_r->gpr[i] != cpu.gpr[i]){
-			printf("ref_r->gpr[%d] = 0x%08x, cpu.gpr[%d] = 0x%08x, pc = 0x%08x, inst = 0x%08x\n", i, ref_r->gpr[i], i, cpu.gpr[i], pc, paddr_read(pc, 4));
-			return false;
-		}
-	}
-
-  return true;
-}
-
-void isa_difftest_attach() {
+paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
+  return MEM_RET_FAIL;
 }

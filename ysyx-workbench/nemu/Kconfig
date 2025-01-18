@@ -182,9 +182,10 @@ config WATCHPOINT
 	bool "Enable watchpoint"
 	default n
 
-config CTE
-  bool "Enable cte"
-  default y
+config BATCH
+	depends on TRACE
+	bool "Enable batch"
+	default y
 
 config DIFFTEST
   depends on TARGET_NATIVE_ELF

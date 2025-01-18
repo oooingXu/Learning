@@ -14,20 +14,26 @@
 ***************************************************************************************/
 
 #include <isa.h>
-#include <cpu/difftest.h>
-#include <memory/paddr.h>
-#include "../local-include/reg.h"
 
-bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-	for(int i = 0; i < 32; i++){
-		if(ref_r->gpr[i] != cpu.gpr[i]){
-			printf("ref_r->gpr[%d] = 0x%08x, cpu.gpr[%d] = 0x%08x, pc = 0x%08x, inst = 0x%08x\n", i, ref_r->gpr[i], i, cpu.gpr[i], pc, paddr_read(pc, 4));
-			return false;
-		}
-	}
+#define CSR_MSTATUS 0x300
+#define CSR_MTVEC		0x305
+#define CSR_MEPC		0x341
+#define CSR_MCAUSE	0x342
 
-  return true;
+word_t isa_raise_intr(word_t NO, vaddr_t epc) {
+#ifdef CONFIG_CTE
+	cpu.mepc = epc;
+	cpu.mcause = NO;
+	return cpu.mtvec;
+#endif
+  /* TODO: Trigger an interrupt/exception with ``NO''.
+   * Then return the address of the interrupt/exception vector.
+   */
+	printf("MTVEC = 0\n");
+
+  return 0;
 }
 
-void isa_difftest_attach() {
+word_t isa_query_intr() {
+  return INTR_EMPTY;
 }

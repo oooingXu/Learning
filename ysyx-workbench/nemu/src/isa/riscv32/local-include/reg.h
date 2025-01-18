@@ -19,28 +19,23 @@
 #include <common.h>
 #include <isa.h>
 
-#define MEPC		0x341
-#define MCAUSE	0x342
 #define MSTATUS 0x300
 #define MTVEC		0x305
+#define MEPC		0x341
+#define MCAUSE	0x342
 
 static inline int check_reg_idx(int idx) {
   IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < MUXDEF(CONFIG_RVE, 16, 32)));
   return idx;
 }
 
-static inline uint32_t *check_csr_idx(word_t idx) {
-	switch(idx) {
-		case MEPC:		return &(cpu.mepc);
-		case MCAUSE:	return &(cpu.mcause);
-		case MSTATUS: return &(cpu.mstatus);
-		case MTVEC:		return &(cpu.mtvec);
-		default: panic("Faild csr");
-	}
+static inline uint32_t check_csr_idx(word_t idx) {
+	assert(idx >= 0 && idx < 4096);
+	return idx;
 }
 
 #define gpr(idx) (cpu.gpr[check_reg_idx(idx)])
-#define csr(idx) *check_csr_idx(idx)
+#define csr(idx) (cpu.csr[check_csr_idx(idx)])
 
 static inline const char* reg_name(int idx) {
   extern const char* regs[];

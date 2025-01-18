@@ -13,40 +13,38 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#ifndef __RISCV_REG_H__
+#define __RISCV_REG_H__
+
+#include <common.h>
 #include <isa.h>
-#include <memory/paddr.h>
 
+#define MEPC		0x341
+#define MCAUSE	0x342
 #define MSTATUS 0x300
-// this is not consistent with uint8_t
-// but it is ok since we do not access the array directly
-static const uint32_t img [] = {
-  0x00000297,  // auipc t0,0
-  0x00028823,  // sb  zero,16(t0)
-  0x0102c503,  // lbu a0,16(t0)
-  0x00100073,  // ebreak (used as nemu_trap)
-  0xdeadbeef,  // some data
-};
+#define MTVEC		0x305
 
-static void restart() {
-  /* Set the initial program counter. */
-  cpu.pc = RESET_VECTOR;
+static inline int check_reg_idx(int idx) {
+  IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < MUXDEF(CONFIG_RVE, 16, 32)));
+  return idx;
+}
 
-  /* The zero register is always 0. */
-  cpu.gpr[0] = 0;
-	for(int i = 0; i < 4096; i++){
-		if(i == MSTATUS){
-			cpu.csr[i] = 0x1800;
-		} else {
-			cpu.csr[i] = 0;
-		}
+static inline uint32_t *check_csr_idx(word_t idx) {
+	switch(idx) {
+		case MEPC:		return &(cpu.mepc);
+		case MCAUSE:	return &(cpu.mcause);
+		case MSTATUS: return &(cpu.mstatus);
+		case MTVEC:		return &(cpu.mtvec);
+		default: panic("Faild csr");
 	}
-
 }
 
-void init_isa() {
-  /* Load built-in image. */
-  memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
+#define gpr(idx) (cpu.gpr[check_reg_idx(idx)])
+#define csr(idx) *check_csr_idx(idx)
 
-  /* Initialize this virtual computer system. */
-  restart();
+static inline const char* reg_name(int idx) {
+  extern const char* regs[];
+  return regs[check_reg_idx(idx)];
 }
+
+#endif
