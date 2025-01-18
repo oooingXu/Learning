@@ -15,6 +15,7 @@ class ysyx_23060336_LSU_WBU extends Module{
     val RegNum    = Input(UInt(3.W))
     val CsrWr_in  = Input(Bool())
     val RegWr_in  = Input(Bool())
+    val ecall_in  = Input(Bool())
     val MemWr     = Input(Bool())
     val MemtoReg  = Input(Bool())
     val ebreak    = Input(Bool())
@@ -27,6 +28,7 @@ class ysyx_23060336_LSU_WBU extends Module{
     val rd        = Output(UInt(5.W))
     val CsrWr     = Output(Bool())
     val RegWr     = Output(Bool())
+    val ecall     = Output(Bool())
     val out_valid = Output(Bool())
     val axi       = new ysyx_23060336_AXI4Master()
   })
@@ -51,6 +53,7 @@ class ysyx_23060336_LSU_WBU extends Module{
   io.csr     := io.csr_in
   io.CsrWr   := io.CsrWr_in
   io.RegWr   := io.RegWr_in   
+  io.ecall   := io.ecall_in   
   io.dnpc    := io.dnpc_in
   io.csrdata := io.result
 

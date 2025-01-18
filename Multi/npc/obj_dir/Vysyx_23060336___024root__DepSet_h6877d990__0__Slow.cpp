@@ -52,7 +52,7 @@ VL_ATTR_COLD void Vysyx_23060336___024root___eval_settle(Vysyx_23060336___024roo
 #ifdef VL_DEBUG
                 Vysyx_23060336___024root___dump_triggers__stl(vlSelf);
 #endif
-                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv", 3546, "", "Settle region did not converge.");
+                VL_FATAL_MT("/home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv", 3530, "", "Settle region did not converge.");
             }
             vlSelf->__VstlIterCount = ((IData)(1U) 
                                        + vlSelf->__VstlIterCount);
@@ -299,18 +299,9 @@ VL_ATTR_COLD void Vysyx_23060336___024root___stl_sequent__TOP__0(Vysyx_23060336_
     vlSelf->ysyx_23060336__DOT___idu_exu_io_ebreak 
         = (IData)(((0x100073U == (0x3fffffffU & vlSelf->ysyx_23060336__DOT__sdram_ifu__DOT__sdramdata)) 
                    & (IData)(vlSelf->ysyx_23060336__DOT__idu_exu__DOT____VdfgTmp_hd4808a30__0)));
-    if ((0xffffffffU == vlSelf->ysyx_23060336__DOT__idu_exu__DOT___io_ecall_andMatrixOutputs_T)) {
-        vlSelf->ysyx_23060336__DOT__csr__DOT____Vcellinp__ysyx_23060336_csrs_ext__W2_data = 0xbU;
-        vlSelf->ysyx_23060336__DOT__csr__DOT____Vcellinp__ysyx_23060336_csrs_ext__W1_data 
-            = vlSelf->ysyx_23060336__DOT__ifu__DOT__PC;
-    } else {
-        vlSelf->ysyx_23060336__DOT__csr__DOT____Vcellinp__ysyx_23060336_csrs_ext__W2_data 
-            = vlSelf->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory
-            [0x342U];
-        vlSelf->ysyx_23060336__DOT__csr__DOT____Vcellinp__ysyx_23060336_csrs_ext__W1_data 
-            = vlSelf->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory
-            [0x341U];
-    }
+    vlSelf->ysyx_23060336__DOT____Vcellinp__csr__io_ecall 
+        = ((0xffffffffU == vlSelf->ysyx_23060336__DOT__idu_exu__DOT___io_ecall_andMatrixOutputs_T) 
+           & (IData)(vlSelf->ysyx_23060336__DOT__lsu_wbu__DOT__state));
     vlSelf->ysyx_23060336__DOT__idu_exu__DOT___instType_andMatrixOutputs_T_2 
         = ((0x20U & (vlSelf->ysyx_23060336__DOT__sdram_ifu__DOT__sdramdata 
                      << 5U)) | ((0x10U & (vlSelf->ysyx_23060336__DOT__sdram_ifu__DOT__sdramdata 
@@ -2761,6 +2752,7 @@ VL_ATTR_COLD void Vysyx_23060336___024root___ctor_var_reset(Vysyx_23060336___024
     vlSelf->ysyx_23060336__DOT___idu_exu_io_MemtoReg = 0;
     vlSelf->ysyx_23060336__DOT___idu_exu_io_ebreak = 0;
     vlSelf->ysyx_23060336__DOT___ifu_io_axi_arvalid = 0;
+    vlSelf->ysyx_23060336__DOT____Vcellinp__csr__io_ecall = 0;
     vlSelf->ysyx_23060336__DOT__ifu__DOT__PC = 0;
     vlSelf->ysyx_23060336__DOT__ifu__DOT__state = 0;
     vlSelf->ysyx_23060336__DOT__idu_exu__DOT___alu_io_result = 0;
@@ -2956,8 +2948,6 @@ VL_ATTR_COLD void Vysyx_23060336___024root___ctor_var_reset(Vysyx_23060336___024
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[__Vi0] = 0;
     }
-    vlSelf->ysyx_23060336__DOT__csr__DOT____Vcellinp__ysyx_23060336_csrs_ext__W2_data = 0;
-    vlSelf->ysyx_23060336__DOT__csr__DOT____Vcellinp__ysyx_23060336_csrs_ext__W1_data = 0;
     for (int __Vi0 = 0; __Vi0 < 4096; ++__Vi0) {
         vlSelf->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[__Vi0] = 0;
     }

@@ -112,29 +112,6 @@ static void statistic(){
 	else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
-static void init_npc(){
-	cpu.pc = RESET_VECTOR;
-	for(int i = 0; i < R; i++){
-		cpu.gpr[i] = 0;
-	}
-	cpu.mstatus = 0x1800;
-
-	ysyx_23060336->clock = 0;
-	ysyx_23060336->reset = 1;
-	ysyx_23060336->eval();
-}
-
-static void trace_and_difftest(){
-#ifdef CONFIG_DIFFTEST
-	//if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !ysyx_23060336->io_lsuvalid || !ysyx_23060336->io_wbuready) {
-	if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !cpu.valid) {
-		return;
-	} else {
-	difftest_step();
-	}
-#endif
-}
-
 static void renew_pc(){
 		//npc_state.halt_ret = ysyx_23060336->io_halt_ret;
 		npc_state.halt_ret = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[10];
@@ -150,10 +127,38 @@ static void renew_reg(){
 			cpu.gpr[i] = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[i];
 		}
 
+		for(int i = 0; i < C; i++){
+			cpu.csr[i] = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[i];
+		}
+
 		cpu.mepc    = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MEPC];
 		cpu.mtvec   = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MTVEC];
 		cpu.mcause  = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MCAUSE];
 		cpu.mstatus = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MSTATUS];
+}
+
+static void init_npc(){
+	cpu.pc = RESET_VECTOR;
+	for(int i = 0; i < R; i++){
+		cpu.gpr[i] = 0;
+	}
+
+	ysyx_23060336->clock = 0;
+	ysyx_23060336->reset = 1;
+	ysyx_23060336->eval();
+	cpu.csr[0x300] = 0x1800;
+	printf("init dut mstatus = 0x%08x\n", cpu.csr[0x300]);
+}
+
+static void trace_and_difftest(){
+#ifdef CONFIG_DIFFTEST
+	//if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !ysyx_23060336->io_lsuvalid || !ysyx_23060336->io_wbuready) {
+	if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !cpu.valid) {
+		return;
+	} else {
+	difftest_step();
+	}
+#endif
 }
 
 void sim_once(){

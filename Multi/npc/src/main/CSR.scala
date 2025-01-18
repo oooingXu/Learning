@@ -14,29 +14,30 @@ class ysyx_23060336_CSR extends Module{
     val mepc_in = Input(UInt(32.W))
     val mepc    = Output(UInt(32.W))
     val mtvec   = Output(UInt(32.W))
-    val mcause  = Output(UInt(32.W))
-    val mstatus = Output(UInt(32.W))
   })
 
   val ysyx_23060336_csrs = Mem(4096, UInt(32.W))
 
+  def MSTATUS = "h300".U
   def MTVEC   = "h305".U
   def MEPC    = "h341".U
   def MCAUSE  = "h342".U
-  def MSTATUS = "h300".U
 
-  ysyx_23060336_csrs(MSTATUS) := "h1800".U
-  ysyx_23060336_csrs(MCAUSE)  := Mux(io.ecall, "hb".U, ysyx_23060336_csrs(MCAUSE))
-  ysyx_23060336_csrs(MEPC)    := Mux(io.ecall, io.mepc_in, ysyx_23060336_csrs(MEPC))
+  when(reset.asBool) {
+    ysyx_23060336_csrs(MSTATUS) := "h1800".U
+  }
 
-  io.rdata   := ysyx_23060336_csrs(io.raddr)
-  io.mepc    := ysyx_23060336_csrs(MEPC)
-  io.mtvec   := ysyx_23060336_csrs(MTVEC)
-  io.mcause  := ysyx_23060336_csrs(MCAUSE)
-  io.mstatus := ysyx_23060336_csrs(MSTATUS)
+  when(io.ecall) {
+  ysyx_23060336_csrs(MCAUSE)  := "hb".U
+  ysyx_23060336_csrs(MEPC)    := io.mepc_in
+  }
 
   when(io.wen){
     ysyx_23060336_csrs(io.waddr) := io.wdata
   }
+
+  io.rdata   := ysyx_23060336_csrs(io.raddr)
+  io.mepc    := ysyx_23060336_csrs(MEPC)
+  io.mtvec   := ysyx_23060336_csrs(MTVEC)
 }
 

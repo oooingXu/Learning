@@ -67,32 +67,24 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 			printf("dut->gpr[%s] = 0x%08x, ",regs[i],cpu.gpr[i]);
 			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
 			printf("inst = 0x%08x\n", pmem_read(pc));
-
 			return false;
 		}
 	}
 
-	/*
 	for(int i = 0; i < C; i++){
 		if(ref->csr[i] != cpu.csr[i]){
 			printf("Wrong csrs\n");
-			printf("csr[%d]: ref->csr = 0x%08x, cpu.csr = 0x%08x\n", i, ref->csr[i], cpu.csr[i]);
-			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->dnpc, cpu.dnpc, cpu.pc);
+			printf("csr[%x]: ref->csr = 0x%08x, dut->csr = 0x%08x\n", i, ref->csr[i], cpu.csr[i]);
+			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
 
+			printf("\nref->csr\n");
+			printf("mtvec   ref = 0x%08x, dut = 0x%08x\n", ref->csr[0x305], cpu.csr[0x305]);
+			printf("mepc    ref = 0x%08x, dut = 0x%08x\n", ref->csr[0x341], cpu.csr[0x341]);
+			printf("mcause  ref = 0x%08x, dut = 0x%08x\n", ref->csr[0x342], cpu.csr[0x342]);
+			printf("mstatus ref = 0x%08x, dut = 0x%08x\n\n", ref->csr[0x300], cpu.csr[0x300]);
 			return false;
 		}
 	}
-	*/
-
-	/*
-	if(ref->pc != cpu.dnpc){
-		debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->pc, cpu.dnpc, cpu.pc);
-		printf("Wrong pc\n");
-		printf("ref->pc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc);
-
-		return false;
-	}
-	*/
 
 	debug("All right");
 	debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->pc, cpu.dnpc, cpu.pc);
@@ -129,6 +121,7 @@ void difftest_step(){
 	}
 
 	if(is_skip_ref) {
+		cpu.pc = cpu.dnpc;
 		ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 		is_skip_ref = false;
 		return;

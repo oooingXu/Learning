@@ -9,8 +9,6 @@ class ysyx_23060336_XBAR extends Module{
     val lsu = new ysyx_23060336_AXI4Slave()
     val sdram = new ysyx_23060336_AXI4Master()
     val clint = new ysyx_23060336_AXI4Master()
-    val arid_halt = Output(UInt(4.W))
-    val awid_halt = Output(UInt(4.W))
   })
 
   def DEVICE_BASE      = "ha0000000".U
@@ -51,9 +49,6 @@ class ysyx_23060336_XBAR extends Module{
 
   val arid_halt = RegInit(1.U(4.W))
   val awid_halt = RegInit(1.U(4.W))
-
-  io.arid_halt := arid_halt
-  io.awid_halt := awid_halt
 
   // ********** Arbiter **********
   
