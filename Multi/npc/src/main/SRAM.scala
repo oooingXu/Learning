@@ -107,7 +107,7 @@ class ysyx_23060336_SRAM extends BlackBox with HasBlackBoxInline{
     |
     |
     |     if(arvalid && arready && !rvalid) begin
-    |       if(RLFSR >= 5'b01010) begin
+    |       if(RLFSR >= 5'b00001) begin
     |         RLFSR  <= 5'b0;
     |         rvalid <= 1'b1;
     |         sramdata  <= pmem_read(araddr);
@@ -131,7 +131,7 @@ class ysyx_23060336_SRAM extends BlackBox with HasBlackBoxInline{
     | */
     |
     |     if(wvalid && wready && wlast && !bvalid) begin
-    |       if(WLFSR >= 5'b01010) begin
+    |       if(WLFSR >= 5'b00001) begin
     |         WLFSR  <= 5'b0;
     |         resp   <= pmem_write(awaddr, wdata, strb);
     |         bvalid <= 1'b1;

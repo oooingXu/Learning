@@ -1,6 +1,20 @@
 #include"pmem.h"
 #include"../device/map.h"
 
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) {
+	if(addr >= 0x20000000 && addr <= 0x20000fff){
+		*data = host_read(guest_to_host(addr));
+#ifdef CONFIG_MTRACE
+		printf("mrom_read addr = 0x%08x, data = 0x%08x\n", addr, *data);
+#endif
+		return;
+	} else {
+		printf("mrom_read out of bound addr = 0x%08x\n", addr);
+		assert(0);
+	}
+}
+
 uint8_t pmem[MSIZE] PG_ALIGN = {};
 
 uint8_t* guest_to_host(uint32_t paddr) { return pmem + paddr - MBASE; }
@@ -10,9 +24,9 @@ uint32_t host_read(void *addr){ return *(uint32_t *)addr; }
 
 void host_write(void *addr, int len, uint32_t data) { 
 	switch(len){
-		case 0: *(uint8_t  *)addr = data; return;
-		case 1: *(uint16_t *)addr = data; return;
-		case 3: *(uint32_t *)addr = data; return;
+		case 1:  *(uint8_t  *)addr = data; return;
+		case 3:  *(uint16_t *)addr = data; return;
+		case 15: *(uint32_t *)addr = data; return;
 	default: assert(0);	
 	}
 }

@@ -1,9 +1,9 @@
 #include<svdpi.h>
 #include<verilated.h>
 #include<verilated_fst_c.h>
-#include "Vysyx_23060336.h"
-#include "Vysyx_23060336___024unit.h"
-#include "Vysyx_23060336___024root.h"
+#include "VysyxSoCFull.h"
+#include "VysyxSoCFull___024unit.h"
+#include "VysyxSoCFull___024root.h"
 
 #include <fstream>
 #include <iostream>
@@ -40,7 +40,7 @@ static bool ret = false;
 NPCState npc_state;
 CPU_state cpu = {};
 
-Vysyx_23060336 *ysyx_23060336 = new Vysyx_23060336;
+VysyxSoCFull *ysyxSoCFull = new VysyxSoCFull;
 vluint64_t sim_time = 0;
 #ifdef CONFIG_WAVE
 VerilatedFstC *m_trace = new VerilatedFstC;
@@ -72,7 +72,7 @@ extern "C" void set_npc_state(int ebreak){
 	m_trace->close();
 #endif
 
-	ysyx_23060336->final();
+	ysyxSoCFull->final();
 	exit(0);
 	}
 }
@@ -113,28 +113,28 @@ static void statistic(){
 }
 
 static void renew_pc(){
-		//npc_state.halt_ret = ysyx_23060336->io_halt_ret;
-		npc_state.halt_ret = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[10];
-		npc_state.halt_pc  = ysyx_23060336->io_pc;
+		//npc_state.halt_ret = ysyxSoCFull->io_halt_ret;
+		npc_state.halt_ret = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[10];
+		npc_state.halt_pc  = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__PC;;
 
-		cpu.pc   = ysyx_23060336->io_pc;
-		cpu.dnpc = ysyx_23060336->io_dnpc;
-		cpu.valid= ysyx_23060336->io_out_valid;
+		cpu.pc   = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__PC;
+		cpu.dnpc = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT___lsu_wbu_io_dnpc;
+		cpu.valid= ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu__DOT__state == 3;
 }
 
 static void renew_reg(){
 		for(int i = 0; i < R; i++){
-			cpu.gpr[i] = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[i];
+			cpu.gpr[i] = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[i];
 		}
 
 		for(int i = 0; i < C; i++){
-			cpu.csr[i] = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[i];
+			cpu.csr[i] = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[i];
 		}
 
-		cpu.mepc    = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MEPC];
-		cpu.mtvec   = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MTVEC];
-		cpu.mcause  = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MCAUSE];
-		cpu.mstatus = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MSTATUS];
+		cpu.mepc    = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MEPC];
+		cpu.mtvec   = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MTVEC];
+		cpu.mcause  = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MCAUSE];
+		cpu.mstatus = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MSTATUS];
 }
 
 static void init_npc(){
@@ -143,16 +143,16 @@ static void init_npc(){
 		cpu.gpr[i] = 0;
 	}
 
-	ysyx_23060336->clock = 0;
-	ysyx_23060336->reset = 1;
-	ysyx_23060336->eval();
+	ysyxSoCFull->clock = 0;
+	ysyxSoCFull->reset = 1;
+	ysyxSoCFull->eval();
 	cpu.csr[0x300] = 0x1800;
-	printf("init dut mstatus = 0x%08x\n", cpu.csr[0x300]);
+//	printf("init dut mstatus = 0x%08x\n", cpu.csr[0x300]);
 }
 
 static void trace_and_difftest(){
 #ifdef CONFIG_DIFFTEST
-	//if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !ysyx_23060336->io_lsuvalid || !ysyx_23060336->io_wbuready) {
+	//if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !ysyxSoCFull->io_lsuvalid || !ysyxSoCFull->io_wbuready) {
 	if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !cpu.valid) {
 		return;
 	} else {
@@ -162,10 +162,10 @@ static void trace_and_difftest(){
 }
 
 void sim_once(){
-		if(sim_time >= 0 && sim_time <= 21) ysyx_23060336->reset = 1;
-		else ysyx_23060336->reset = 0;
+		if(sim_time >= 0 && sim_time <= 21) ysyxSoCFull->reset = 1;
+		else ysyxSoCFull->reset = 0;
 
-		ysyx_23060336->clock = !ysyx_23060336->clock; ysyx_23060336->eval();
+		ysyxSoCFull->clock = !ysyxSoCFull->clock; ysyxSoCFull->eval();
 		sim_time++;
 #ifdef CONFIG_WAVE
 		m_trace->dump(sim_time);
@@ -187,8 +187,8 @@ void execute(uint32_t n){
 		//debug("n = %ld",n);
 		
 		exec_once();
-		debug("dnpc = 0x%08x, pc = 0x%08x", ysyx_23060336->io_NPC, ysyx_23060336->io_PC);
-		debug("inst = %08x", host_read(guest_to_host(ysyx_23060336->io_PC)));
+		debug("dnpc = 0x%08x, pc = 0x%08x", ysyxSoCFull->io_NPC, ysyxSoCFull->io_PC);
+		debug("inst = %08x", host_read(guest_to_host(ysyxSoCFull->io_PC)));
 #ifdef ITRACE
 		/*
 		char *p = cpu.logbuf;
@@ -281,7 +281,7 @@ int main(int argc, char **argv)
 #ifdef CONFIG_WAVE
 	Verilated::traceEverOn(true); //开启波形跟踪
 
-	ysyx_23060336->trace(m_trace, 99);
+	ysyxSoCFull->trace(m_trace, 99);
 	m_trace->open("waveform.fst");
 #endif
 
@@ -305,8 +305,8 @@ int main(int argc, char **argv)
 #ifdef CONFIG_WAVE
 	m_trace->close();
 #endif
-	ysyx_23060336->final();
-	delete ysyx_23060336;
+	ysyxSoCFull->final();
+	delete ysyxSoCFull;
 
 	return 0;
 }

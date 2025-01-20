@@ -11,8 +11,10 @@ class ysyx_23060336_LSU_WBU extends Module{
     val Csr       = Input(UInt(32.W))
     val csr_in    = Input(UInt(12.W))
     val rd_in     = Input(UInt(5.W))
-    val MemNum    = Input(UInt(4.W))
+    val wstrb     = Input(UInt(4.W))
+    val awsize    = Input(UInt(3.W))
     val RegNum    = Input(UInt(3.W))
+    val arsize    = Input(UInt(3.W))
     val CsrWr_in  = Input(Bool())
     val RegWr_in  = Input(Bool())
     val ecall_in  = Input(Bool())
@@ -36,6 +38,7 @@ class ysyx_23060336_LSU_WBU extends Module{
   val prepare = Wire(Bool())
   val DataOut = Wire(UInt(32.W))
   val arvalid = RegInit(0.U(1.W))
+  val rdata   = RegInit(0.U(32.W))
 
   val s_idle :: s_wait_ready :: csr_state :: reg_state :: Nil = Enum(4)
   val state = RegInit(s_idle)
@@ -49,7 +52,7 @@ class ysyx_23060336_LSU_WBU extends Module{
   io.out_valid := state === reg_state 
 
   prepare := (io.axi.arvalid && io.axi.rvalid) || (io.axi.awvalid && io.axi.bvalid) 
-  DataOut := Mux(state === reg_state && io.MemtoReg, io.axi.rdata, io.result)
+  DataOut := Mux(state === reg_state && io.MemtoReg, rdata, io.result)
 
   io.rd      := io.rd_in
   io.csr     := io.csr_in
@@ -72,23 +75,29 @@ class ysyx_23060336_LSU_WBU extends Module{
 
   // AXI4
   io.axi.awvalid := Mux(reset.asBool, false.B, io.MemWr)
+  //io.axi.awaddr  := io.result & ("hfffffffc".U)
   io.axi.awaddr  := io.result
   io.axi.awid    := "h2".U
   io.axi.awlen   := "h0".U
-  io.axi.awsize  := "h0".U
+  io.axi.awsize  := io.awsize
   io.axi.awburst := "h1".U
   io.axi.wvalid  := Mux(reset.asBool, false.B, io.MemWr)
-  io.axi.wdata   := io.src2
-  io.axi.wstrb   := io.MemNum
+  io.axi.wdata   := io.src2 & Cat(Fill(8, io.wstrb(3)), Fill(8, io.wstrb(2)), Fill(8, io.wstrb(1)), Fill(8, io.wstrb(0)))
+  io.axi.wstrb   := io.wstrb
   io.axi.wlast   := Mux(io.MemWr, true.B, false.B)
   io.axi.bready  := true.B
   io.axi.arvalid := Mux(reset.asBool, false.B, (arvalid === 1.U) && io.MemtoReg)
-  io.axi.araddr  := io.result
+  //io.axi.araddr  := io.result & ("hfffffffc".U)
+  io.axi.araddr  := io.result 
   io.axi.arid    := "h2".U
   io.axi.arlen   := "h0".U
-  io.axi.arsize  := "h2".U
+  io.axi.arsize  := io.arsize
   io.axi.arburst := "h1".U
   io.axi.rready  := true.B
+
+  when(io.axi.rvalid){
+    rdata := io.axi.rdata
+  }
 
   when(io.MemtoReg && !io.axi.rvalid) {
     arvalid := 1.U

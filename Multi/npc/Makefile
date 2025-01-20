@@ -8,27 +8,36 @@ include $(NPC_HOME)/scripts/config.mk
 # Include files for cpp or c
 -include $(NPC_HOME)/scripts/build.mk
 
-TOP_NAME = ysyx_23060336
+TOP_NAME = ysyxSoCFull
+CPU_NAME = ysyx_23060336
 VERILATOR = verilator
 PRJ = playground
 
 BUILD_DIR = ./build
 OBJ = ./obj_dir
 VSRC = ./vsrc
+SOC_HOME = $(NPC_HOME)/../ysyxSoC
 
 VERILATOR_CFLAGS += $(shell llvm-config --cflags) 
 VERILATOR_CFLAGS += $(shell sdl2-config --cflags) 
 VERILATOR_CFLAGS += -MMD --build --cc --trace-fst\
 									 	-O3 --x-assign fast --x-initial fast\
-									 	--exe -Wno-DECLFILENAME --noassert
+									 	--exe -Wno-DECLFILENAME --noassert\
+										--timescale "1ns/1ns" --no-timing
 
-NPC = $(NPC_HOME)/csrc/$(TOP_NAME).cpp
-SIM = $(abspath ./vsrc/$(TOP_NAME).sv)
+NPC = $(NPC_HOME)/csrc/$(CPU_NAME).cpp
+VSRCS += $(SOC_HOME)/build/ysyxSoCFull.v
+VSRCS += $(shell find $(SOC_HOME)/perip -name "*.v")
+VSRCS += $(abspath $(NPC_HOME)/vsrc/$(CPU_NAME).sv)
+
+
+INCLUDE += -I$(SOC_HOME)/perip/uart16550/rtl
+INCLUDE += -I$(SOC_HOME)/perip/spi/rtl
 
 # rules for verilator
 sim:
 	$(call git_commit, "sim RTL")
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(SIM) $(INCFLAGS) $(CSRCS) $(NPC) 
+	$(VERILATOR) $(VERILATOR_CFLAGS) -top-module $(TOP_NAME) $(INCLUDE) $(VSRCS) $(INCFLAGS) $(NPC) 
 	$(MAKE) -C $(OBJ) -f V$(TOP_NAME).mk 
 
 test:

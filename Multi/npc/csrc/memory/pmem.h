@@ -7,7 +7,7 @@
 #include"../include/macro.h"
 #include"../include/common.h"
 
-#define MBASE 0x80000000
+#define MBASE 0x20000000
 #define MSIZE 0x8000000
 
 #define PMEM_LEFT ((uint32_t)MBASE)

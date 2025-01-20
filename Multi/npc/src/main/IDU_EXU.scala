@@ -21,8 +21,10 @@ class ysyx_23060336_IDU_EXU extends Module{
     val rd       = Output(UInt(5.W))
     val rs1      = Output(UInt(5.W))
     val rs2      = Output(UInt(5.W))
-    val MemNum   = Output(UInt(4.W))
+    val wstrb    = Output(UInt(4.W))
+    val awsize   = Output(UInt(3.W))
     val RegNum   = Output(UInt(3.W))
+    val arsize   = Output(UInt(3.W))
     val ecall    = Output(Bool())
     val CsrWr    = Output(Bool())
     val MemWr    = Output(Bool())
@@ -115,13 +117,21 @@ class ysyx_23060336_IDU_EXU extends Module{
     ),
   BitPat("b0"))
 
-  val MemNum = TruthTable(
+  val Wstrb = TruthTable(
     Map(
-      BitPat("b0000100011") -> BitPat("b0000"), // sb  
-      BitPat("b0010100011") -> BitPat("b0001"), // sh  
-      BitPat("b0100100011") -> BitPat("b0011"), // sw  
+      BitPat("b0000100011") -> BitPat("b0001"), // sb  
+      BitPat("b0010100011") -> BitPat("b0011"), // sh  
+      BitPat("b0100100011") -> BitPat("b1111"), // sw  
     ),
   BitPat("b1111"))
+
+  val Awsize = TruthTable(
+    Map(
+      BitPat("b0000100011") -> BitPat("b000"), // sb  
+      BitPat("b0010100011") -> BitPat("b001"), // sh  
+      BitPat("b0100100011") -> BitPat("b010"), // sw  
+    ),
+  BitPat("b111"))
 
   val RegNum = TruthTable(
     Map(
@@ -130,7 +140,16 @@ class ysyx_23060336_IDU_EXU extends Module{
       BitPat("b0100000011") -> BitPat("b010"), // lw  
       BitPat("b1000000011") -> BitPat("b011"), // lbu 
       BitPat("b1010000011") -> BitPat("b100"), // lhu
-      BitPat("b1100000011") -> BitPat("b101")  // lwu
+    ),
+  BitPat("b111"))
+
+  val Arsize = TruthTable(
+    Map(
+      BitPat("b0000000011") -> BitPat("b000"), // lb  
+      BitPat("b0010000011") -> BitPat("b001"), // lh  
+      BitPat("b0100000011") -> BitPat("b010"), // lw  
+      BitPat("b1000000011") -> BitPat("b000"), // lbu 
+      BitPat("b1010000011") -> BitPat("b001"), // lhu
     ),
   BitPat("b111"))
 
@@ -290,7 +309,9 @@ class ysyx_23060336_IDU_EXU extends Module{
   io.ecall := decoder(io.inst, Ecall)
   io.ebreak:= decoder(io.inst, Ebreak)
 
-  io.MemNum   := decoder(Cat(func3, opcode), MemNum)
+  io.wstrb    := decoder(Cat(func3, opcode), Wstrb)
+  io.awsize   := decoder(Cat(func3, opcode), Awsize)
+  io.arsize   := decoder(Cat(func3, opcode), Arsize)
   io.RegNum   := decoder(Cat(func3, opcode), RegNum)
   io.CsrWr    := decoder(Cat(func3, opcode), CsrWr)
   io.MemtoReg := decoder(opcode, MemtoReg)
@@ -348,7 +369,7 @@ class ysyx_23060336_IDU_EXU extends Module{
 
   pcadd := pca + pcb
 
-  io.dnpc := Mux(reset.asBool, "h80000000".U,
+  io.dnpc := Mux(reset.asBool, "h20000000".U,
              Mux(io.ecall, io.mtvec,      
              Mux(mret,  io.mepc, pcadd)))
 

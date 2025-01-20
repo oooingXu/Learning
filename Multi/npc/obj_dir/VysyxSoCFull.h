@@ -5,23 +5,23 @@
 // The class here is then constructed to instantiate the design.
 // See the Verilator manual for examples.
 
-#ifndef VERILATED_VYSYX_23060336_H_
-#define VERILATED_VYSYX_23060336_H_  // guard
+#ifndef VERILATED_VYSYXSOCFULL_H_
+#define VERILATED_VYSYXSOCFULL_H_  // guard
 
 #include "verilated.h"
 #include "svdpi.h"
 
-class Vysyx_23060336__Syms;
-class Vysyx_23060336___024root;
+class VysyxSoCFull__Syms;
+class VysyxSoCFull___024root;
 class VerilatedFstC;
-class Vysyx_23060336___024unit;
+class VysyxSoCFull___024unit;
 
 
 // This class is the main interface to the Verilated model
-class Vysyx_23060336 VL_NOT_FINAL : public VerilatedModel {
+class VysyxSoCFull VL_NOT_FINAL : public VerilatedModel {
   private:
     // Symbol table holding complete model state (owned by this class)
-    Vysyx_23060336__Syms* const vlSymsp;
+    VysyxSoCFull__Syms* const vlSymsp;
 
   public:
 
@@ -30,30 +30,47 @@ class Vysyx_23060336 VL_NOT_FINAL : public VerilatedModel {
     // propagate new values into/out from the Verilated model.
     VL_IN8(&clock,0,0);
     VL_IN8(&reset,0,0);
-    VL_OUT8(&io_out_valid,0,0);
-    VL_OUT(&io_dnpc,31,0);
-    VL_OUT(&io_pc,31,0);
+    VL_OUT8(&externalPins_gpio_seg_0,7,0);
+    VL_OUT8(&externalPins_gpio_seg_1,7,0);
+    VL_OUT8(&externalPins_gpio_seg_2,7,0);
+    VL_OUT8(&externalPins_gpio_seg_3,7,0);
+    VL_OUT8(&externalPins_gpio_seg_4,7,0);
+    VL_OUT8(&externalPins_gpio_seg_5,7,0);
+    VL_OUT8(&externalPins_gpio_seg_6,7,0);
+    VL_OUT8(&externalPins_gpio_seg_7,7,0);
+    VL_IN8(&externalPins_ps2_clk,0,0);
+    VL_IN8(&externalPins_ps2_data,0,0);
+    VL_OUT8(&externalPins_vga_r,7,0);
+    VL_OUT8(&externalPins_vga_g,7,0);
+    VL_OUT8(&externalPins_vga_b,7,0);
+    VL_OUT8(&externalPins_vga_hsync,0,0);
+    VL_OUT8(&externalPins_vga_vsync,0,0);
+    VL_OUT8(&externalPins_vga_valid,0,0);
+    VL_IN8(&externalPins_uart_rx,0,0);
+    VL_OUT8(&externalPins_uart_tx,0,0);
+    VL_OUT16(&externalPins_gpio_out,15,0);
+    VL_IN16(&externalPins_gpio_in,15,0);
 
     // CELLS
     // Public to allow access to /* verilator public */ items.
     // Otherwise the application code can consider these internals.
-    Vysyx_23060336___024unit* const __PVT____024unit;
+    VysyxSoCFull___024unit* const __PVT____024unit;
 
     // Root instance pointer to allow access to model internals,
     // including inlined /* verilator public_flat_* */ items.
-    Vysyx_23060336___024root* const rootp;
+    VysyxSoCFull___024root* const rootp;
 
     // CONSTRUCTORS
     /// Construct the model; called by application code
     /// If contextp is null, then the model will use the default global context
     /// If name is "", then makes a wrapper with a
     /// single model invisible with respect to DPI scope names.
-    explicit Vysyx_23060336(VerilatedContext* contextp, const char* name = "TOP");
-    explicit Vysyx_23060336(const char* name = "TOP");
+    explicit VysyxSoCFull(VerilatedContext* contextp, const char* name = "TOP");
+    explicit VysyxSoCFull(const char* name = "TOP");
     /// Destroy the model; called (often implicitly) by application code
-    virtual ~Vysyx_23060336();
+    virtual ~VysyxSoCFull();
   private:
-    VL_UNCOPYABLE(Vysyx_23060336);  ///< Copying not allowed
+    VL_UNCOPYABLE(VysyxSoCFull);  ///< Copying not allowed
 
   public:
     // API METHODS

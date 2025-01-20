@@ -5,8 +5,8 @@
 // Manually include this file where DPI .c import functions are declared to ensure
 // the C functions match the expectations of the DPI imports.
 
-#ifndef VERILATED_VYSYX_23060336__DPI_H_
-#define VERILATED_VYSYX_23060336__DPI_H_  // guard
+#ifndef VERILATED_VYSYXSOCFULL__DPI_H_
+#define VERILATED_VYSYXSOCFULL__DPI_H_  // guard
 
 #include "svdpi.h"
 
@@ -16,11 +16,11 @@ extern "C" {
 
 
     // DPI IMPORTS
-    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:3934:31
-    extern int pmem_read(int araddr);
-    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:3933:29
-    extern int pmem_write(int awaddr, int wdata, int wstrb);
-    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:3917:30
+    // DPI import at /home/romeo/ysyx-workbench/npc/../ysyxSoC/perip/flash/flash.v:84:30
+    extern void flash_read(int addr, int* data);
+    // DPI import at /home/romeo/ysyx-workbench/npc/../ysyxSoC/build/ysyxSoCFull.v:4716:30
+    extern void mrom_read(int raddr, int* rdata);
+    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:3974:30
     extern void set_npc_state(int ebreak);
 
 #ifdef __cplusplus
