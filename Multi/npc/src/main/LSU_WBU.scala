@@ -37,21 +37,22 @@ class ysyx_23060336_LSU_WBU extends Module{
   val ebreak  = Module(new ysyx_23060336_EBREAK())
   val prepare = Wire(Bool())
   val DataOut = Wire(UInt(32.W))
-  val arvalid = RegInit(0.U(1.W))
   val rdata   = RegInit(0.U(32.W))
 
-  val s_idle :: s_wait_ready :: csr_state :: reg_state :: Nil = Enum(4)
+  val s_idle :: s_wait_rslave :: s_wait_wslave :: s_wait_ready :: csr_state :: reg_state :: Nil = Enum(6)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(
-    s_idle       -> Mux(io.in_valid, s_wait_ready, s_idle),
-    s_wait_ready -> Mux((prepare || (!io.MemtoReg && !io.MemWr)), Mux(io.CsrWr_in, csr_state, reg_state), s_wait_ready),
-    csr_state    -> Mux(io.RegWr_in, reg_state, s_idle),
-    reg_state    -> s_idle
+    s_idle        -> Mux(io.in_valid, Mux(!io.MemtoReg , Mux(!io.MemWr, Mux(io.CsrWr_in, csr_state, reg_state), s_wait_wslave), s_wait_rslave), s_idle),
+    s_wait_rslave -> Mux(io.axi.arready, Mux(io.axi.rvalid, Mux(io.CsrWr_in, csr_state, reg_state), s_wait_ready), s_wait_rslave),
+    s_wait_wslave -> Mux(io.axi.wready, s_wait_ready, s_wait_wslave),
+    s_wait_ready  -> Mux(prepare, Mux(io.CsrWr_in, csr_state, reg_state), s_wait_ready),
+    csr_state     -> Mux(io.RegWr_in, reg_state, s_idle),
+    reg_state     -> s_idle
   ))
 
   io.out_valid := state === reg_state 
 
-  prepare := (io.axi.arvalid && io.axi.rvalid) || (io.axi.awvalid && io.axi.bvalid) 
+  prepare := (io.MemtoReg && io.axi.rvalid) || (io.MemWr && io.axi.bvalid) 
   DataOut := Mux(state === reg_state && io.MemtoReg, rdata, io.result)
 
   io.rd      := io.rd_in
@@ -74,36 +75,31 @@ class ysyx_23060336_LSU_WBU extends Module{
   ebreak.io.ebreak := io.ebreak
 
   // AXI4
-  io.axi.awvalid := Mux(reset.asBool, false.B, io.MemWr)
+  io.axi.awvalid := Mux(reset.asBool, false.B, io.MemWr && (state === s_wait_wslave))
   //io.axi.awaddr  := io.result & ("hfffffffc".U)
   io.axi.awaddr  := io.result
   io.axi.awid    := "h2".U
   io.axi.awlen   := "h0".U
   io.axi.awsize  := io.awsize
   io.axi.awburst := "h1".U
-  io.axi.wvalid  := Mux(reset.asBool, false.B, io.MemWr)
+  io.axi.wvalid  := Mux(reset.asBool, false.B, io.MemWr && (state === s_wait_wslave))
   io.axi.wdata   := io.src2 & Cat(Fill(8, io.wstrb(3)), Fill(8, io.wstrb(2)), Fill(8, io.wstrb(1)), Fill(8, io.wstrb(0)))
   io.axi.wstrb   := io.wstrb
-  io.axi.wlast   := Mux(io.MemWr, true.B, false.B)
+  io.axi.wlast   := io.MemWr && (state === s_wait_wslave)
   io.axi.bready  := true.B
-  io.axi.arvalid := Mux(reset.asBool, false.B, (arvalid === 1.U) && io.MemtoReg)
+  io.axi.arvalid := Mux(reset.asBool, false.B, (state === s_wait_rslave || state === s_idle) && io.MemtoReg)
   //io.axi.araddr  := io.result & ("hfffffffc".U)
   io.axi.araddr  := io.result 
   io.axi.arid    := "h2".U
   io.axi.arlen   := "h0".U
   io.axi.arsize  := io.arsize
   io.axi.arburst := "h1".U
-  io.axi.rready  := true.B
+  io.axi.rready  := state === s_idle || state === s_wait_rslave || state === s_wait_ready
 
   when(io.axi.rvalid){
     rdata := io.axi.rdata
   }
 
-  when(io.MemtoReg && !io.axi.rvalid) {
-    arvalid := 1.U
-  } .otherwise {
-    arvalid := 0.U
-  }
 }
 
 class ysyx_23060336_EBREAK extends BlackBox with HasBlackBoxInline{

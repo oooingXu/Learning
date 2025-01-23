@@ -22,8 +22,9 @@ VERILATOR_CFLAGS += $(shell llvm-config --cflags)
 VERILATOR_CFLAGS += $(shell sdl2-config --cflags) 
 VERILATOR_CFLAGS += -MMD --build --cc --trace-fst\
 									 	-O3 --x-assign fast --x-initial fast\
-									 	--exe -Wno-DECLFILENAME --noassert\
-										--timescale "1ns/1ns" --no-timing
+									 	--exe -Wno-DECLFILENAME\
+										--timescale "1ns/1ns" --no-timing\
+										--assert --autoflush
 
 NPC = $(NPC_HOME)/csrc/$(CPU_NAME).cpp
 VSRCS += $(SOC_HOME)/build/ysyxSoCFull.v
@@ -37,8 +38,8 @@ INCLUDE += -I$(SOC_HOME)/perip/spi/rtl
 # rules for verilator
 sim:
 	$(call git_commit, "sim RTL")
+	rm -rf $(OBJ)
 	$(VERILATOR) $(VERILATOR_CFLAGS) -top-module $(TOP_NAME) $(INCLUDE) $(VSRCS) $(INCFLAGS) $(NPC) 
-	$(MAKE) -C $(OBJ) -f V$(TOP_NAME).mk 
 
 test:
 	mill -i $(PRJ).test
