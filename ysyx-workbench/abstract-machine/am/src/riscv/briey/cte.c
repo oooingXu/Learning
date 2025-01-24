@@ -4,6 +4,7 @@
 
 static Context* (*user_handler)(Event, Context*) = NULL;
 
+/*
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
@@ -11,7 +12,7 @@ Context* __am_irq_handle(Context *c) {
 		if(c->mcause == 11) {
 			if(c->GPR1 == -1) {
 				ev.event = EVENT_YIELD;
-				c->mepc = c->mepc + 4;
+				c->mepc += 4;
 			} else if(c->GPR1 >= 0 && c->GPR1 <= 19) {
 				ev.event = EVENT_SYSCALL;
 				c->mepc += 4;
@@ -23,7 +24,25 @@ Context* __am_irq_handle(Context *c) {
     c = user_handler(ev, c);
     assert(c != NULL);
   }
+	//printf("Context: mepc=%d\n",c->mepc);
 
+  return c;
+}
+*/
+
+Context* __am_irq_handle(Context *c) {
+  if (user_handler) {
+    Event ev = {0};
+    switch (c->mcause) {
+      case 11:
+        if(c->GPR1 == -1) ev.event = EVENT_YIELD;
+        else ev.event = EVENT_SYSCALL;
+        break;
+      default: ev.event = EVENT_ERROR; break;
+    }
+    c = user_handler(ev, c);
+    assert(c != NULL);
+  }
   return c;
 }
 
@@ -62,4 +81,3 @@ bool ienabled() {
 
 void iset(bool enable) {
 }
-

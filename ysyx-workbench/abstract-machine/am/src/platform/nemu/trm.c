@@ -1,10 +1,12 @@
 #include <am.h>
+#include <klib.h>
 #include <nemu.h>
 
-extern char _heap_start;
+extern char _heap_start, _etext, _data,  _edata, _bss_start, _bss_end;
+
 int main(const char *args);
 
-Area heap = RANGE(&_heap_start, PMEM_END);
+Area heap = RANGE(&_heap_start, HEAP_END);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif
@@ -25,3 +27,18 @@ void _trm_init() {
   int ret = main(mainargs);
   halt(ret);
 }
+
+void  _bootloader(void) {
+	char *src = &_etext;
+	char *dst = &_data;
+
+	while(dst < & _edata) {
+		*dst++ = *src++;
+	}
+
+	for(dst = &_bss_start; dst < &_bss_end; dst++)
+		*dst = 0;
+
+	_trm_init();
+}
+

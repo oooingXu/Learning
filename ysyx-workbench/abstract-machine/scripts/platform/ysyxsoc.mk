@@ -1,21 +1,22 @@
-AM_SRCS := riscv/npc/start.S \
-           riscv/npc/trm.c \
-           riscv/npc/ioe.c \
-           riscv/npc/timer.c \
-           riscv/npc/input.c \
-           riscv/npc/cte.c \
-           riscv/npc/trap.S \
+AM_SRCS := riscv/ysyxsoc/start.S \
+           riscv/ysyxsoc/trm.c \
+           riscv/ysyxsoc/ioe.c \
+           riscv/ysyxsoc/timer.c \
+           riscv/ysyxsoc/input.c \
+           riscv/ysyxsoc/cte.c \
+           riscv/ysyxsoc/trap.S \
            platform/dummy/vme.c \
            platform/dummy/mpe.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
-LDFLAGS   += -T $(AM_HOME)/scripts/npc.ld \
-						 --defsym=_pmem_start=0x20000000 --defsym=_entry_offset=0x0
+LDFLAGS   += -T $(AM_HOME)/scripts/ysyxsoc.ld \
+						 --defsym=_pmem_start=0x02000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
+#LDFLAGS   += --print-map
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 # add one
 CFALGS += -I$(AM_HOME)/am/src/riscv
-.PHONY: $(AM_HOME)/am/src/riscv/npc/trm.c
+.PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c
 
 DIFF_REF_SO = $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 
@@ -25,6 +26,5 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-#	@$(MAKE) -C $(NPC_HOME)/obj_dir/VNPC $(IMAGE).bin $(DIFF_REF_SO)
 	@$(NPC_HOME)/obj_dir/VysyxSoCFull $(IMAGE).bin $(DIFF_REF_SO)
 	

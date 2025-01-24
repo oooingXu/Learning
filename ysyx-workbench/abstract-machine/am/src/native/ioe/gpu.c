@@ -2,10 +2,10 @@
 #include <SDL2/SDL.h>
 #include <fenv.h>
 
-//#define MODE_800x600
+#define MODE_800x600
 #ifdef MODE_800x600
 # define W    800
-# define H    600
+# define H    480
 #else
 # define W    400
 # define H    300
