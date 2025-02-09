@@ -9,10 +9,12 @@ void (*ref_difftest_raise_intr)(uint32_t NO) = NULL;
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
+static uint32_t skip_time = 0;
 
 void difftest_skip_ref() {
 	is_skip_ref = true;
 	skip_dut_nr_inst = 0;
+	skip_time++;
 }
 
 void difftest_skip_dut(CPU_state *ref, int nr_ref, int nr_dut) {
@@ -52,7 +54,7 @@ void init_difftest(char *ref_so_file, long img_size){
 
 	ref_difftest_init(0);
 	//debug("success difftest_init");
-	ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
+	ref_difftest_memcpy(RESET_VECTOR, guest_to_host(0), img_size, DIFFTEST_TO_REF);
 	//debug("success difftest_memcpy");
 	ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 	//debug("success difftest_regcpy");
@@ -66,7 +68,7 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 			printf("ref.gpr[%s] = 0x%08x, ",regs[i],ref->gpr[i]);
 			printf("dut->gpr[%s] = 0x%08x, ",regs[i],cpu.gpr[i]);
 			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
-			printf("inst = 0x%08x\n", pmem_read(pc));
+			printf("inst = 0x%08x\n", host_read(guest_to_host(pc & 0x00ffffff)));
 			return false;
 		}
 	}
@@ -88,6 +90,7 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 
 	debug("All right");
 	debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->pc, cpu.dnpc, cpu.pc);
+	IFDEF(CONFIG_PTRACE, printf("skip_time = %d\n", skip_time));
 
 	return true;
 }
@@ -123,24 +126,22 @@ void difftest_step(){
 	if(is_skip_ref) {
 		cpu.pc = cpu.dnpc;
 		ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+		ref_r.pc = cpu.dnpc;
+		//printf("dut->pc = 0x%08x, dut->dnpc = 0x%08x, ref->pc = 0x%08x\n", cpu.pc, cpu.dnpc, ref_r.pc);
 		is_skip_ref = false;
 		return;
 	}
-#ifdef CONFIG_PTRACE
-	if(cpu.pc != cpu.dnpc){
-	printf("dut->pc = 0x%08x, dut->dnpc = 0x%08x, ref->pc = 0x%08x,", cpu.pc, cpu.dnpc, ref_r.pc);
-	}
-#endif
+	uint32_t ref_pc = ref_r.pc;
 
 
 	ref_difftest_exec(1);
 	ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-
 #ifdef CONFIG_PTRACE
 	if(cpu.pc != cpu.dnpc){
-	printf(" ref->dnpc = 0x%08x\n", ref_r.pc);
+	printf("dut->pc = 0x%08x, dut->dnpc = 0x%08x, ref->pc = 0x%08x, ref->dnpc = 0x%08x\n", cpu.pc, cpu.dnpc, ref_pc, ref_r.pc);
 	}
 #endif
+
 	//debug("ref->pc = 0x%08x", ref_r.pc);
 	checkregs(&ref_r, cpu.pc);
 #ifdef PRINT_DIFF

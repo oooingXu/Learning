@@ -23,41 +23,41 @@ class ysyx_23060336 extends Module {
   val reg     = Module(new ysyx_23060336_REG())
   val csr     = Module(new ysyx_23060336_CSR())
   val arbiter = Module(new ysyx_23060336_ARBITER())
-
-  //val clint   = Module(new ysyx_23060336_CLINT())
+  val xbar    = Module(new ysyx_23060336_XBAR())
+  val clint   = Module(new ysyx_23060336_CLINT())
   //val sram_ifu   = Module(new ysyx_23060336_SRAM())
   //val sram_lsu   = Module(new ysyx_23060336_SRAM())
   //val sram   = Module(new ysyx_23060336_SRAM())
 
-  val awready = Wire(Bool())                                                                                                                                                                                                                 
-  val awvalid = Wire(Bool())                                                                                                                                                                                                                  
-  val awaddr  = Wire(UInt(32.W))                                                                                                                                                                                                              
-  val awid    = Wire(UInt(4.W))                                                                                                                                                                                                               
-  val awlen   = Wire(UInt(8.W))                                                                                                                                                                                                               
-  val awsize  = Wire(UInt(3.W))                                                                                                                                                                                                               
-  val awburst = Wire(UInt(2.W))                                                                                                                                                                                                               
-  val wready  = Wire(Bool())                                                                                                                                                                                                                 
-  val wvalid  = Wire(Bool())                                                                                                                                                                                                                  
-  val wdata   = Wire(UInt(32.W))                                                                                                                                                                                                              
-  val wstrb   = Wire(UInt(4.W))                                                                                                                                                                                                               
-  val wlast   = Wire(Bool())                                                                                                                                                                                                                  
-  val bready  = Wire(Bool())                                                                                                                                                                                                                  
-  val bvalid  = Wire(Bool())                                                                                                                                                                                                                 
-  val bresp   = Wire(UInt(2.W))                                                                                                                                                                                                              
-  val bid     = Wire(UInt(4.W))                                                                                                                                                                                                              
-  val arready = Wire(Bool())                                                                                                                                                                                                                 
-  val arvalid = Wire(Bool())                                                                                                                                                                                                                  
-  val araddr  = Wire(UInt(32.W))                                                                                                                                                                                                              
-  val arid    = Wire(UInt(4.W))                                                                                                                                                                                                               
-  val arlen   = Wire(UInt(8.W))                                                                                                                                                                                                               
-  val arsize  = Wire(UInt(3.W))                                                                                                                                                                                                               
-  val arburst = Wire(UInt(2.W))                                                                                                                                                                                                               
-  val rready  = Wire(Bool())                                                                                                                                                                                                                  
-  val rvalid  = Wire(Bool())                                                                                                                                                                                                                 
-  val rresp   = Wire(UInt(2.W))                                                                                                                                                                                                              
-  val rdata   = Wire(UInt(32.W))                                                                                                                                                                                                             
-  val rlast   = Wire(Bool())                                                                                                                                                                                                                 
-  val rid     = Wire(UInt(4.W))   
+  val awready = Wire(Bool())  
+  val awvalid = Wire(Bool())   
+  val awaddr  = Wire(UInt(32.W))
+  val awid    = Wire(UInt(4.W)) 
+  val awlen   = Wire(UInt(8.W))
+  val awsize  = Wire(UInt(3.W))
+  val awburst = Wire(UInt(2.W))
+  val wready  = Wire(Bool())  
+  val wvalid  = Wire(Bool())  
+  val wdata   = Wire(UInt(32.W))
+  val wstrb   = Wire(UInt(4.W)) 
+  val wlast   = Wire(Bool())   
+  val bready  = Wire(Bool())  
+  val bvalid  = Wire(Bool()) 
+  val bresp   = Wire(UInt(2.W))
+  val bid     = Wire(UInt(4.W)) 
+  val arready = Wire(Bool())   
+  val arvalid = Wire(Bool())  
+  val araddr  = Wire(UInt(32.W)) 
+  val arid    = Wire(UInt(4.W)) 
+  val arlen   = Wire(UInt(8.W))
+  val arsize  = Wire(UInt(3.W))  
+  val arburst = Wire(UInt(2.W)) 
+  val rready  = Wire(Bool())   
+  val rvalid  = Wire(Bool())  
+  val rresp   = Wire(UInt(2.W)) 
+  val rdata   = Wire(UInt(32.W))
+  val rlast   = Wire(Bool())   
+  val rid     = Wire(UInt(4.W)) 
 
   io.slave.awready := awready
   awvalid          := io.slave.awvalid
@@ -101,8 +101,14 @@ class ysyx_23060336 extends Module {
   rlast   := 0.U
   rid     := 0.U
 
-  // arbiter <-> top <-> ifu <-> lsu_wbu
-  io.master      <> arbiter.io.axi
+  // xbar <-> top 
+  io.master      <> xbar.io.master
+
+  // xbar <-> clint <-> arbiter
+  xbar.io.clint <> clint.io.axi
+  xbar.io.slave <> arbiter.io.axi
+
+  // ifu <-> lsu_wbu
   ifu.io.axi     <> arbiter.io.ifu
   lsu_wbu.io.axi <> arbiter.io.lsu
 

@@ -18,9 +18,6 @@ void isa_reg_display() {
 	printf("mstatus ---> 0x%08x\n", cpu.mstatus);
 	printf("mcause	---> 0x%08x\n", cpu.mcause);
 	printf("\n");
-	for(int i = 0; i < 4096; i++){
-		if(cpu.csr[i]) printf("%x 0x%08x\n", i, cpu.csr[i]);
-	}
 }
 
 uint32_t isa_reg_str2val(const char *s, bool *success) {

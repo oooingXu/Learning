@@ -18,13 +18,17 @@ class ysyx_23060336_CSR extends Module{
 
   val ysyx_23060336_csrs = Mem(4096, UInt(32.W))
 
-  def MSTATUS = "h300".U
-  def MTVEC   = "h305".U
-  def MEPC    = "h341".U
-  def MCAUSE  = "h342".U
+  def MVENDORID = "hf11".U
+  def MARCHID   = "hf12".U
+  def MSTATUS   = "h300".U
+  def MTVEC     = "h305".U
+  def MEPC      = "h341".U
+  def MCAUSE    = "h342".U
 
   when(reset.asBool) {
-    ysyx_23060336_csrs(MSTATUS) := "h1800".U
+    ysyx_23060336_csrs(MVENDORID) := "h79737978".U
+    ysyx_23060336_csrs(MARCHID)   := "h15fdf70".U
+    ysyx_23060336_csrs(MSTATUS)   := "h1800".U
   }
 
   when(io.ecall) {

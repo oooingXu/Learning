@@ -7,15 +7,18 @@
 #include"../include/macro.h"
 #include"../include/common.h"
 
-#define MBASE 0x20000000
+#define MBASE 0x00000000
 #define MSIZE 0x8000000
 
 #define PMEM_LEFT ((uint32_t)MBASE)
 #define PMEM_RIGHT ((uint32_t)MBASE + MSIZE - 1)
-#define RESET_VECTOR PMEM_LEFT
+#define RESET_VECTOR 0x30000000
 
 uint8_t* guest_to_host(uint32_t paddr);
 uint32_t host_to_guest(uint8_t *haddr);
+
+uint8_t* c_guest_to_host(uint32_t paddr);
+uint32_t c_host_to_guest(uint8_t *haddr);
 
 uint32_t host_read(void *addr);
 void host_write(void *addr, int len, uint32_t data); 

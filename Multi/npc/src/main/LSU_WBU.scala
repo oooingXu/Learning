@@ -37,6 +37,15 @@ class ysyx_23060336_LSU_WBU extends Module{
   val ebreak  = Module(new ysyx_23060336_EBREAK())
   val prepare = Wire(Bool())
   val DataOut = Wire(UInt(32.W))
+
+  val wdata_b = Wire(UInt(32.W))
+  val wdata_h = Wire(UInt(32.W))
+  val wstrb_b = Wire(UInt(4.W))
+  val wstrb_h = Wire(UInt(4.W))
+  
+  val rdata_b = Wire(UInt(32.W))
+  val rdata_h = Wire(UInt(32.W))
+
   val rdata   = RegInit(0.U(32.W))
 
   val s_idle :: s_wait_rslave :: s_wait_wslave :: s_wait_ready :: csr_state :: reg_state :: Nil = Enum(6)
@@ -51,6 +60,20 @@ class ysyx_23060336_LSU_WBU extends Module{
   ))
 
   io.out_valid := state === reg_state 
+
+  rdata_h := Mux(io.result(1,0) === 2.U, Cat(Fill(16, 0.U), io.axi.rdata(31,16)), io.axi.rdata)
+  rdata_b := Mux(io.result(1,0) === 3.U, Cat(Fill(24, 0.U), io.axi.rdata(31,24)),
+             Mux(io.result(1,0) === 2.U, Cat(Fill(24, 0.U), io.axi.rdata(23,16)),
+             Mux(io.result(1,0) === 1.U, Cat(Fill(24, 0.U), io.axi.rdata(15, 8)), io.axi.rdata)))
+
+  wdata_h := Mux(io.result(1,0) === 2.U, io.src2 << 16, io.src2)
+  wdata_b := Mux(io.result(1,0) === "b11".U, Cat(io.src2(7,0), Fill(24, 0.U)),
+             Mux(io.result(1,0) === "b10".U, Cat(Fill(8, 0.U), io.src2(7,0), Fill(16, 0.U)),
+             Mux(io.result(1,0) === "b01".U, Cat(Fill(16, 0.U), io.src2(7,0), Fill(8, 0.U)), Cat(Fill(24, 0.U), io.src2(7,0)))))
+
+
+  wstrb_h := Mux(io.result(1,0) === 2.U, io.wstrb << 2, io.wstrb)
+  wstrb_b := Mux(io.result(1,0) === 3.U, io.wstrb << 3, Mux(io.result(1,0) === 2.U, io.wstrb << 2, Mux(io.result(1,0) === 1.U, io.wstrb << 1, io.wstrb)))
 
   prepare := (io.MemtoReg && io.axi.rvalid) || (io.MemWr && io.axi.bvalid) 
   DataOut := Mux(state === reg_state && io.MemtoReg, rdata, io.result)
@@ -76,28 +99,26 @@ class ysyx_23060336_LSU_WBU extends Module{
 
   // AXI4
   io.axi.awvalid := Mux(reset.asBool, false.B, io.MemWr && (state === s_wait_wslave))
-  //io.axi.awaddr  := io.result & ("hfffffffc".U)
   io.axi.awaddr  := io.result
   io.axi.awid    := "h2".U
   io.axi.awlen   := "h0".U
   io.axi.awsize  := io.awsize
   io.axi.awburst := "h1".U
   io.axi.wvalid  := Mux(reset.asBool, false.B, io.MemWr && (state === s_wait_wslave))
-  io.axi.wdata   := io.src2 & Cat(Fill(8, io.wstrb(3)), Fill(8, io.wstrb(2)), Fill(8, io.wstrb(1)), Fill(8, io.wstrb(0)))
-  io.axi.wstrb   := io.wstrb
+  io.axi.wdata   := Mux(io.awsize === 0.U, wdata_b, Mux(io.awsize === 1.U, wdata_h, io.src2))
   io.axi.wlast   := io.MemWr && (state === s_wait_wslave)
   io.axi.bready  := true.B
-  io.axi.arvalid := Mux(reset.asBool, false.B, (state === s_wait_rslave || state === s_idle) && io.MemtoReg)
-  //io.axi.araddr  := io.result & ("hfffffffc".U)
+  io.axi.arvalid := Mux(reset.asBool, false.B, (state === s_wait_rslave) && io.MemtoReg)
   io.axi.araddr  := io.result 
   io.axi.arid    := "h2".U
   io.axi.arlen   := "h0".U
   io.axi.arsize  := io.arsize
   io.axi.arburst := "h1".U
   io.axi.rready  := state === s_idle || state === s_wait_rslave || state === s_wait_ready
+  io.axi.wstrb   := Mux(io.awsize === 0.U, wstrb_b, Mux(io.awsize === 1.U, wstrb_h, io.wstrb))
 
   when(io.axi.rvalid){
-    rdata := io.axi.rdata
+    rdata := Mux(io.arsize === 0.U, rdata_b, Mux(io.arsize === 1.U, rdata_h, io.axi.rdata))
   }
 
 }

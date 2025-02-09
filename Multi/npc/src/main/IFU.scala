@@ -5,17 +5,17 @@ import chisel3.util._
 
 class ysyx_23060336_IFU extends Module{
   val io = IO(new Bundle{
-    val ifu_idle = Input(Bool())
-    val empty    = Input(Bool())
-    val dnpc     = Input(UInt(32.W))
-    val inst     = Output(UInt(32.W))
-    val pc       = Output(UInt(32.W))
-    val out_valid= Output(Bool())
-    val axi      = new ysyx_23060336_AXI4Master()
+    val ifu_idle  = Input(Bool())
+    val empty     = Input(Bool())
+    val dnpc      = Input(UInt(32.W))
+    val inst      = Output(UInt(32.W))
+    val pc        = Output(UInt(32.W))
+    val out_valid = Output(Bool())
+    val axi       = new ysyx_23060336_AXI4Master()
   })
 
-  def npc = "h20000000".U
-  val PC = RegInit(npc)
+  def npc   = "h30000000".U
+  val PC    = RegInit(npc)
   val finst = RegInit(0.U(32.W))
 
   val s_idle :: s_wait_rvalid :: s_wait_ready :: Nil = Enum(3)
@@ -26,7 +26,8 @@ class ysyx_23060336_IFU extends Module{
     s_wait_ready  -> Mux(io.ifu_idle, s_idle, s_wait_ready)
   ))
 
-  io.axi.araddr := Mux(reset.asBool, npc, Mux((state === s_wait_ready) , io.dnpc, PC)) 
+//  io.axi.araddr := Mux(reset.asBool, npc, Mux((state === s_wait_ready) , io.dnpc, PC)) 
+  io.axi.araddr := Mux(reset.asBool, npc, Mux((state === s_idle) , PC, io.dnpc)) 
 
   PC := Mux(reset.asBool, npc,      
         Mux((state === s_wait_ready) && io.ifu_idle, io.dnpc, PC))

@@ -24,13 +24,12 @@ VERILATOR_CFLAGS += -MMD --build --cc --trace-fst\
 									 	-O3 --x-assign fast --x-initial fast\
 									 	--exe -Wno-DECLFILENAME\
 										--timescale "1ns/1ns" --no-timing\
-										--assert --autoflush
+										--assert --autoflush 
 
 NPC = $(NPC_HOME)/csrc/$(CPU_NAME).cpp
 VSRCS += $(SOC_HOME)/build/ysyxSoCFull.v
 VSRCS += $(shell find $(SOC_HOME)/perip -name "*.v")
 VSRCS += $(abspath $(NPC_HOME)/vsrc/$(CPU_NAME).sv)
-
 
 INCLUDE += -I$(SOC_HOME)/perip/uart16550/rtl
 INCLUDE += -I$(SOC_HOME)/perip/spi/rtl

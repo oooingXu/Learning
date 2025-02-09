@@ -28,20 +28,26 @@
 #define MCAUSE  0x342
 #define MSTATUS 0x300
 
-uint64_t g_nr_guest_inst = 0;
+#define FLASH_START (0x30000000)
+#define FLASH_END   (0x31ffffff)
+
+#define PSRAM_START (0x80000000)
+#define PSRAM_END		(0x803fffff)
+
+static uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0;
 static bool g_print_step = false;
 
 //void device_update();
 
-static char *img_file = NULL;
 static bool ret = false;
 
 NPCState npc_state;
+
 CPU_state cpu = {};
 
-VysyxSoCFull *ysyxSoCFull = new VysyxSoCFull;
-vluint64_t sim_time = 0;
+static VysyxSoCFull *ysyxSoCFull = new VysyxSoCFull;
+static vluint64_t sim_time = 0;
 #ifdef CONFIG_WAVE
 VerilatedFstC *m_trace = new VerilatedFstC;
 #endif
@@ -77,29 +83,47 @@ extern "C" void set_npc_state(int ebreak){
 	}
 }
 
-static long load_program() {
-	if(img_file == NULL){
+static void view_instructions(void* addr, long size) {
+    uint32_t *instruction_ptr = (uint32_t *)addr; // 将地址转换为指向 uint32_t 的指针
+    for (long i = 0; i < size / sizeof(uint32_t); i++) {
+        printf("Instruction at 0x%08x: 0x%08x, ", addr + i * sizeof(uint32_t), instruction_ptr[i]);
+				printf("host_read = 0x%08x\n", host_read(addr + i * sizeof(uint32_t)));
+    }
+}
+
+static long load_program(char * img,uint32_t addr) {
+	if(img == NULL){
 		Log("No image is given.");
 		return 4096;
 	} else{
-		debug("img_file = %s", img_file);
+		debug("img = %s", img);
 	}
 
-	FILE *fp = fopen(img_file, "rb");
-	debug("fp = %p, img_file = %s", fp, img_file);
+	FILE *fp = fopen(img, "rb");
+	debug("fp = %p, img = %s", fp, img);
 	if(fp == NULL){
-		printf("Can not open '%s'", img_file);
+		printf("Can not open '%s'", img);
 		assert(1);
 	}
 
 	fseek(fp, 0, SEEK_END);
 	long size = ftell(fp);
 
-	Log("The image is %s, size = %ld", img_file, size);
+	//Log("The image is %s, size = %ld", img, size);
 
 	fseek(fp, 0, SEEK_SET);
-	int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
+	if(addr >= FLASH_START && addr <= FLASH_END){
+		//printf("init caddr = 0x%08x\n", addr & 0x0fffffff);
+		Log("C_guest: The image is %s, size = %ld", img, size);
+		int ret = fread(c_guest_to_host(addr & 0x0fffffff), size, 1, fp);
+	} else {
+		Log("Guest: The image is %s, size = %ld", img, size);
+		int ret = fread(guest_to_host(addr), size, 1, fp);
+	}
+	//int ret = fread(guest_to_host(addr), size, 1, fp);
+	//view_instructions(guest_to_host(addr), size);
 	assert(ret == 1);
+
 
 	fclose(fp);
 	return size;
@@ -119,7 +143,7 @@ static void renew_pc(){
 
 		cpu.pc   = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__PC;
 		cpu.dnpc = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT___lsu_wbu_io_dnpc;
-		cpu.valid= ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu__DOT__state == 4;
+		cpu.valid= ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu__DOT__state == 5;
 }
 
 static void renew_reg(){
@@ -138,7 +162,7 @@ static void renew_reg(){
 }
 
 static void init_npc(){
-	cpu.pc = RESET_VECTOR;
+	cpu.pc = 0x30000000;
 	for(int i = 0; i < R; i++){
 		cpu.gpr[i] = 0;
 	}
@@ -147,16 +171,32 @@ static void init_npc(){
 	ysyxSoCFull->reset = 1;
 	ysyxSoCFull->eval();
 	cpu.csr[0x300] = 0x1800;
+	cpu.csr[0xf11] = 0x79737978;
+	cpu.csr[0xf12] = 0x015fdf70;
 //	printf("init dut mstatus = 0x%08x\n", cpu.csr[0x300]);
+}
+
+static bool in_addr(uint32_t addr){
+	if((addr >= UART_START && addr <= UART_END) || (addr >= CLINT_START && addr <= CLINT_END)) { return true; }
+	else { return false; }
 }
 
 static void trace_and_difftest(){
 #ifdef CONFIG_DIFFTEST
-	//if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !ysyxSoCFull->io_lsuvalid || !ysyxSoCFull->io_wbuready) {
+
 	if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !cpu.valid) {
+		//printf("reset = %d, pc = 0x%08x, dnpc = 0x%08x, valid = %d\n", cpu.reset, cpu.pc, cpu.dnpc, cpu.valid);
 		return;
 	} else {
-	difftest_step();
+		//printf("\n***** difftest *****\n");
+		if((in_addr(ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT___cpu_auto_master_out_araddr)) || (in_addr(ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT___cpu_auto_master_out_awaddr))){
+			difftest_skip_ref();
+		}
+
+		if((in_addr(ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT___cpu_auto_master_out_araddr))){
+			printf("araddr = 0x%08x\n", ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT___cpu_auto_master_out_araddr);
+		}
+		difftest_step();
 	}
 #endif
 }
@@ -269,6 +309,11 @@ static void welcome(){
 	printf("Welcome to %s\n", ANSI_FMT("riscv32e-npc", ANSI_FG_GREEN));
 }
 
+static int is_exit_status_bad() {
+	int good = (npc_state.state == NPC_END && npc_state.halt_ret == 0) || (npc_state.state == NPC_QUIT);
+	return !good;
+}
+
 int main(int argc, char **argv)
 {
 	Verilated::commandArgs(argc, argv); //设置仿真参数
@@ -280,20 +325,19 @@ int main(int argc, char **argv)
 	
 #ifdef CONFIG_WAVE
 	Verilated::traceEverOn(true); //开启波形跟踪
-
 	ysyxSoCFull->trace(m_trace, 99);
 	m_trace->open("waveform.fst");
 #endif
 
-	img_file = argv[1];
+	char * img_file = argv[1];
 	//debug("filename = '%s'",img_file);
 	
 	init_npc();
-	init_device();
-	long img_size = load_program();
-#ifdef CONFIG_DIFFTEST
-	init_difftest(argv[2], img_size);
-#endif
+	IFDEF(CONFIG_DEVICE, init_device());
+	long img_size = load_program(img_file, 0x00000000);
+	//char * char_file = argv[2];
+	//load_program(char_file, 0x30000000);
+	IFDEF(CONFIG_DIFFTEST, init_difftest(argv[2], img_size));
 
 	welcome();
 #ifdef CONFIG_BATCH
@@ -302,13 +346,12 @@ int main(int argc, char **argv)
 	sdb_main();
 #endif
 
-#ifdef CONFIG_WAVE
-	m_trace->close();
-#endif
+	IFDEF(CONFIG_WAVE, m_trace->close());
+
 	ysyxSoCFull->final();
 	delete ysyxSoCFull;
 
-	return 0;
+	return is_exit_status_bad();
 }
 
 

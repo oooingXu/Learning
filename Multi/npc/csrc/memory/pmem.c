@@ -1,24 +1,28 @@
 #include"pmem.h"
 #include"../device/map.h"
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-extern "C" void mrom_read(int32_t addr, int32_t *data) {
-	if(addr >= 0x20000000 && addr <= 0x20000fff){
-		*data = host_read(guest_to_host(addr));
-#ifdef CONFIG_MTRACE
-		printf("mrom_read addr = 0x%08x, data = 0x%08x\n", addr, *data);
-#endif
-		return;
-	} else {
-		printf("mrom_read out of bound addr = 0x%08x\n", addr);
-		assert(0);
+uint8_t pmem[MSIZE] PG_ALIGN = {};
+uint8_t cmem[0x20] = {};
+
+//static uint32_t psram[0x4000];
+static uint8_t *psram = NULL;
+static void psram_init(){
+	psram = (uint8_t *)malloc(0x400000);
+	if(psram == NULL) {
+		printf("Failed to allocate PSRAM\n");
 	}
 }
 
-uint8_t pmem[MSIZE] PG_ALIGN = {};
-
 uint8_t* guest_to_host(uint32_t paddr) { return pmem + paddr - MBASE; }
 uint32_t host_to_guest(uint8_t *haddr) { return haddr - pmem + MBASE; }
+
+uint8_t* p_guest_to_host(uint32_t paddr) { return psram + paddr; }
+
+uint8_t* c_guest_to_host(uint32_t paddr) { 
+	//printf("c_guest_to_host caddr = 0x%08x, paddr = 0x%08x, ", cmem, paddr);
+	return cmem + paddr; 
+}
+uint32_t c_host_to_guest(uint8_t *haddr) { return haddr - cmem; }
 
 uint32_t host_read(void *addr){ return *(uint32_t *)addr; }
 
@@ -44,9 +48,7 @@ bool in_pmem(uint32_t addr){
 int pmem_read(int araddr) {
 	//araddr = araddr & ~0x3u;
 
-#ifdef CONFIG_MTRACE
-	printf("pread at " FMT_PADDR ", data = " FMT_PADDR "\n", araddr, host_read(guest_to_host(araddr)));
-#endif
+	IFDEF(CONFIG_MTRACE, printf("pread at " FMT_PADDR ", data = " FMT_PADDR "\n", araddr, host_read(guest_to_host(araddr))));
 
 	if(likely(in_pmem(araddr))) {
 	uint32_t ret = host_read(guest_to_host(araddr));
@@ -62,9 +64,8 @@ int pmem_read(int araddr) {
 int pmem_write(int awaddr, int wdata, int wstrb) {
 	//awaddr = awaddr & ~0x3u;
 
-#ifdef CONFIG_MTRACE
-	printf("pwrite at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", awaddr, wdata, wstrb);
-#endif
+	IFDEF(CONFIG_MTRACE, printf("pwrite at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", awaddr, wdata, wstrb));
+
 	if(likely(in_pmem(awaddr))){
 		host_write(guest_to_host(awaddr), wstrb, wdata); return 0;
 	} else {
@@ -72,4 +73,60 @@ int pmem_write(int awaddr, int wdata, int wstrb) {
 	}
 	printf("write out of bound\b");
 		out_of_bound(awaddr);
+}
+
+static uint32_t reverse_low_8(uint32_t value) {
+    uint32_t low8 = value & 0x000000FF;  // 低8位
+    uint32_t high24 = value & 0xFFFFFF00; // 高24位
+
+    uint32_t reversed_low8 = 0;
+    for (int i = 0; i < 8; i++) {
+      reversed_low8 |= (((low8 >> i) & 0x01) << (7 - i));
+    }
+
+    return high24 | reversed_low8;
+}
+
+extern "C" void flash_read(int32_t addr, int32_t *data) { 
+
+	if(addr >= 0x00000000 && addr <= 0x0fffffff){
+		*data = host_read(guest_to_host(addr));
+		IFDEF(CONFIG_FLASHTRACE, printf("flash_read guest_addr = 0x%08x, addr = 0x%08x, data = 0x%08x\n", guest_to_host(addr), addr, *data));
+		return;
+	} else {
+		*data = mmio_read(addr);
+		return;
+	}
+	printf("read out of bound\b");
+	out_of_bound(addr);
+	return ;
+
+	//printf("flash_read addr = 0x%08x, data = 0x%08x, char = %c\n", addr, *data, ysyx[addr]);
+	return;
+}
+
+extern "C" void mrom_read(int32_t addr, int32_t *data) {
+	if(addr >= 0x20000000 && addr <= 0x20000fff){
+		*data = host_read(guest_to_host(addr));
+		IFDEF(CONFIG_MTRACE, printf("mrom_read addr = 0x%08x, data = 0x%08x\n", addr, *data));
+		return;
+	} else {
+		printf("mrom_read out of bound addr = 0x%08x\n", addr);
+		assert(0);
+	}
+}
+
+
+extern "C" void psram_read(uint32_t addr, uint32_t *data, uint32_t wr) {
+	if(psram == NULL) psram_init();
+
+	if(wr == 2){
+		*data = host_read(p_guest_to_host(addr));
+		IFDEF(CONFIG_MTRACE, printf("(npc) psram READ: addr = 0x%08x, data = 0x%08x, size = %d\n", addr, *data, 4));
+		return;
+	} else if(wr == 1 || wr == 3 || wr == 15) {
+		IFDEF(CONFIG_MTRACE, printf("(npc) psram WRITE: addr = 0x%08x, data = 0x%08x, size = %d\n", addr, *data, (wr == 15) ? 4 : (wr == 3) ? 2 : 1));
+		host_write(p_guest_to_host(addr), wr, *data);
+		return;
+	}
 }
