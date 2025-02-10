@@ -181,21 +181,18 @@ static bool in_addr(uint32_t addr){
 	else { return false; }
 }
 
+extern "C" void diff_skip_sign(uint32_t araddr, bool arvalid, bool arready, uint32_t awaddr, bool awvalid, bool awready) {
+	if((in_addr(araddr) && arvalid && arready) || (in_addr(awaddr) && awvalid && awready)) {
+		difftest_skip_ref();
+	}
+}
+
 static void trace_and_difftest(){
 #ifdef CONFIG_DIFFTEST
 
 	if(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !cpu.valid) {
-		//printf("reset = %d, pc = 0x%08x, dnpc = 0x%08x, valid = %d\n", cpu.reset, cpu.pc, cpu.dnpc, cpu.valid);
 		return;
 	} else {
-		//printf("\n***** difftest *****\n");
-		if((in_addr(ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT___cpu_auto_master_out_araddr)) || (in_addr(ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT___cpu_auto_master_out_awaddr))){
-			difftest_skip_ref();
-		}
-
-		if((in_addr(ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT___cpu_auto_master_out_araddr))){
-			printf("araddr = 0x%08x\n", ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT___cpu_auto_master_out_araddr);
-		}
 		difftest_step();
 	}
 #endif
@@ -292,17 +289,7 @@ void cpu_exec(uint32_t n){
 		uint64_t timer_end = get_time();
 		g_timer += timer_end - timer_start;
 
-		switch(npc_state.state){
-			case NPC_RUNNING: npc_state.state = NPC_STOP; break;
-
-			case NPC_END: case NPC_ABORT: 
-				Log("npc: %s at pc = " FMT_WORD, 
-				(npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :  
-				(npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : 
-					ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))), 
-				npc_state.halt_pc);
-			case NPC_QUIT: statistic(); 
-		}
+		check_state();
 }
 
 static void welcome(){

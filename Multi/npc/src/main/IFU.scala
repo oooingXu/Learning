@@ -15,7 +15,7 @@ class ysyx_23060336_IFU extends Module{
   })
 
   def npc   = "h30000000".U
-  val PC    = RegInit(npc)
+  val PC    = RegInit("h30000000".U(32.W))
   val finst = RegInit(0.U(32.W))
 
   val s_idle :: s_wait_rvalid :: s_wait_ready :: Nil = Enum(3)

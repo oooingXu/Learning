@@ -16,13 +16,15 @@ extern "C" {
 
 
     // DPI IMPORTS
+    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4312:30
+    extern void diff_skip_sign(int araddr, int arvalid, int arready, int awaddr, int awvalid, int awready);
     // DPI import at /home/romeo/ysyx-workbench/npc/../ysyxSoC/perip/flash/flash.v:84:30
     extern void flash_read(int addr, int* data);
     // DPI import at /home/romeo/ysyx-workbench/npc/../ysyxSoC/build/ysyxSoCFull.v:4716:30
     extern void mrom_read(int raddr, int* rdata);
     // DPI import at /home/romeo/ysyx-workbench/npc/../ysyxSoC/perip/psram/psram.v:1:30
     extern void psram_read(int addr, int* data, int wr);
-    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4267:30
+    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4296:30
     extern void set_npc_state(int ebreak);
 
 #ifdef __cplusplus

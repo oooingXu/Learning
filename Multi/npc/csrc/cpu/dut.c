@@ -90,7 +90,6 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 
 	debug("All right");
 	debug("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x",ref->pc, cpu.dnpc, cpu.pc);
-	IFDEF(CONFIG_PTRACE, printf("skip_time = %d\n", skip_time));
 
 	return true;
 }
@@ -126,7 +125,6 @@ void difftest_step(){
 	if(is_skip_ref) {
 		cpu.pc = cpu.dnpc;
 		ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-		ref_r.pc = cpu.dnpc;
 		//printf("dut->pc = 0x%08x, dut->dnpc = 0x%08x, ref->pc = 0x%08x\n", cpu.pc, cpu.dnpc, ref_r.pc);
 		is_skip_ref = false;
 		return;
@@ -143,6 +141,7 @@ void difftest_step(){
 #endif
 
 	//debug("ref->pc = 0x%08x", ref_r.pc);
+	IFDEF(CONFIG_PTRACE, printf("skip_time = %d\n", skip_time));
 	checkregs(&ref_r, cpu.pc);
 #ifdef PRINT_DIFF
 	debug("Success difftest_step");

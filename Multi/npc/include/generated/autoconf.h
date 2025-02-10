@@ -4,10 +4,10 @@
  * ysyx_23060336 Configuration Menu
  *
  */
-#define CONFIG_WAVE 1
 #define CONFIG_CC_O2 1
 #define CONFIG_MODE_SYSTEM 1
 #define CONFIG_ITRACE 1
+#define CONFIG_DIFFTEST 1
 #define CONFIG_TRACE_END 10000
 #define CONFIG_BATCH 1
 #define CONFIG_CC_OPT "-O2"

@@ -35,6 +35,8 @@ class ysyx_23060336_LSU_WBU extends Module{
   })
 
   val ebreak  = Module(new ysyx_23060336_EBREAK())
+  val diff_skip = Module(new diff_skip())
+
   val prepare = Wire(Bool())
   val DataOut = Wire(UInt(32.W))
 
@@ -94,6 +96,7 @@ class ysyx_23060336_LSU_WBU extends Module{
                 Mux(io.RegNum === "b000".U, Cat(Fill(24, DataOut(7)),  DataOut(7, 0)),
                 Mux(io.RegNum === "b001".U, Cat(Fill(16, DataOut(15)), DataOut(15, 0)), DataOut)))))))
 
+  // ebreak
   ebreak.io.clock := clock
   ebreak.io.ebreak := io.ebreak
 
@@ -121,6 +124,16 @@ class ysyx_23060336_LSU_WBU extends Module{
     rdata := Mux(io.arsize === 0.U, rdata_b, Mux(io.arsize === 1.U, rdata_h, io.axi.rdata))
   }
 
+  // diff_skip
+  diff_skip.io.clock  := clock
+  diff_skip.io.araddr := io.axi.araddr
+  diff_skip.io.awaddr := io.axi.awaddr
+  diff_skip.io.arvalid := io.axi.arvalid
+  diff_skip.io.awvalid := io.axi.awvalid
+  diff_skip.io.arready := io.axi.arready
+  diff_skip.io.awready := io.axi.awready
+
+
 }
 
 class ysyx_23060336_EBREAK extends BlackBox with HasBlackBoxInline{
@@ -145,4 +158,36 @@ class ysyx_23060336_EBREAK extends BlackBox with HasBlackBoxInline{
   """.stripMargin)
 }
 
+class diff_skip extends BlackBox with HasBlackBoxInline{
+  val io = IO(new Bundle{
+    val clock = Input(Clock())
+    val araddr = Input(UInt(32.W))
+    val awaddr = Input(UInt(32.W))
+    val arvalid = Input(Bool())
+    val awvalid = Input(Bool())
+    val arready = Input(Bool())
+    val awready = Input(Bool())
+  })
+
+  setInline(
+    "diff_skip.sv",
+  """import "DPI-C" function void diff_skip_sign(input int araddr, input int arvalid, input int arready, input int awaddr, input int awvalid, input int awready);
+    | module diff_skip(
+    |   input clock,
+    |   input [31:0] araddr,
+    |   input [31:0] awaddr,
+    |   input arready,
+    |   input awready,
+    |   input arvalid,
+    |   input awvalid
+    | );
+    |
+    | always@(posedge clock) begin
+    |   diff_skip_sign(araddr, {31'b0, arvalid}, {31'b0, arready}, awaddr, {31'b0, awvalid}, {31'b0, awready});
+    | end
+    |
+    | endmodule
+  """.stripMargin)
+
+}
 
