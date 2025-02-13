@@ -17,6 +17,8 @@
 #include <memory/paddr.h>
 
 #define MSTATUS 0x300
+#define MARCHID 0xf12
+#define MVENDORID 0xf11
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
 static const uint32_t img [] = {
@@ -34,12 +36,11 @@ static void restart() {
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
 	for(int i = 0; i < 4096; i++){
-		if(i == MSTATUS){
-			cpu.csr[i] = 0x1800;
-		} else {
-			cpu.csr[i] = 0;
-		}
+		cpu.csr[i] = 0;
 	}
+	cpu.csr[MSTATUS] = 0x1800;
+	cpu.csr[MARCHID] = 0x15fdf70;
+	cpu.csr[MVENDORID] = 0x79737978;
 
 }
 

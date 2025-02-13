@@ -46,6 +46,18 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
   while (*p != '\0' && written < n - 1) {
     if (*p == '%' && *(p + 1) != '\0') {
       p++;
+			int width = 0;
+			int zero_pad = 0;
+
+			if(*p == 0) {
+				zero_pad = 1;
+				p++;
+			}
+			while(*p >= '0' && *p <= '9'){
+				width = width * 10 + (*p - '0');
+				p++;
+			}
+
       switch (*p) {
         case 'd': {
           int val = va_arg(ap, int);
@@ -69,6 +81,33 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           for (int i = 0; i < num_len && written < n - 1; i++) {
             out[written++] = num_buffer[i];
           }
+          break;
+        }
+        case 'x': {
+          unsigned int val = va_arg(ap,unsigned int);
+          char hex_buffer[20];
+          int hex_len = 0;
+
+					do {
+                        int digit = val % 16;
+                        hex_buffer[hex_len++] = (digit < 10) ? (digit + '0') : (digit - 10 + 'a');
+                        val /= 16;
+                    } while (val != 0);
+
+                    if (zero_pad) {
+                        while (hex_len < width && written < n - 1) {
+                            out[written++] = '0';
+                        }
+                    }
+
+                    for (int i = hex_len - 1; i >= 0 && written < n - 1; i--) {
+                        out[written++] = hex_buffer[i];
+                    }
+                    break;
+        }
+        case 'c': {
+          int str = va_arg(ap, int );
+          out[written++] = str;
           break;
         }
         case 's': {

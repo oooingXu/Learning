@@ -18,6 +18,15 @@
 
 #include <common.h>
 
+#define SRAM_BASE 0x0f000000
+#define SRAM_SIZE 0x00002000
+
+#define PSRAM_BASE 0x80000000
+#define PSRAM_SIZE 0x400000
+
+#define FLASH_BASE 0x30000000
+#define FLASH_SIZE 0x1000000
+
 #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
 #define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
@@ -26,6 +35,14 @@
 uint8_t* guest_to_host(paddr_t paddr);
 /* convert the host virtual address in NEMU to guest physical address in the guest program */
 paddr_t host_to_guest(uint8_t *haddr);
+
+static inline bool in_sram(paddr_t addr) {
+	return addr - SRAM_BASE < SRAM_SIZE;
+}
+
+static inline bool in_psram(paddr_t addr) {
+	return addr - PSRAM_BASE < PSRAM_SIZE;
+}
 
 static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;

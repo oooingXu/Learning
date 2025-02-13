@@ -1,6 +1,7 @@
 #include <am.h>
+#include "ysyxsoc.h"
 
-#define RTC_ADDR 0xa0000048
+//#define RTC_ADDR 0x02000000
 
 static uint64_t bool_time = 0;
 
@@ -17,7 +18,7 @@ void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uptime->us = read_time() - bool_time;
+  uptime->us = (read_time() - bool_time) * 7;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

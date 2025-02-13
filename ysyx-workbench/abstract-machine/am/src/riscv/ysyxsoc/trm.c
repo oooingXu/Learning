@@ -4,73 +4,103 @@
 #include "../riscv.h"
 #include "ysyxsoc.h"
 
-#define UART_BASE 0x10000000L
-#define UART_TX		(UART_BASE + 0x0)
-#define UART_LCR	(UART_BASE + 0x3)
-#define UART_LSR	(UART_BASE + 0x5)
-#define UART_LSB	(UART_BASE + 0x0)
-#define UART_MSB	(UART_BASE + 0x1)
-
 extern char _heap_start;
 
-extern char _etext;
-extern char _data;
-extern char _edata;
+extern char _ssbl_lma, _ssbl, _essbl;
+extern char _text_lma, _text, _etext;
+extern char _rodata_lma, _rodata, _erodata;
+extern char _data_lma, _data, _edata;
+extern char _bss, _ebss;
 
-extern char _bss_start;  
-extern char _bss_end;
+//#define RTT
+#ifdef RTT
+extern char _data_extra_lma, _data_extra, _edata_extra;
+extern char _bss_extra, _ebss_extra;
+#endif
 
 int main(const char *args);
 
-Area heap = RANGE(&_heap_start, PMEM_END);
+Area heap = RANGE(&_heap_start, HEAP_END);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif
 static const char mainargs[] = MAINARGS;
 
-extern void putch(char ch) {
+void putch(char ch) {
 	if(*(volatile char *)UART_LCR == 0x03){
 		while(!(*(volatile char *)UART_LSR & 0x20));
 	}
-	outb(SERIAL_PORT, ch);
+	outb(UART_TX, ch);
 }
 
-extern void halt(int code) {
+void halt(int code) {
 	ysyxsoc_trap(code);
 
   while (1);
 }
 
 static void uart_init(){
-	unsigned int divisor = 150;
-
+	unsigned int divisor = 1;
 	uint32_t lcr = 0x03;
-	lcr |= 0x00;
 
-	*(volatile char *)UART_LCR = 0x80 | lcr; // enable divisor latch
-																	 
-	*(volatile char *)UART_MSB = 0xff & (divisor >> 8);
-	*(volatile char *)UART_LSB = 0xff & divisor; 
-
-	*(volatile char *)UART_LCR = lcr; // resume	
+	outb(UART_LCR, 0x80 | lcr); // enable divisor latch
+	outb(UART_MSB, 0xff & (divisor >> 8));
+	outb(UART_LSB, 0xff & divisor); 
+	outb(UART_LCR, lcr); // resume	
 }
 
-extern void _trm_init() {
+void _trm_init() {
 	uart_init();
+	//uint32_t mvendodir, marchid;
+	//asm volatile("csrr %0, mvendorid" : "=r"(mvendodir));
+	//asm volatile("csrr %0, marchid" : "=r"(marchid));
+	//printf("mvendodir = %d\n",mvendodir);
+	//printf("marchid = %d\n",marchid);
+
   int ret = main(mainargs);
   halt(ret);
 }
 
-extern void _bootloader(void) {
-	char *src = &_etext;
-	char *dst = &_data;
+void __attribute((section(".ssbl")))_bootloader(void) {
+	char *src = &_text_lma;
+	char *dst = &_text;
+	while(dst < &_etext)
+		*dst++ = *src++;
 
+	src = &_rodata_lma;
+	dst = &_rodata;
+	while(dst < &_erodata)
+		*dst++ = *src++;
+
+#ifdef RTT
+	src = &_data_extra_lma;
+	dst = &_data_extra;
+	while(dst < &_edata_extra)
+		*dst++ = *src++;
+#endif
+
+	src = &_data_lma;
+	dst = &_data;
 	while(dst < &_edata)
 		*dst++ = *src++;
 
-	for(dst = &_bss_start; dst < &_bss_end; dst++)
+#ifdef RTT
+	for(dst = &_bss_extra; dst < &_ebss_extra; dst++)
+		*dst = 0;
+#endif
+
+	for(dst = &_bss; dst < &_ebss; dst++)
 		*dst = 0;
 
 	_trm_init();
+}
+
+void __attribute((section(".fsbl")))_fsbl_init(void) {
+	char *src = &_ssbl_lma;
+	char *dst = &_ssbl;
+	while(dst < &_essbl)
+		*dst++ = *src++;
+
+	_bootloader();
 }
 

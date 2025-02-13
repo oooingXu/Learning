@@ -40,13 +40,13 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
 	CPU_state *diff_dut = (CPU_state *)dut;
 	if(direction == DIFFTEST_TO_REF){
-			printf("old mstatus ref = 0x%08x, dut = 0x%08x\n", cpu.csr[0x300], diff_dut->csr[0x300]);
+//			printf("old mstatus ref = 0x%08x, dut = 0x%08x\n", cpu.csr[0x300], diff_dut->csr[0x300]);
 			memcpy(&cpu.gpr ,diff_dut->gpr, R * sizeof(cpu.gpr[0]));
 			memcpy(&cpu.csr ,diff_dut->csr, C * sizeof(cpu.csr[0]));
-			printf("new mstatus ref = 0x%08x, dut = 0x%08x\n", cpu.csr[0x300], diff_dut->csr[0x300]);
-			printf("old ref.pc = 0x%08x, ", cpu.pc);
+//			printf("new mstatus ref = 0x%08x, dut = 0x%08x\n", cpu.csr[0x300], diff_dut->csr[0x300]);
+//			printf("old ref.pc = 0x%08x, ", cpu.pc);
 			cpu.pc = diff_dut->pc;
-			printf("new ref.pc = 0x%08x, ", cpu.pc);
+//			printf("new ref.pc = 0x%08x, ", cpu.pc);
 			//printf("cpu.dnpc = 0x%08x, dut.pc= 0x%08x\n", cpu.pc, diff_dut->pc);
 		/*
 		for(int i = 0; i < R; i++){

@@ -25,7 +25,7 @@ static void rtc_io_handler(uint32_t offset, int len, bool is_write) {
     uint64_t us = get_time();
     rtc_port_base[0] = (uint32_t)us;
     rtc_port_base[1] = us >> 32;
-//		printf("us1 = 0x%08x, us0 = 0x%08x\n", rtc_port_base[1], rtc_port_base[0]);
+		//printf("us1 = 0x%08x, us0 = 0x%08x\n", rtc_port_base[1], rtc_port_base[0]);
 //		printf("time1 = 0x%08x, time0 = 0x%08x\n", (CONFIG_RTC_MMIO + 4), *(uint32_t *)(CONFIG_RTC_MMIO + 0));
   }
 }
@@ -45,6 +45,7 @@ void init_timer() {
   add_pio_map ("rtc", CONFIG_RTC_PORT, rtc_port_base, 8, rtc_io_handler);
 #else
   add_mmio_map("rtc", CONFIG_RTC_MMIO, rtc_port_base, 8, rtc_io_handler);
+//	printf("init_timer: CONFIG_RTC_MMIO = 0x%08x", CONFIG_RTC_MMIO);
 #endif
   IFNDEF(CONFIG_TARGET_AM, add_alarm_handle(timer_intr));
 }

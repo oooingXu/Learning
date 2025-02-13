@@ -3,6 +3,7 @@ AM_SRCS := riscv/ysyxsoc/start.S \
            riscv/ysyxsoc/ioe.c \
            riscv/ysyxsoc/timer.c \
            riscv/ysyxsoc/input.c \
+           riscv/ysyxsoc/gpu.c \
            riscv/ysyxsoc/cte.c \
            riscv/ysyxsoc/trap.S \
            platform/dummy/vme.c \
@@ -10,9 +11,9 @@ AM_SRCS := riscv/ysyxsoc/start.S \
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/ysyxsoc.ld \
-						 --defsym=_pmem_start=0x02000000 --defsym=_entry_offset=0x0
+						 --defsym=_pmem_start=0x30000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
-#LDFLAGS   += --print-map
+LDFLAGS   += --print-map
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 # add one
 CFALGS += -I$(AM_HOME)/am/src/riscv
@@ -26,5 +27,5 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	@$(NPC_HOME)/obj_dir/VysyxSoCFull $(IMAGE).bin $(DIFF_REF_SO)
+	@$(NPC_HOME)/build/ysyxSoCFull $(IMAGE).bin $(DIFF_REF_SO)
 	
