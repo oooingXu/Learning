@@ -35,9 +35,9 @@ VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_flash_read_TOP____024uni
     data = data__Vcvt;
 }
 
-extern "C" void set_npc_state(int ebreak, int ifu_count, int lsu_count, int i_type_count, int s_type_count, int u_type_count, int b_type_count, int r_type_count, int j_type_count, int c_type_count, int w_type_count, int ifu_clk_count_h, int ifu_clk_count_l, int lsu_clk_count_h, int lsu_clk_count_l);
+extern "C" void set_npc_state(int ebreak, int ifu_count, int lsu_count, int i_type_count, int s_type_count, int u_type_count, int b_type_count, int r_type_count, int j_type_count, int c_type_count, int w_type_count, int ifu_clk_count_h, int ifu_clk_count_l, int lsu_clk_count_h, int lsu_clk_count_l, int ifu_psram_clk_h, int ifu_psram_clk_l, int ifu_flash_clk_h, int ifu_flash_clk_l, int i_clk, int s_clk, int u_clk, int b_clk, int r_clk, int j_clk, int c_clk, int w_clk, int backend_clk_h, int backend_clk_l, int ifu_flash_count, int ifu_psram_count);
 
-VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit(IData/*31:0*/ ebreak, IData/*31:0*/ ifu_count, IData/*31:0*/ lsu_count, IData/*31:0*/ i_type_count, IData/*31:0*/ s_type_count, IData/*31:0*/ u_type_count, IData/*31:0*/ b_type_count, IData/*31:0*/ r_type_count, IData/*31:0*/ j_type_count, IData/*31:0*/ c_type_count, IData/*31:0*/ w_type_count, IData/*31:0*/ ifu_clk_count_h, IData/*31:0*/ ifu_clk_count_l, IData/*31:0*/ lsu_clk_count_h, IData/*31:0*/ lsu_clk_count_l) {
+VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit(IData/*31:0*/ ebreak, IData/*31:0*/ ifu_count, IData/*31:0*/ lsu_count, IData/*31:0*/ i_type_count, IData/*31:0*/ s_type_count, IData/*31:0*/ u_type_count, IData/*31:0*/ b_type_count, IData/*31:0*/ r_type_count, IData/*31:0*/ j_type_count, IData/*31:0*/ c_type_count, IData/*31:0*/ w_type_count, IData/*31:0*/ ifu_clk_count_h, IData/*31:0*/ ifu_clk_count_l, IData/*31:0*/ lsu_clk_count_h, IData/*31:0*/ lsu_clk_count_l, IData/*31:0*/ ifu_psram_clk_h, IData/*31:0*/ ifu_psram_clk_l, IData/*31:0*/ ifu_flash_clk_h, IData/*31:0*/ ifu_flash_clk_l, IData/*31:0*/ i_clk, IData/*31:0*/ s_clk, IData/*31:0*/ u_clk, IData/*31:0*/ b_clk, IData/*31:0*/ r_clk, IData/*31:0*/ j_clk, IData/*31:0*/ c_clk, IData/*31:0*/ w_clk, IData/*31:0*/ backend_clk_h, IData/*31:0*/ backend_clk_l, IData/*31:0*/ ifu_flash_count, IData/*31:0*/ ifu_psram_count) {
     VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit\n"); );
     // Body
     int ebreak__Vcvt;
@@ -70,7 +70,39 @@ VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024
     for (size_t lsu_clk_count_h__Vidx = 0; lsu_clk_count_h__Vidx < 1; ++lsu_clk_count_h__Vidx) lsu_clk_count_h__Vcvt = lsu_clk_count_h;
     int lsu_clk_count_l__Vcvt;
     for (size_t lsu_clk_count_l__Vidx = 0; lsu_clk_count_l__Vidx < 1; ++lsu_clk_count_l__Vidx) lsu_clk_count_l__Vcvt = lsu_clk_count_l;
-    set_npc_state(ebreak__Vcvt, ifu_count__Vcvt, lsu_count__Vcvt, i_type_count__Vcvt, s_type_count__Vcvt, u_type_count__Vcvt, b_type_count__Vcvt, r_type_count__Vcvt, j_type_count__Vcvt, c_type_count__Vcvt, w_type_count__Vcvt, ifu_clk_count_h__Vcvt, ifu_clk_count_l__Vcvt, lsu_clk_count_h__Vcvt, lsu_clk_count_l__Vcvt);
+    int ifu_psram_clk_h__Vcvt;
+    for (size_t ifu_psram_clk_h__Vidx = 0; ifu_psram_clk_h__Vidx < 1; ++ifu_psram_clk_h__Vidx) ifu_psram_clk_h__Vcvt = ifu_psram_clk_h;
+    int ifu_psram_clk_l__Vcvt;
+    for (size_t ifu_psram_clk_l__Vidx = 0; ifu_psram_clk_l__Vidx < 1; ++ifu_psram_clk_l__Vidx) ifu_psram_clk_l__Vcvt = ifu_psram_clk_l;
+    int ifu_flash_clk_h__Vcvt;
+    for (size_t ifu_flash_clk_h__Vidx = 0; ifu_flash_clk_h__Vidx < 1; ++ifu_flash_clk_h__Vidx) ifu_flash_clk_h__Vcvt = ifu_flash_clk_h;
+    int ifu_flash_clk_l__Vcvt;
+    for (size_t ifu_flash_clk_l__Vidx = 0; ifu_flash_clk_l__Vidx < 1; ++ifu_flash_clk_l__Vidx) ifu_flash_clk_l__Vcvt = ifu_flash_clk_l;
+    int i_clk__Vcvt;
+    for (size_t i_clk__Vidx = 0; i_clk__Vidx < 1; ++i_clk__Vidx) i_clk__Vcvt = i_clk;
+    int s_clk__Vcvt;
+    for (size_t s_clk__Vidx = 0; s_clk__Vidx < 1; ++s_clk__Vidx) s_clk__Vcvt = s_clk;
+    int u_clk__Vcvt;
+    for (size_t u_clk__Vidx = 0; u_clk__Vidx < 1; ++u_clk__Vidx) u_clk__Vcvt = u_clk;
+    int b_clk__Vcvt;
+    for (size_t b_clk__Vidx = 0; b_clk__Vidx < 1; ++b_clk__Vidx) b_clk__Vcvt = b_clk;
+    int r_clk__Vcvt;
+    for (size_t r_clk__Vidx = 0; r_clk__Vidx < 1; ++r_clk__Vidx) r_clk__Vcvt = r_clk;
+    int j_clk__Vcvt;
+    for (size_t j_clk__Vidx = 0; j_clk__Vidx < 1; ++j_clk__Vidx) j_clk__Vcvt = j_clk;
+    int c_clk__Vcvt;
+    for (size_t c_clk__Vidx = 0; c_clk__Vidx < 1; ++c_clk__Vidx) c_clk__Vcvt = c_clk;
+    int w_clk__Vcvt;
+    for (size_t w_clk__Vidx = 0; w_clk__Vidx < 1; ++w_clk__Vidx) w_clk__Vcvt = w_clk;
+    int backend_clk_h__Vcvt;
+    for (size_t backend_clk_h__Vidx = 0; backend_clk_h__Vidx < 1; ++backend_clk_h__Vidx) backend_clk_h__Vcvt = backend_clk_h;
+    int backend_clk_l__Vcvt;
+    for (size_t backend_clk_l__Vidx = 0; backend_clk_l__Vidx < 1; ++backend_clk_l__Vidx) backend_clk_l__Vcvt = backend_clk_l;
+    int ifu_flash_count__Vcvt;
+    for (size_t ifu_flash_count__Vidx = 0; ifu_flash_count__Vidx < 1; ++ifu_flash_count__Vidx) ifu_flash_count__Vcvt = ifu_flash_count;
+    int ifu_psram_count__Vcvt;
+    for (size_t ifu_psram_count__Vidx = 0; ifu_psram_count__Vidx < 1; ++ifu_psram_count__Vidx) ifu_psram_count__Vcvt = ifu_psram_count;
+    set_npc_state(ebreak__Vcvt, ifu_count__Vcvt, lsu_count__Vcvt, i_type_count__Vcvt, s_type_count__Vcvt, u_type_count__Vcvt, b_type_count__Vcvt, r_type_count__Vcvt, j_type_count__Vcvt, c_type_count__Vcvt, w_type_count__Vcvt, ifu_clk_count_h__Vcvt, ifu_clk_count_l__Vcvt, lsu_clk_count_h__Vcvt, lsu_clk_count_l__Vcvt, ifu_psram_clk_h__Vcvt, ifu_psram_clk_l__Vcvt, ifu_flash_clk_h__Vcvt, ifu_flash_clk_l__Vcvt, i_clk__Vcvt, s_clk__Vcvt, u_clk__Vcvt, b_clk__Vcvt, r_clk__Vcvt, j_clk__Vcvt, c_clk__Vcvt, w_clk__Vcvt, backend_clk_h__Vcvt, backend_clk_l__Vcvt, ifu_flash_count__Vcvt, ifu_psram_count__Vcvt);
 }
 
 extern "C" void sram_read(int araddr, int arvalid, int arready, int arsize, int awaddr, int wdata, int awvalid, int awready, int wstrb);

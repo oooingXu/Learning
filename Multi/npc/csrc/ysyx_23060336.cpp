@@ -41,6 +41,7 @@ CPU_state cpu = {};
 static VysyxSoCFull *ysyxSoCFull = new VysyxSoCFull;
 static vluint64_t sim_time = 0;
 IFDEF(CONFIG_WAVE, VerilatedFstC *m_trace = new VerilatedFstC);
+IFDEF(CONFIG_PCOUNTER, std::ofstream output_file("/home/romeo/ysyx-workbench/npc/performance_trace.csv", std::ios::out | std::ios::app));
 
 void nvboard_bind_all_pins(VysyxSoCFull* top);
 
@@ -52,6 +53,7 @@ static void statistic(){
 	if(g_timer > 0) {
 		Log("simulation IPC = %ld clk/inst ", g_nr_guest_clk / g_nr_guest_inst );
 		Log("simulation frequency = %ld inst/s", g_nr_guest_inst * 1000000 / g_timer);
+		Log("simulation frequency = %ld clk/s", g_nr_guest_clk * 1000000 / g_timer);
 	} else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
@@ -73,7 +75,21 @@ static void check_state(){
 		}
 }
 
-static void performance_count(uint32_t ifu_count, uint32_t lsu_count, uint32_t i_type_count, uint32_t s_type_count, uint32_t u_type_count, uint32_t b_type_count, uint32_t r_type_count, uint32_t j_type_count, uint32_t c_type_count, uint32_t w_type_count, uint64_t ifu_clk_count, uint64_t lsu_clk_count) {
+static void performance_count(bool ebreak, uint32_t ifu_count, uint32_t lsu_count, uint32_t i_type_count, uint32_t s_type_count, uint32_t u_type_count, uint32_t b_type_count, uint32_t r_type_count, uint32_t j_type_count, uint32_t c_type_count, uint32_t w_type_count, uint64_t ifu_clk_count, uint64_t lsu_clk_count, uint64_t ifu_psram_clk, uint64_t ifu_flash_clk, uint32_t i_clk, uint32_t s_clk, uint32_t u_clk, uint32_t b_clk, uint32_t r_clk, uint32_t j_clk, uint32_t c_clk, uint32_t w_clk, uint64_t backend_clk, uint32_t ifu_flash_count, uint32_t ifu_psram_count) {
+
+#ifdef CONFIG_PCOUNTER
+	output_file << g_nr_guest_clk << ","
+							<< ifu_clk_count  << ","
+							<< backend_clk		<< ","
+							<< ifu_flash_clk	<< ","
+							<< ifu_psram_clk	<< ","
+							<< i_clk					<< ","
+							<< b_clk					<< ","
+							<< r_clk					<< ","
+							<< j_clk					<< ","
+							<< c_clk					<< "\n";
+#endif
+
 	  float lsu_ratio		 = (float)lsu_count / ifu_count * 100;
 	  float i_type_ratio = (float)i_type_count / ifu_count * 100;
     float s_type_ratio = (float)s_type_count / ifu_count * 100;
@@ -87,33 +103,53 @@ static void performance_count(uint32_t ifu_count, uint32_t lsu_count, uint32_t i
     // 计算平均执行周期
     float ifu_avg_cycles_inst = (float)ifu_clk_count / ifu_count;
     float lsu_avg_cycles_inst = (float)lsu_clk_count / lsu_count;
+		float flash_avg						= (float)ifu_flash_clk / ifu_flash_count;
+		float psram_avg						= (float)ifu_psram_clk / ifu_psram_count;
 
 		// 计算平均占用周期
 		float ifu_avg_cycles = (float)ifu_clk_count / g_nr_guest_clk * 100;
+		float ifu_psram_avg_cycles = (float)ifu_psram_clk / g_nr_guest_clk * 100;
+		float ifu_flash_avg_cycles = (float)ifu_flash_clk / g_nr_guest_clk * 100;
 		float lsu_avg_cycles = (float)lsu_clk_count / g_nr_guest_clk * 100;
-		printf("lsu clk = %ld, total clk = %ld\n", lsu_clk_count, g_nr_guest_clk);
+		float i_avg_cycles = (float)i_clk / g_nr_guest_clk * 100;
+		float s_avg_cycles = (float)s_clk / g_nr_guest_clk * 100;
+		float u_avg_cycles = (float)u_clk / g_nr_guest_clk * 100;
+		float b_avg_cycles = (float)b_clk / g_nr_guest_clk * 100;
+		float r_avg_cycles = (float)r_clk / g_nr_guest_clk * 100;
+		float j_avg_cycles = (float)j_clk / g_nr_guest_clk * 100;
+		float c_avg_cycles = (float)c_clk / g_nr_guest_clk * 100;
+		float w_avg_cycles = (float)w_clk / g_nr_guest_clk * 100;
+
+		// 计算前后端平均占用的周期
+		float backend_avg_cycles  = (float)backend_clk / g_nr_guest_clk * 100; 
+		float frontend_avg_cycles = (float)ifu_clk_count / g_nr_guest_clk * 100; 
+		//printf("lsu clk = %ld, total clk = %ld, psram clk = %ld, flash clk = %ld, i_clk = %ld, s_clk = %ld, u_clk = %ld, b_clk = %ld, r_clk = %ld, j_clk = %ld, c_clk = %ld\n", lsu_clk_count, g_nr_guest_clk, ifu_psram_clk, ifu_flash_clk, i_clk, s_clk, u_clk, b_clk, r_clk, j_clk, c_clk);
 
     // 打印信息
-		printf("Performance  counter\n");
-    printf("ifu指令  : %-8u, 平均周期: %.2f, 时钟占比: %.2f%\n", ifu_count, ifu_avg_cycles_inst, ifu_avg_cycles);
-    printf("lsu指令  : %-8u, 指令占比: %.2f%%, 平均周期: %.2f, 时钟占比: %.2f%\n", lsu_count, lsu_ratio, lsu_avg_cycles_inst, lsu_avg_cycles);
-    printf("I类型指令: %-8u, 指令占比: %.2f%%\n", i_type_count, i_type_ratio);
-    printf("S类型指令: %-8u, 指令占比: %.2f%%\n", s_type_count, s_type_ratio);
-    printf("U类型指令: %-8u, 指令占比: %.2f%%\n", u_type_count, u_type_ratio);
-    printf("B类型指令: %-8u, 指令占比: %.2f%%\n", b_type_count, b_type_ratio);
-    printf("R类型指令: %-8u, 指令占比: %.2f%%\n", r_type_count, r_type_ratio);
-    printf("J类型指令: %-8u, 指令占比: %.2f%%\n", j_type_count, j_type_ratio);
-    printf("C类型指令: %-8u, 指令占比: %.2f%%\n", c_type_count, c_type_ratio);
-    printf("错误类型指令: %-8u, 指令占比: %.2f%%\n", w_type_count, w_type_ratio);
+		if(ebreak) {
+			printf("Performance  counter\n");
+			printf("前端时钟占比: %.2f%, 后端时钟占比: %.2f%\n", frontend_avg_cycles, backend_avg_cycles);
+    	printf("ifu指令  : %-8u, 平均周期: %.2f, 时钟占比: %.2f%, flash时钟占比: %.2f%, 平均周期: %.2f, psram时钟占比: %.2f%, 平均周期: %.2f\n", ifu_count, ifu_avg_cycles_inst, ifu_avg_cycles, ifu_flash_avg_cycles, flash_avg,  ifu_psram_avg_cycles, psram_avg);
+    	printf("lsu指令  : %-8u, 指令占比: %.2f%, 平均周期: %.2f, 时钟占比: %.2f%\n", lsu_count, lsu_ratio, lsu_avg_cycles_inst, lsu_avg_cycles);
+    	printf("I类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", i_type_count, i_type_ratio, i_avg_cycles);
+    	printf("S类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", s_type_count, s_type_ratio, s_avg_cycles);
+    	printf("U类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", u_type_count, u_type_ratio, u_avg_cycles);
+    	printf("B类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", b_type_count, b_type_ratio, b_avg_cycles);
+    	printf("R类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", r_type_count, r_type_ratio, r_avg_cycles);
+    	printf("J类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", j_type_count, j_type_ratio, j_avg_cycles);
+    	printf("C类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", c_type_count, c_type_ratio, c_avg_cycles);
+    	printf("错误类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", w_type_count, w_type_ratio, w_avg_cycles);
+		}
 }
 
-extern "C" void set_npc_state(int ebreak, uint32_t ifu_count, uint32_t lsu_count, uint32_t i_type_count, uint32_t s_type_count, uint32_t u_type_count, uint32_t b_type_count, uint32_t r_type_count, uint32_t j_type_count, uint32_t c_type_count, uint32_t w_type_count, uint32_t ifu_clk_count_h, uint32_t ifu_clk_count_l, uint32_t lsu_clk_count_h, uint32_t lsu_clk_count_l){
+extern "C" void set_npc_state(int ebreak, uint32_t ifu_count, uint32_t lsu_count, uint32_t i_type_count, uint32_t s_type_count, uint32_t u_type_count, uint32_t b_type_count, uint32_t r_type_count, uint32_t j_type_count, uint32_t c_type_count, uint32_t w_type_count, uint32_t ifu_clk_count_h, uint32_t ifu_clk_count_l, uint32_t lsu_clk_count_h, uint32_t lsu_clk_count_l, uint32_t ifu_psram_clk_h, uint32_t ifu_psram_clk_l, uint32_t ifu_flash_clk_h, uint32_t ifu_flash_clk_l, uint32_t i_clk, uint32_t s_clk, uint32_t u_clk, uint32_t b_clk, uint32_t r_clk, uint32_t j_clk, uint32_t c_clk, uint32_t w_clk, uint32_t backend_clk_h, uint32_t backend_clk_l, uint32_t ifu_flash_count, uint32_t ifu_psram_count){
+	IFDEF(CONFIG_COUNTER, performance_count(ebreak, ifu_count, lsu_count, i_type_count, s_type_count, u_type_count, b_type_count, r_type_count, j_type_count, c_type_count, w_type_count, ifu_clk_count_h << 32 | ifu_clk_count_l, lsu_clk_count_h << 32 | lsu_clk_count_l, ifu_psram_clk_h << 32 | ifu_psram_clk_l, ifu_flash_clk_h << 32 | ifu_flash_clk_l, i_clk, s_clk, u_clk, b_clk, r_clk, j_clk, c_clk, w_clk, backend_clk_h << 32 | backend_clk_l, ifu_flash_count, ifu_psram_count));
 	if(ebreak){
 		npc_state.state = NPC_END;
 		check_state();
-		IFDEF(CONFIG_COUNTER, performance_count(ifu_count, lsu_count, i_type_count, s_type_count, u_type_count, b_type_count, r_type_count, j_type_count, c_type_count, w_type_count, ifu_clk_count_h << 32 | ifu_clk_count_l, lsu_clk_count_h << 32 | lsu_clk_count_l));
 
 		IFDEF(CONFIG_WAVE, m_trace->close());
+		IFDEF(CONFIG_PCOUNTER, output_file.close());
 
 		ysyxSoCFull->final();
 		exit(0);
@@ -291,6 +327,7 @@ int main(int argc, char **argv)
 #endif
 
 	IFDEF(CONFIG_WAVE, m_trace->close());
+	IFDEF(CONFIG_PCOUNTER, output_file.close());
 	ysyxSoCFull->final();
 	delete ysyxSoCFull;
 

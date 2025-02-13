@@ -4,7 +4,6 @@
  * ysyx_23060336 Configuration Menu
  *
  */
-#define CONFIG_WAVE 1
 #define CONFIG_CC_O2 1
 #define CONFIG_MODE_SYSTEM 1
 #define CONFIG_ITRACE 1
@@ -16,4 +15,5 @@
 #define CONFIG_CC "gcc"
 #define CONFIG_TRACE_START 0
 #define CONFIG_CC_GCC 1
+#define CONFIG_PCOUNTER 1
 #define CONFIG_TRACE 1

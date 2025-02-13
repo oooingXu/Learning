@@ -5,11 +5,6 @@ import chisel3.util._
 import chisel3.util.HasBlackBoxInline
 import chisel3.util.experimental.loadMemoryFromFile
 
-/**
-  * Compute GCD using subtraction method.
-  * Subtracts the smaller from the larger until register y is zero.
-  * value in register x is then the GCD
-  */
 class ysyx_23060336 extends Module {
 	val io = IO(new Bundle{
     val interrupt = Input(Bool())
@@ -29,6 +24,7 @@ class ysyx_23060336 extends Module {
   //val sram_lsu   = Module(new ysyx_23060336_SRAM())
   //val sram   = Module(new ysyx_23060336_SRAM())
 
+  // cpu slave
   val awready = Wire(Bool())  
   val awvalid = Wire(Bool())   
   val awaddr  = Wire(UInt(32.W))
@@ -135,10 +131,14 @@ class ysyx_23060336 extends Module {
   lsu_wbu.io.instType := idu_exu.io.instType
 
   // ifu <-> lsu_wbu
-  ifu.io.dnpc         := lsu_wbu.io.dnpc
-  ifu.io.ifu_idle     := lsu_wbu.io.out_valid
-  lsu_wbu.io.in_valid := ifu.io.out_valid
-  lsu_wbu.io.ifu_clk_count := ifu.io.ifu_clk_count
+  ifu.io.dnpc                := lsu_wbu.io.dnpc
+  ifu.io.ifu_idle            := lsu_wbu.io.out_valid
+  lsu_wbu.io.in_valid        := ifu.io.out_valid
+  lsu_wbu.io.ifu_clk_count   := ifu.io.ifu_clk_count
+  lsu_wbu.io.ifu_psram_clk   := ifu.io.ifu_psram_clk
+  lsu_wbu.io.ifu_flash_clk   := ifu.io.ifu_flash_clk
+  lsu_wbu.io.ifu_psram_count := ifu.io.ifu_psram_count
+  lsu_wbu.io.ifu_flash_count := ifu.io.ifu_flash_count
 
   // reg <-> idu_exu
   reg.io.raddr1   := idu_exu.io.rs1
@@ -166,170 +166,6 @@ class ysyx_23060336 extends Module {
   csr.io.waddr := lsu_wbu.io.csr
   csr.io.wen   := lsu_wbu.io.CsrWr 
   csr.io.ecall := lsu_wbu.io.ecall && ifu.io.ifu_idle
-
-  
-  /*
-  // Axi4 sram <-> arbiter
-  arbiter.io.axi.awready := sram.io.awready
-  sram.io.awvalid        := arbiter.io.axi.awvalid
-  sram.io.awaddr         := arbiter.io.axi.awaddr
-  sram.io.awid           := arbiter.io.axi.awid
-  sram.io.awlen          := arbiter.io.axi.awlen
-  sram.io.awsize         := arbiter.io.axi.awsize
-  sram.io.awburst        := arbiter.io.axi.awburst
-  arbiter.io.axi.wready  := sram.io.wready
-  sram.io.wvalid         := arbiter.io.axi.wvalid
-  sram.io.wdata          := arbiter.io.axi.wdata
-  sram.io.wstrb          := arbiter.io.axi.wstrb
-  sram.io.wlast          := arbiter.io.axi.wlast
-  sram.io.bready         := arbiter.io.axi.bready
-  arbiter.io.axi.bvalid  := sram.io.bvalid
-  arbiter.io.axi.bresp   := sram.io.bresp
-  arbiter.io.axi.bid     := sram.io.bid
-  arbiter.io.axi.arready := sram.io.arready
-  sram.io.arvalid        := arbiter.io.axi.arvalid
-  sram.io.araddr         := arbiter.io.axi.araddr
-  sram.io.arid           := arbiter.io.axi.arid
-  sram.io.arlen          := arbiter.io.axi.arlen
-  sram.io.arsize         := arbiter.io.axi.arsize
-  sram.io.arburst        := arbiter.io.axi.arburst
-  sram.io.rready         := arbiter.io.axi.rready
-  arbiter.io.axi.rvalid  := sram.io.rvalid
-  arbiter.io.axi.rresp   := sram.io.rresp
-  arbiter.io.axi.rdata   := sram.io.rdata
-  arbiter.io.axi.rlast   := sram.io.rlast
-  arbiter.io.axi.rid     := sram.io.rid
-  sram.io.clock          := clock
-  sram.io.reset          := reset
-
-  // Axi4 sram <-> ifu
-  ifu.io.axi.awready   := sram_ifu.io.awready
-  sram_ifu.io.awvalid := ifu.io.axi.awvalid
-  sram_ifu.io.awaddr  := ifu.io.axi.awaddr
-  sram_ifu.io.awid    := ifu.io.axi.awid
-  sram_ifu.io.awlen   := ifu.io.axi.awlen
-  sram_ifu.io.awsize  := ifu.io.axi.awsize
-  sram_ifu.io.awburst := ifu.io.axi.awburst
-  ifu.io.axi.wready    := sram_ifu.io.wready
-  sram_ifu.io.wvalid  := ifu.io.axi.wvalid
-  sram_ifu.io.wdata   := ifu.io.axi.wdata
-  sram_ifu.io.wstrb   := ifu.io.axi.wstrb
-  sram_ifu.io.wlast   := ifu.io.axi.wlast
-  sram_ifu.io.bready  := ifu.io.axi.bready
-  ifu.io.axi.bvalid    := sram_ifu.io.bvalid
-  ifu.io.axi.bresp     := sram_ifu.io.bresp
-  ifu.io.axi.bid       := sram_ifu.io.bid
-  ifu.io.axi.arready   := sram_ifu.io.arready
-  sram_ifu.io.arvalid := ifu.io.axi.arvalid
-  sram_ifu.io.araddr  := ifu.io.axi.araddr
-  sram_ifu.io.arid    := ifu.io.axi.arid
-  sram_ifu.io.arlen   := ifu.io.axi.arlen
-  sram_ifu.io.arsize  := ifu.io.axi.arsize
-  sram_ifu.io.arburst := ifu.io.axi.arburst
-  sram_ifu.io.rready  := ifu.io.axi.rready
-  ifu.io.axi.rvalid    := sram_ifu.io.rvalid
-  ifu.io.axi.rresp     := sram_ifu.io.rresp
-  ifu.io.axi.rdata     := sram_ifu.io.rdata
-  ifu.io.axi.rlast     := sram_ifu.io.rlast
-  ifu.io.axi.rid       := sram_ifu.io.rid
-  sram_ifu.io.clock   := clock
-  sram_ifu.io.reset   := reset
-
-  // Axi4 sram <-> lsu
-  lsu_wbu.io.axi.awready := sram_lsu.io.awready
-  sram_lsu.io.awvalid   := lsu_wbu.io.axi.awvalid
-  sram_lsu.io.awaddr    := lsu_wbu.io.axi.awaddr
-  sram_lsu.io.awid      := lsu_wbu.io.axi.awid
-  sram_lsu.io.awlen     := lsu_wbu.io.axi.awlen
-  sram_lsu.io.awsize    := lsu_wbu.io.axi.awsize
-  sram_lsu.io.awburst   := lsu_wbu.io.axi.awburst
-  lsu_wbu.io.axi.wready  := sram_lsu.io.wready
-  sram_lsu.io.wvalid    := lsu_wbu.io.axi.wvalid
-  sram_lsu.io.wdata     := lsu_wbu.io.axi.wdata
-  sram_lsu.io.wstrb     := lsu_wbu.io.axi.wstrb
-  sram_lsu.io.wlast     := lsu_wbu.io.axi.wlast
-  sram_lsu.io.bready    := lsu_wbu.io.axi.bready
-  lsu_wbu.io.axi.bvalid  := sram_lsu.io.bvalid
-  lsu_wbu.io.axi.bresp   := sram_lsu.io.bresp
-  lsu_wbu.io.axi.bid     := sram_lsu.io.bid
-  lsu_wbu.io.axi.arready := sram_lsu.io.arready
-  sram_lsu.io.arvalid   := lsu_wbu.io.axi.arvalid
-  sram_lsu.io.araddr    := lsu_wbu.io.axi.araddr
-  sram_lsu.io.arid      := lsu_wbu.io.axi.arid
-  sram_lsu.io.arlen     := lsu_wbu.io.axi.arlen
-  sram_lsu.io.arsize    := lsu_wbu.io.axi.arsize
-  sram_lsu.io.arburst   := lsu_wbu.io.axi.arburst
-  sram_lsu.io.rready    := lsu_wbu.io.axi.rready
-  lsu_wbu.io.axi.rvalid  := sram_lsu.io.rvalid
-  lsu_wbu.io.axi.rresp   := sram_lsu.io.rresp
-  lsu_wbu.io.axi.rdata   := sram_lsu.io.rdata
-  lsu_wbu.io.axi.rlast   := sram_lsu.io.rlast
-  lsu_wbu.io.axi.rid     := sram_lsu.io.rid
-  sram_lsu.io.clock     := clock
-  sram_lsu.io.reset     := reset
-
-  // Axi4 ifu <-> arbiter
-  ifu.io.axi.awready     := arbiter.io.ifu.awready
-  arbiter.io.ifu.awvalid := ifu.io.axi.awvalid
-  arbiter.io.ifu.awaddr  := ifu.io.axi.awaddr
-  arbiter.io.ifu.awid    := ifu.io.axi.awid
-  arbiter.io.ifu.awlen   := ifu.io.axi.awlen
-  arbiter.io.ifu.awsize  := ifu.io.axi.awsize
-  arbiter.io.ifu.awburst := ifu.io.axi.awburst
-  ifu.io.axi.wready      := arbiter.io.ifu.wready
-  arbiter.io.ifu.wvalid  := ifu.io.axi.wvalid
-  arbiter.io.ifu.wdata   := ifu.io.axi.wdata
-  arbiter.io.ifu.wstrb   := ifu.io.axi.wstrb
-  arbiter.io.ifu.wlast   := ifu.io.axi.wlast
-  arbiter.io.ifu.bready  := ifu.io.axi.bready
-  ifu.io.axi.bvalid      := arbiter.io.ifu.bvalid
-  ifu.io.axi.bresp       := arbiter.io.ifu.bresp
-  ifu.io.axi.bid         := arbiter.io.ifu.bid
-  ifu.io.axi.arready     := arbiter.io.ifu.arready
-  arbiter.io.ifu.arvalid := ifu.io.axi.arvalid
-  arbiter.io.ifu.araddr  := ifu.io.axi.araddr
-  arbiter.io.ifu.arid    := ifu.io.axi.arid
-  arbiter.io.ifu.arlen   := ifu.io.axi.arlen
-  arbiter.io.ifu.arsize  := ifu.io.axi.arsize
-  arbiter.io.ifu.arburst := ifu.io.axi.arburst
-  arbiter.io.ifu.rready  := ifu.io.axi.rready
-  ifu.io.axi.rvalid      := arbiter.io.ifu.rvalid
-  ifu.io.axi.rresp       := arbiter.io.ifu.rresp
-  ifu.io.axi.rdata       := arbiter.io.ifu.rdata
-  ifu.io.axi.rlast       := arbiter.io.ifu.rlast
-  ifu.io.axi.rid         := arbiter.io.ifu.rid
-
-  // Axi4 lsu_wbu <-> arbiter
-  lsu_wbu.io.axi.awready := arbiter.io.lsu.awready
-  arbiter.io.lsu.awvalid := lsu_wbu.io.axi.awvalid
-  arbiter.io.lsu.awaddr  := lsu_wbu.io.axi.awaddr
-  arbiter.io.lsu.awid    := lsu_wbu.io.axi.awid
-  arbiter.io.lsu.awlen   := lsu_wbu.io.axi.awlen
-  arbiter.io.lsu.awsize  := lsu_wbu.io.axi.awsize
-  arbiter.io.lsu.awburst := lsu_wbu.io.axi.awburst
-  lsu_wbu.io.axi.wready  := arbiter.io.lsu.wready
-  arbiter.io.lsu.wvalid  := lsu_wbu.io.axi.wvalid
-  arbiter.io.lsu.wdata   := lsu_wbu.io.axi.wdata
-  arbiter.io.lsu.wstrb   := lsu_wbu.io.axi.wstrb
-  arbiter.io.lsu.wlast   := lsu_wbu.io.axi.wlast
-  arbiter.io.lsu.bready  := lsu_wbu.io.axi.bready
-  lsu_wbu.io.axi.bvalid  := arbiter.io.lsu.bvalid
-  lsu_wbu.io.axi.bresp   := arbiter.io.lsu.bresp
-  lsu_wbu.io.axi.bid     := arbiter.io.lsu.bid
-  lsu_wbu.io.axi.arready := arbiter.io.lsu.arready
-  arbiter.io.lsu.arvalid := lsu_wbu.io.axi.arvalid
-  arbiter.io.lsu.araddr  := lsu_wbu.io.axi.araddr
-  arbiter.io.lsu.arid    := lsu_wbu.io.axi.arid
-  arbiter.io.lsu.arlen   := lsu_wbu.io.axi.arlen
-  arbiter.io.lsu.arsize  := lsu_wbu.io.axi.arsize
-  arbiter.io.lsu.arburst := lsu_wbu.io.axi.arburst
-  arbiter.io.lsu.rready  := lsu_wbu.io.axi.rready
-  lsu_wbu.io.axi.rvalid  := arbiter.io.lsu.rvalid
-  lsu_wbu.io.axi.rresp   := arbiter.io.lsu.rresp
-  lsu_wbu.io.axi.rdata   := arbiter.io.lsu.rdata
-  lsu_wbu.io.axi.rlast   := arbiter.io.lsu.rlast
-  lsu_wbu.io.axi.rid     := arbiter.io.lsu.rid
-  */
 
 }
 
