@@ -68,7 +68,6 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 			printf("ref.gpr[%s] = 0x%08x, ",regs[i],ref->gpr[i]);
 			printf("dut->gpr[%s] = 0x%08x, ",regs[i],cpu.gpr[i]);
 			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
-			printf("inst = 0x%08x\n", host_read(guest_to_host(pc & 0x00ffffff)));
 			return false;
 		}
 	}

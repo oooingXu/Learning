@@ -113,9 +113,8 @@ class ysyx_23060336 extends Module {
   lsu_wbu.io.axi <> arbiter.io.lsu
 
   // ifu <-> idu_exu
-  idu_exu.io.inst := ifu.io.inst
-  idu_exu.io.pc   := ifu.io.pc 
-  ifu.io.empty    := idu_exu.io.empty
+  idu_exu.io.inst     := ifu.io.inst
+  idu_exu.io.pc       := ifu.io.pc 
 
   // idu_exu <-> lsu_wbu
   lsu_wbu.io.result   := idu_exu.io.result
@@ -133,11 +132,13 @@ class ysyx_23060336 extends Module {
   lsu_wbu.io.ecall_in := idu_exu.io.ecall
   lsu_wbu.io.MemtoReg := idu_exu.io.MemtoReg
   lsu_wbu.io.ebreak   := idu_exu.io.ebreak
+  lsu_wbu.io.instType := idu_exu.io.instType
 
   // ifu <-> lsu_wbu
-  ifu.io.dnpc      := lsu_wbu.io.dnpc
-  ifu.io.ifu_idle  := lsu_wbu.io.out_valid
+  ifu.io.dnpc         := lsu_wbu.io.dnpc
+  ifu.io.ifu_idle     := lsu_wbu.io.out_valid
   lsu_wbu.io.in_valid := ifu.io.out_valid
+  lsu_wbu.io.ifu_clk_count := ifu.io.ifu_clk_count
 
   // reg <-> idu_exu
   reg.io.raddr1   := idu_exu.io.rs1
@@ -152,7 +153,7 @@ class ysyx_23060336 extends Module {
   lsu_wbu.io.src2 := reg.io.rdata2
 
   // csr <-> ifu
-  csr.io.mepc_in    := ifu.io.pc
+  csr.io.mepc_in  := ifu.io.pc
 
   // csr <-> idu_exu
   csr.io.raddr      := idu_exu.io.csr

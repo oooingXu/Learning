@@ -35,20 +35,48 @@ VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_flash_read_TOP____024uni
     data = data__Vcvt;
 }
 
-extern "C" void set_npc_state(int ebreak);
+extern "C" void set_npc_state(int ebreak, int ifu_count, int lsu_count, int i_type_count, int s_type_count, int u_type_count, int b_type_count, int r_type_count, int j_type_count, int c_type_count, int w_type_count, int ifu_clk_count_h, int ifu_clk_count_l, int lsu_clk_count_h, int lsu_clk_count_l);
 
-VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit(IData/*31:0*/ ebreak) {
+VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit(IData/*31:0*/ ebreak, IData/*31:0*/ ifu_count, IData/*31:0*/ lsu_count, IData/*31:0*/ i_type_count, IData/*31:0*/ s_type_count, IData/*31:0*/ u_type_count, IData/*31:0*/ b_type_count, IData/*31:0*/ r_type_count, IData/*31:0*/ j_type_count, IData/*31:0*/ c_type_count, IData/*31:0*/ w_type_count, IData/*31:0*/ ifu_clk_count_h, IData/*31:0*/ ifu_clk_count_l, IData/*31:0*/ lsu_clk_count_h, IData/*31:0*/ lsu_clk_count_l) {
     VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit\n"); );
     // Body
     int ebreak__Vcvt;
     for (size_t ebreak__Vidx = 0; ebreak__Vidx < 1; ++ebreak__Vidx) ebreak__Vcvt = ebreak;
-    set_npc_state(ebreak__Vcvt);
+    int ifu_count__Vcvt;
+    for (size_t ifu_count__Vidx = 0; ifu_count__Vidx < 1; ++ifu_count__Vidx) ifu_count__Vcvt = ifu_count;
+    int lsu_count__Vcvt;
+    for (size_t lsu_count__Vidx = 0; lsu_count__Vidx < 1; ++lsu_count__Vidx) lsu_count__Vcvt = lsu_count;
+    int i_type_count__Vcvt;
+    for (size_t i_type_count__Vidx = 0; i_type_count__Vidx < 1; ++i_type_count__Vidx) i_type_count__Vcvt = i_type_count;
+    int s_type_count__Vcvt;
+    for (size_t s_type_count__Vidx = 0; s_type_count__Vidx < 1; ++s_type_count__Vidx) s_type_count__Vcvt = s_type_count;
+    int u_type_count__Vcvt;
+    for (size_t u_type_count__Vidx = 0; u_type_count__Vidx < 1; ++u_type_count__Vidx) u_type_count__Vcvt = u_type_count;
+    int b_type_count__Vcvt;
+    for (size_t b_type_count__Vidx = 0; b_type_count__Vidx < 1; ++b_type_count__Vidx) b_type_count__Vcvt = b_type_count;
+    int r_type_count__Vcvt;
+    for (size_t r_type_count__Vidx = 0; r_type_count__Vidx < 1; ++r_type_count__Vidx) r_type_count__Vcvt = r_type_count;
+    int j_type_count__Vcvt;
+    for (size_t j_type_count__Vidx = 0; j_type_count__Vidx < 1; ++j_type_count__Vidx) j_type_count__Vcvt = j_type_count;
+    int c_type_count__Vcvt;
+    for (size_t c_type_count__Vidx = 0; c_type_count__Vidx < 1; ++c_type_count__Vidx) c_type_count__Vcvt = c_type_count;
+    int w_type_count__Vcvt;
+    for (size_t w_type_count__Vidx = 0; w_type_count__Vidx < 1; ++w_type_count__Vidx) w_type_count__Vcvt = w_type_count;
+    int ifu_clk_count_h__Vcvt;
+    for (size_t ifu_clk_count_h__Vidx = 0; ifu_clk_count_h__Vidx < 1; ++ifu_clk_count_h__Vidx) ifu_clk_count_h__Vcvt = ifu_clk_count_h;
+    int ifu_clk_count_l__Vcvt;
+    for (size_t ifu_clk_count_l__Vidx = 0; ifu_clk_count_l__Vidx < 1; ++ifu_clk_count_l__Vidx) ifu_clk_count_l__Vcvt = ifu_clk_count_l;
+    int lsu_clk_count_h__Vcvt;
+    for (size_t lsu_clk_count_h__Vidx = 0; lsu_clk_count_h__Vidx < 1; ++lsu_clk_count_h__Vidx) lsu_clk_count_h__Vcvt = lsu_clk_count_h;
+    int lsu_clk_count_l__Vcvt;
+    for (size_t lsu_clk_count_l__Vidx = 0; lsu_clk_count_l__Vidx < 1; ++lsu_clk_count_l__Vidx) lsu_clk_count_l__Vcvt = lsu_clk_count_l;
+    set_npc_state(ebreak__Vcvt, ifu_count__Vcvt, lsu_count__Vcvt, i_type_count__Vcvt, s_type_count__Vcvt, u_type_count__Vcvt, b_type_count__Vcvt, r_type_count__Vcvt, j_type_count__Vcvt, c_type_count__Vcvt, w_type_count__Vcvt, ifu_clk_count_h__Vcvt, ifu_clk_count_l__Vcvt, lsu_clk_count_h__Vcvt, lsu_clk_count_l__Vcvt);
 }
 
-extern "C" void diff_skip_sign(int araddr, int arvalid, int arready, int awaddr, int awvalid, int awready);
+extern "C" void sram_read(int araddr, int arvalid, int arready, int arsize, int awaddr, int wdata, int awvalid, int awready, int wstrb);
 
-VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_diff_skip_sign_TOP____024unit(IData/*31:0*/ araddr, IData/*31:0*/ arvalid, IData/*31:0*/ arready, IData/*31:0*/ awaddr, IData/*31:0*/ awvalid, IData/*31:0*/ awready) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_diff_skip_sign_TOP____024unit\n"); );
+VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_sram_read_TOP____024unit(IData/*31:0*/ araddr, IData/*31:0*/ arvalid, IData/*31:0*/ arready, IData/*31:0*/ arsize, IData/*31:0*/ awaddr, IData/*31:0*/ wdata, IData/*31:0*/ awvalid, IData/*31:0*/ awready, IData/*31:0*/ wstrb) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_sram_read_TOP____024unit\n"); );
     // Body
     int araddr__Vcvt;
     for (size_t araddr__Vidx = 0; araddr__Vidx < 1; ++araddr__Vidx) araddr__Vcvt = araddr;
@@ -56,11 +84,17 @@ VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_diff_skip_sign_TOP____02
     for (size_t arvalid__Vidx = 0; arvalid__Vidx < 1; ++arvalid__Vidx) arvalid__Vcvt = arvalid;
     int arready__Vcvt;
     for (size_t arready__Vidx = 0; arready__Vidx < 1; ++arready__Vidx) arready__Vcvt = arready;
+    int arsize__Vcvt;
+    for (size_t arsize__Vidx = 0; arsize__Vidx < 1; ++arsize__Vidx) arsize__Vcvt = arsize;
     int awaddr__Vcvt;
     for (size_t awaddr__Vidx = 0; awaddr__Vidx < 1; ++awaddr__Vidx) awaddr__Vcvt = awaddr;
+    int wdata__Vcvt;
+    for (size_t wdata__Vidx = 0; wdata__Vidx < 1; ++wdata__Vidx) wdata__Vcvt = wdata;
     int awvalid__Vcvt;
     for (size_t awvalid__Vidx = 0; awvalid__Vidx < 1; ++awvalid__Vidx) awvalid__Vcvt = awvalid;
     int awready__Vcvt;
     for (size_t awready__Vidx = 0; awready__Vidx < 1; ++awready__Vidx) awready__Vcvt = awready;
-    diff_skip_sign(araddr__Vcvt, arvalid__Vcvt, arready__Vcvt, awaddr__Vcvt, awvalid__Vcvt, awready__Vcvt);
+    int wstrb__Vcvt;
+    for (size_t wstrb__Vidx = 0; wstrb__Vidx < 1; ++wstrb__Vidx) wstrb__Vcvt = wstrb;
+    sram_read(araddr__Vcvt, arvalid__Vcvt, arready__Vcvt, arsize__Vcvt, awaddr__Vcvt, wdata__Vcvt, awvalid__Vcvt, awready__Vcvt, wstrb__Vcvt);
 }

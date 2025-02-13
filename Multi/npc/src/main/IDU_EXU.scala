@@ -21,6 +21,7 @@ class ysyx_23060336_IDU_EXU extends Module{
     val rd       = Output(UInt(5.W))
     val rs1      = Output(UInt(5.W))
     val rs2      = Output(UInt(5.W))
+    val instType = Output(UInt(4.W))
     val wstrb    = Output(UInt(4.W))
     val awsize   = Output(UInt(3.W))
     val RegNum   = Output(UInt(3.W))
@@ -30,7 +31,6 @@ class ysyx_23060336_IDU_EXU extends Module{
     val MemWr    = Output(Bool())
     val RegWr    = Output(Bool())
     val MemtoReg = Output(Bool())
-    val empty    = Output(Bool())
     val ebreak   = Output(Bool())
 	})
 
@@ -211,7 +211,7 @@ class ysyx_23060336_IDU_EXU extends Module{
       BitPat("b0010011") -> BitPat("b000"), // I
       BitPat("b0110011") -> BitPat("b101"), // R
       BitPat("b0001111") -> BitPat("b000"), // I
-      BitPat("b1110011") -> BitPat("b000")  // I
+      BitPat("b1110011") -> BitPat("b110")  // I csr
     ),
   BitPat("b111")) // wrong
   
@@ -326,7 +326,7 @@ class ysyx_23060336_IDU_EXU extends Module{
          Mux(instType === "b010".U, immB,
          Mux(instType === "b011".U, immU,
          Mux(instType === "b100".U, immJ, 0.U(32.W))))))
-  
+
   imm      := Mux(immNum, Cat(Fill(27, Imm(4)), Imm(4, 0)), Imm)
   zimm     := Cat(Fill(27, 0.U), rs1)
 
@@ -373,11 +373,12 @@ class ysyx_23060336_IDU_EXU extends Module{
              Mux(io.ecall, io.mtvec,      
              Mux(mret,  io.mepc, pcadd)))
 
-  io.empty    := io.inst === 0.U
+  io.instType := instType
   io.Csr      := io.Csr_in
   io.rs1      := rs1
   io.rs2      := rs2
   io.csr      := csr
   io.rd       := rd
+
 }
 

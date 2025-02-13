@@ -4,7 +4,7 @@
 # Execute this makefile from the object directory:
 #    make -f VysyxSoCFull.mk
 
-default: VysyxSoCFull
+default: /home/romeo/ysyx-workbench/npc/build/ysyxSoCFull
 
 ### Constants...
 # Perl executable (from $PERL)
@@ -35,13 +35,24 @@ VM_PREFIX = VysyxSoCFull
 VM_MODPREFIX = VysyxSoCFull
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
+	-MMD \
+	-O3 \
+	-I/usr/include/SDL2 \
+	-D_REENTRANT \
+	-I/home/romeo/ysyx-workbench/nvboard/usr/include \
+	-DTOP_NAME="VysyxSoCFull" \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
 	-lz \
+	/home/romeo/ysyx-workbench/nvboard/build/nvboard.a \
+	-lSDL2 \
+	-lSDL2_image \
+	-lSDL2_ttf \
 
 # User .cpp files (from .cpp's on Verilator command line)
 VM_USER_CLASSES = \
+	auto_bind \
 	cpu \
 	dut \
 	device \
@@ -59,6 +70,7 @@ VM_USER_CLASSES = \
 
 # User .cpp directories (from .cpp's on Verilator command line)
 VM_USER_DIR = \
+	/home/romeo/ysyx-workbench/npc/build \
 	/home/romeo/ysyx-workbench/npc/csrc \
 	/home/romeo/ysyx-workbench/npc/csrc/cpu \
 	/home/romeo/ysyx-workbench/npc/csrc/device \
@@ -76,6 +88,8 @@ include $(VERILATOR_ROOT)/include/verilated.mk
 ### Executable rules... (from --exe)
 VPATH += $(VM_USER_DIR)
 
+auto_bind.o: /home/romeo/ysyx-workbench/npc/build/auto_bind.cpp
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
 cpu.o: /home/romeo/ysyx-workbench/npc/csrc/cpu/cpu.c
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
 dut.o: /home/romeo/ysyx-workbench/npc/csrc/cpu/dut.c
@@ -106,7 +120,7 @@ ysyx_23060336.o: /home/romeo/ysyx-workbench/npc/csrc/ysyx_23060336.cpp
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
 
 ### Link rules... (from --exe)
-VysyxSoCFull: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a $(VM_HIER_LIBS)
+/home/romeo/ysyx-workbench/npc/build/ysyxSoCFull: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a $(VM_HIER_LIBS)
 	$(LINK) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) $(LIBS) $(SC_LIBS) -o $@
 
 
