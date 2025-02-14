@@ -95,8 +95,7 @@ clean:
 	rm -f waveform.*
 
 cleansim:
-	rm -rf $(OBJ)
-	rm -rf $(BUILD_DIR)/$(TOP_NAME)
+	rm -rf performance_trace.csv $(OBJ) $(BUILD_DIR)
 
 .PHONY:	default all	run test verilog help reformat checkformat clean sim wave cleansim
 

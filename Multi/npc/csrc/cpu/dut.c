@@ -56,6 +56,7 @@ void init_difftest(char *ref_so_file, long img_size){
 	//debug("success difftest_init");
 	ref_difftest_memcpy(RESET_VECTOR, guest_to_host(0), img_size, DIFFTEST_TO_REF);
 	//debug("success difftest_memcpy");
+	printf("dut.pc = 0x%08x\n", cpu.pc);
 	ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 	//debug("success difftest_regcpy");
 }
@@ -72,19 +73,16 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 		}
 	}
 
-	for(int i = 0; i < C; i++){
-		if(ref->csr[i] != cpu.csr[i]){
-			printf("Wrong csrs\n");
-			printf("csr[%x]: ref->csr = 0x%08x, dut->csr = 0x%08x\n", i, ref->csr[i], cpu.csr[i]);
-			printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
+	if(cpu.mtvec != ref->mtvec || cpu.mepc != ref->mepc || cpu.mcause != ref->mcause || cpu.mstatus != ref->mstatus){
+		printf("Wrong csrs\n");
+		printf("ref->dnpc = 0x%08x, dut->dnpc = 0x%08x, dut->pc = 0x%08x\n",ref->pc, cpu.dnpc, cpu.pc);
 
-			printf("\nref->csr\n");
-			printf("mtvec   ref = 0x%08x, dut = 0x%08x\n", ref->csr[0x305], cpu.csr[0x305]);
-			printf("mepc    ref = 0x%08x, dut = 0x%08x\n", ref->csr[0x341], cpu.csr[0x341]);
-			printf("mcause  ref = 0x%08x, dut = 0x%08x\n", ref->csr[0x342], cpu.csr[0x342]);
-			printf("mstatus ref = 0x%08x, dut = 0x%08x\n\n", ref->csr[0x300], cpu.csr[0x300]);
-			return false;
-		}
+		printf("\nref->csr\n");
+		printf("mtvec   ref = 0x%08x, dut = 0x%08x\n", ref->mtvec, cpu.mtvec);
+		printf("mepc    ref = 0x%08x, dut = 0x%08x\n", ref->mepc, cpu.mepc);
+		printf("mcause  ref = 0x%08x, dut = 0x%08x\n", ref->mcause, cpu.mcause);
+		printf("mstatus ref = 0x%08x, dut = 0x%08x\n\n", ref->mstatus, cpu.mstatus);
+		return false;
 	}
 
 	debug("All right");

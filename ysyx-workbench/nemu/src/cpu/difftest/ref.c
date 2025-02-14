@@ -18,14 +18,12 @@
 #include <difftest-def.h>
 #include <memory/paddr.h>
 
-#define R 32
-#define C 4096
-/*
-#define MEM_SIZE 67108864
-#define MBASE 0x80000000
+#define R 16
 
-extern uint32_t memory[MEM_SIZE];
-*/
+#define MEPC		0x341
+#define MTVEC		0x305
+#define MCAUSE	0x342
+#define MSTATUS 0x300
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
 	if(addr != 0){
@@ -40,29 +38,24 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
 	CPU_state *diff_dut = (CPU_state *)dut;
 	if(direction == DIFFTEST_TO_REF){
-//			printf("old mstatus ref = 0x%08x, dut = 0x%08x\n", cpu.csr[0x300], diff_dut->csr[0x300]);
 			memcpy(&cpu.gpr ,diff_dut->gpr, R * sizeof(cpu.gpr[0]));
-			memcpy(&cpu.csr ,diff_dut->csr, C * sizeof(cpu.csr[0]));
-//			printf("new mstatus ref = 0x%08x, dut = 0x%08x\n", cpu.csr[0x300], diff_dut->csr[0x300]);
-//			printf("old ref.pc = 0x%08x, ", cpu.pc);
 			cpu.pc = diff_dut->pc;
-//			printf("new ref.pc = 0x%08x, ", cpu.pc);
-			//printf("cpu.dnpc = 0x%08x, dut.pc= 0x%08x\n", cpu.pc, diff_dut->pc);
-		/*
-		for(int i = 0; i < R; i++){
-			cpu.gpr[i] = diff_dut->gpr[i];
-		}
-		*/
+			cpu.mepc = diff_dut->mepc;
+			cpu.mcause = diff_dut->mcause;
+			cpu.mtvec = diff_dut->mtvec;
+			cpu.mstatus = diff_dut->mstatus;
+			cpu.mvendorid = diff_dut->mvendorid;
+			cpu.marchid = diff_dut->marchid;
 	} 
 	else {
 		memcpy(diff_dut->gpr, &cpu.gpr, R * sizeof(cpu.gpr[0]));
-		memcpy(diff_dut->csr, &cpu.csr, C * sizeof(cpu.csr[0]));
 		diff_dut->pc = cpu.pc;
-		/*
-		for(int i = 0; i < R; i++){
-			diff_dut->gpr[i] = cpu.gpr[i];
-		}
-		*/
+		diff_dut->mepc = cpu.mepc;
+		diff_dut->mcause = cpu.mcause;
+		diff_dut->mtvec = cpu.mtvec;
+		diff_dut->mstatus = cpu.mstatus;
+		diff_dut->mvendorid = cpu.mvendorid;
+		diff_dut->marchid = cpu.marchid;
 	}
 }
 

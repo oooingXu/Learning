@@ -8,8 +8,7 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-	int len = (sizeof(regs) / sizeof(regs[0]));
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < R; i++) {
 		printf("%-3s --->  0x%x\n",regs[i],cpu.gpr[i]);
 	}
 	printf("\ncsr\n");
@@ -21,10 +20,9 @@ void isa_reg_display() {
 }
 
 uint32_t isa_reg_str2val(const char *s, bool *success) {
-	int len = (sizeof(regs) / sizeof(regs[0]));
 	const char *s1 = (s[0] == '$' ? s + 1 : s);
 	int cmp = strcmp(s1,"pc");
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < R; i++) {
 		int compare = strcmp(s1,regs[i]);
 		if( compare == 0){
 			*success = true;

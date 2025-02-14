@@ -1,7 +1,9 @@
-#ifndef __YSYXSOC_H__
-#define __YSYXSOC_H__
+#ifndef YSYXSOC_H__
+#define YSYXSOC_H__
 
-#include <kilb-macros.h>
+#include <klib-macros.h>
+
+#include ISA_H
 
 #define ysyxsoc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 

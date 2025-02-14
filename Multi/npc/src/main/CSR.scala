@@ -16,7 +16,12 @@ class ysyx_23060336_CSR extends Module{
     val mtvec   = Output(UInt(32.W))
   })
 
-  val ysyx_23060336_csrs = Mem(4096, UInt(32.W))
+  val mvendorid = RegInit("h79737978".U(32.W))
+  val marchid   = RegInit("h15fdf70".U(32.W))
+  val mstatus   = RegInit("h1800".U(32.W))
+  val mtvec     = RegInit(0.U(32.W))
+  val mepc      = RegInit(0.U(32.W))
+  val mcause    = RegInit(0.U(32.W))
 
   def MVENDORID = "hf11".U
   def MARCHID   = "hf12".U
@@ -25,23 +30,25 @@ class ysyx_23060336_CSR extends Module{
   def MEPC      = "h341".U
   def MCAUSE    = "h342".U
 
-  when(reset.asBool) {
-    ysyx_23060336_csrs(MVENDORID) := "h79737978".U
-    ysyx_23060336_csrs(MARCHID)   := "h15fdf70".U
-    ysyx_23060336_csrs(MSTATUS)   := "h1800".U
-  }
-
   when(io.ecall) {
-  ysyx_23060336_csrs(MCAUSE)  := "hb".U
-  ysyx_23060336_csrs(MEPC)    := io.mepc_in
+    mcause := "hb".U
+    mepc   := io.mepc_in
   }
 
   when(io.wen){
-    ysyx_23060336_csrs(io.waddr) := io.wdata
+    when(io.waddr === MTVEC){
+      mtvec := io.wdata
+    } .elsewhen(io.waddr === MSTATUS) {
+      mstatus := io.wdata
+    } .elsewhen(io.waddr === MEPC) {
+      mepc := io.wdata
+    } .elsewhen(io.waddr === MCAUSE) {
+      mcause := io.wdata
+    }
   }
 
-  io.rdata   := ysyx_23060336_csrs(io.raddr)
-  io.mepc    := ysyx_23060336_csrs(MEPC)
-  io.mtvec   := ysyx_23060336_csrs(MTVEC)
+  io.rdata := Mux(io.raddr === MEPC, mepc, Mux(io.raddr === MCAUSE, mcause, Mux(io.raddr === MSTATUS, mstatus, Mux(io.raddr === mtvec, MTVEC, 0.U))))
+  io.mepc  := mepc
+  io.mtvec := mtvec
 }
 

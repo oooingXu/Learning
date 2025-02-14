@@ -1,8 +1,6 @@
 #include <am.h>
 #include <klib.h>
-#include <klib-macros.h>
-#include "../riscv.h"
-#include "ysyxsoc.h"
+#include <ysyxsoc.h>
 
 extern char _heap_start;
 

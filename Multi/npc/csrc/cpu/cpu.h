@@ -8,18 +8,24 @@
 #include<stdio.h>
 #include<dlfcn.h>
 
-#define R 32
+#define R 16
 #define C 4096
 
+#define MEPC    0x341
+#define MTVEC   0x305
+#define MCAUSE  0x342
+#define MSTATUS 0x300
+
 typedef struct{
-	uint32_t gpr[32];
+	uint32_t gpr[R];
 	uint32_t pc;
 
-	uint32_t csr[4096];
 	uint32_t mepc;
 	uint32_t mcause;
 	uint32_t mtvec;
 	uint32_t mstatus;
+	uint32_t mvendorid;  
+	uint32_t marchid;
 
 	uint32_t dnpc;
 	uint32_t reset;

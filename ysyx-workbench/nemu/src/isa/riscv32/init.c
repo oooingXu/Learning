@@ -16,9 +16,6 @@
 #include <isa.h>
 #include <memory/paddr.h>
 
-#define MSTATUS 0x300
-#define MARCHID 0xf12
-#define MVENDORID 0xf11
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
 static const uint32_t img [] = {
@@ -35,12 +32,10 @@ static void restart() {
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
-	for(int i = 0; i < 4096; i++){
-		cpu.csr[i] = 0;
-	}
-	cpu.csr[MSTATUS] = 0x1800;
-	cpu.csr[MARCHID] = 0x15fdf70;
-	cpu.csr[MVENDORID] = 0x79737978;
+
+	cpu.mstatus		= 0x1800;
+	cpu.marchid		= 0x15fdf70;
+	cpu.mvendorid = 0x79737978;
 
 }
 

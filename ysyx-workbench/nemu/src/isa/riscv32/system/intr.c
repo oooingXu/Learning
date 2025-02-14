@@ -21,9 +21,9 @@
 #define MCAUSE	0x342
 
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
-	cpu.csr[MEPC] = epc;
-	cpu.csr[MCAUSE] = NO;
-	return cpu.csr[MTVEC];
+	cpu.mepc = epc;
+	cpu.mcause = NO;
+	return cpu.mtvec;
   /* TODO: Trigger an interrupt/exception with ``NO''.
    * Then return the address of the interrupt/exception vector.
    */

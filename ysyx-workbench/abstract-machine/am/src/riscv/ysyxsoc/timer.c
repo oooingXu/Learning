@@ -1,7 +1,5 @@
 #include <am.h>
-#include "ysyxsoc.h"
-
-//#define RTC_ADDR 0x02000000
+#include <ysyxsoc.h>
 
 static uint64_t bool_time = 0;
 

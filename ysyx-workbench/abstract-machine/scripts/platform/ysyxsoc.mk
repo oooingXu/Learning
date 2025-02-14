@@ -13,10 +13,10 @@ CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/ysyxsoc.ld \
 						 --defsym=_pmem_start=0x30000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
-LDFLAGS   += --print-map
+#LDFLAGS   += --print-map
+
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
-# add one
-CFALGS += -I$(AM_HOME)/am/src/riscv
+CFLAGS += -I$(AM_HOME)/am/src/riscv/ysyxsoc
 .PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c
 
 DIFF_REF_SO = $(NEMU_HOME)/build/riscv32-nemu-interpreter-so

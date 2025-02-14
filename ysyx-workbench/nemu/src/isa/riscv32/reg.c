@@ -26,16 +26,15 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-	int len = (sizeof(regs) / sizeof(regs[0]));
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < 16; i++) {
 		printf("%-3s --->  0x%x\n",regs[i],cpu.gpr[i]);
 	}
 
 	printf("\ncsr\n");
-	printf("mepc		---> 0x%x\n",cpu.csr[MEPC]);
-	printf("mtvec		---> 0x%x\n",cpu.csr[MTVEC]);
-	printf("mcause	---> 0x%x\n",cpu.csr[MCAUSE]);
-	printf("mstatus ---> 0x%x\n",cpu.csr[MSTATUS]);
+	printf("mepc		---> 0x%x\n",cpu.mepc);
+	printf("mtvec		---> 0x%x\n",cpu.mtvec);
+	printf("mcause	---> 0x%x\n",cpu.mcause);
+	printf("mstatus ---> 0x%x\n",cpu.mstatus);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

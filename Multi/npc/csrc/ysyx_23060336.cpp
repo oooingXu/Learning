@@ -21,12 +21,7 @@
 #include "device/map.h"
 
 #define NR_WP 32
-#define R 32
-
-#define MEPC		0x341
-#define MTVEC		0x305
-#define MCAUSE  0x342
-#define MSTATUS 0x300
+#define R 16
 
 static uint64_t g_nr_guest_inst = 0;
 static uint64_t g_nr_guest_clk = 0;
@@ -138,7 +133,7 @@ static void performance_count(bool ebreak, uint32_t ifu_count, uint32_t lsu_coun
     	printf("R类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", r_type_count, r_type_ratio, r_avg_cycles);
     	printf("J类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", j_type_count, j_type_ratio, j_avg_cycles);
     	printf("C类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", c_type_count, c_type_ratio, c_avg_cycles);
-    	printf("错误类型指令: %-8u, 指令占比: %.2f%, 时钟占比: %.2f%\n", w_type_count, w_type_ratio, w_avg_cycles);
+    	printf("错误类型指令: %-6u, 指令占比: %.2f%, 时钟占比: %.2f%\n", w_type_count, w_type_ratio, w_avg_cycles);
 		}
 }
 
@@ -197,14 +192,10 @@ static void renew_reg(){
 			cpu.gpr[i] = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[i];
 		}
 
-		for(int i = 0; i < C; i++){
-			cpu.csr[i] = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[i];
-		}
-
-		cpu.mepc    = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MEPC];
-		cpu.mtvec   = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MTVEC];
-		cpu.mcause  = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MCAUSE];
-		cpu.mstatus = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__ysyx_23060336_csrs_ext__DOT__Memory[MSTATUS];
+		cpu.mepc    = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__mepc;
+		cpu.mtvec   = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__mtvec;
+		cpu.mcause  = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__mcause;
+		cpu.mstatus = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__mstatus;
 }
 
 static void init_npc(){
@@ -216,9 +207,9 @@ static void init_npc(){
 	ysyxSoCFull->clock = 0;
 	ysyxSoCFull->reset = 1;
 	ysyxSoCFull->eval();
-	cpu.csr[0x300] = 0x1800;
-	cpu.csr[0xf11] = 0x79737978;
-	cpu.csr[0xf12] = 0x015fdf70;
+	cpu.mstatus = 0x1800;
+	cpu.mvendorid = 0x79737978;
+	cpu.marchid = 0x015fdf70;
 }
 
 static void trace_and_difftest(){
