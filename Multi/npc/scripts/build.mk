@@ -11,3 +11,11 @@ CSRCS += $(NPC_HOME)/csrc/sdb/expr.c
 CSRCS += $(NPC_HOME)/csrc/cpu/cpu.c  
 CSRCS += $(NPC_HOME)/csrc/cpu/dut.c 
 CSRCS += $(NPC_HOME)/csrc/utils/time.c
+
+INC_PATH += $(NPC_HOME)/csrc
+INC_PATH += $(NPC_HOME)/csrc/cpu
+INC_PATH += $(NPC_HOME)/csrc/memory
+INC_PATH += $(NPC_HOME)/csrc/sdb
+INC_PATH += $(NPC_HOME)/csrc/device
+INC_PATH += $(NPC_HOME)/csrc/utils
+INC_PATH += $(NPC_HOME)/csrc/include

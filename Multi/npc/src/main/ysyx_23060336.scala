@@ -20,6 +20,7 @@ class ysyx_23060336 extends Module {
   val arbiter = Module(new ysyx_23060336_ARBITER())
   val xbar    = Module(new ysyx_23060336_XBAR())
   val clint   = Module(new ysyx_23060336_CLINT())
+  val npc_sim = Module(new NPC_SIM())
   //val sram_ifu   = Module(new ysyx_23060336_SRAM())
   //val sram_lsu   = Module(new ysyx_23060336_SRAM())
   //val sram   = Module(new ysyx_23060336_SRAM())
@@ -99,6 +100,8 @@ class ysyx_23060336 extends Module {
 
   // xbar <-> top 
   io.master      <> xbar.io.master
+  npc_sim.io.axi <> xbar.io.master
+  npc_sim.io.clock := clock
 
   // xbar <-> clint <-> arbiter
   xbar.io.clint <> clint.io.axi

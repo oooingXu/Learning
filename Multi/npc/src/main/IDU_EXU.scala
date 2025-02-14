@@ -369,7 +369,7 @@ class ysyx_23060336_IDU_EXU extends Module{
 
   pcadd := pca + pcb
 
-  io.dnpc := Mux(reset.asBool, "h30000000".U,
+  io.dnpc := Mux(reset.asBool, "h80000000".U,
              Mux(io.ecall, io.mtvec,      
              Mux(mret,  io.mepc, pcadd)))
 

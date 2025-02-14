@@ -273,7 +273,7 @@ class SRAM_READ extends BlackBox with HasBlackBoxInline{
   })
 
   setInline(
-    "SRAM_READ.sv",
+    "sram_read.sv",
   """`ifdef VERILATOR
     |import "DPI-C" function void sram_read(input int araddr, input int arvalid, input int arready, input int arsize, input int awaddr, input int wdata, input int awvalid, input int awready, input int wstrb);
     | `endif

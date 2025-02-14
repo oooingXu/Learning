@@ -11,7 +11,14 @@ include $(NPC_HOME)/scripts/config.mk
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
+ifdef CONFIG_SOC
 TOP_NAME = ysyxSoCFull
+endif
+
+ifdef CONFIG_NPC
+TOP_NAME = ysyx_23060336
+endif
+
 CPU_NAME = ysyx_23060336
 VERILATOR = verilator
 PRJ = playground
@@ -36,14 +43,18 @@ VERILATOR_CFLAGS += -MMD --build --cc --trace-fst\
 										--timescale "1ns/1ns" --no-timing\
 										--assert --autoflush 
 
+ifdef CONFIG_SOC
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
+endif
 
 NPC = $(NPC_HOME)/csrc/$(CPU_NAME).cpp
+ifdef CONFIG_SOC
 VSRCS += $(SOC_HOME)/build/ysyxSoCFull.v
 VSRCS += $(shell find $(SOC_HOME)/perip -name "*.v")
+endif
 VSRCS += $(abspath $(NPC_HOME)/vsrc/$(CPU_NAME).sv)
 CSRCS += $(SRC_AUTO_BIND)
 CSRCS += $(NPC)

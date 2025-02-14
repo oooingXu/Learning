@@ -27,7 +27,7 @@ char tmp = 0;
 
 static void serial_putc(char ch) {
 	//printf("cpu: pc = 0x%08x, dnpc = 0x%08x, valid = %d\n", cpu.pc, cpu.dnpc, cpu.valid);
-  //MUXDEF(CONFIG_TARGET_AM, putch(ch), putc(ch, stderr));
+  MUXDEF(CONFIG_TARGET_AM, putch(ch), putc(ch, stderr));
 }
 
 static void serial_io_handler(uint32_t offset, int len, bool is_write) {
@@ -44,6 +44,6 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
 
 void init_serial() {
   serial_base = new_space(8);
-  add_mmio_map("serial", SERIAL_MMIO, serial_base, 8, serial_io_handler);
+  add_mmio_map("serial", CONFIG_SERIAL_MMIO, serial_base, 8, serial_io_handler);
 
 }

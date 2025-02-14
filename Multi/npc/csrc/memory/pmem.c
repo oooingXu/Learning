@@ -14,8 +14,12 @@ static void psram_init(){
 	}
 }
 
-uint8_t* guest_to_host(uint32_t paddr) { return pmem + paddr - MBASE; }
-uint32_t host_to_guest(uint8_t *haddr) { return haddr - pmem + MBASE; }
+uint32_t host_to_guest(uint8_t *haddr) { 
+	return haddr - pmem + MBASE; 
+}
+uint8_t* guest_to_host(uint32_t paddr) { 
+	return pmem + paddr - MBASE; 
+}
 
 uint8_t* p_guest_to_host(uint32_t paddr) { return psram + paddr; }
 uint8_t* s_guest_to_host(uint32_t paddr) { return sram + paddr; }
@@ -65,9 +69,8 @@ bool in_device(uint32_t addr){return (addr >= UART_START && addr <= UART_END) ||
 
 bool in_pmem(uint32_t addr){return addr - MBASE < MSIZE;}
 
-int pmem_read(int araddr) {
-	//araddr = araddr & ~0x3u;
-
+extern "C" int pmem_read(int araddr) {
+	araddr = araddr & ~0x3u;
 	IFDEF(CONFIG_MTRACE, printf("pread at " FMT_PADDR ", data = " FMT_PADDR "\n", araddr, host_read(guest_to_host(araddr))));
 
 	if(likely(in_pmem(araddr))) {
@@ -81,8 +84,34 @@ int pmem_read(int araddr) {
 	return 0;
 }
 
+static int wmask(int wstrb) {
+	if(wstrb == 1 || wstrb == 2 || wstrb == 4 || wstrb == 8) {
+		return 1;
+	} else if(wstrb == 3 || wstrb == 12) {
+		return 3;
+	} else if(wstrb == 15) {
+		return 15;
+	} else {
+		printf("(npc) wstrb wrong\n");
+	}
+}
+
+static int wdata_shift(uint32_t wdata, int wstrb) {
+	switch(wstrb) {
+		case 1:  return wdata;
+		case 2:  return wdata >> 8;
+		case 3:  return wdata;
+		case 4:  return wdata >> 16;
+		case 8:  return wdata >> 24;
+		case 12: return wdata >> 16;
+		case 15: return wdata;
+		default: printf("(npc) wdata wstrb wrong\n");
+	}
+}
+
 int pmem_write(int awaddr, int wdata, int wstrb) {
-	//awaddr = awaddr & ~0x3u;
+	wdata	= wdata_shift(wdata, wstrb);
+	wstrb = wmask(wstrb);
 
 	IFDEF(CONFIG_MTRACE, printf("pwrite at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", awaddr, wdata, wstrb));
 

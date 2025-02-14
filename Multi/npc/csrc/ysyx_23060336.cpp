@@ -1,16 +1,12 @@
 #include<svdpi.h>
 #include<verilated.h>
 #include<verilated_fst_c.h>
-#include "VysyxSoCFull.h"
-#include "VysyxSoCFull___024unit.h"
-#include "VysyxSoCFull___024root.h"
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 
 #include <dlfcn.h>
-#include <nvboard.h>
 
 #include "include/common.h"
 #include "include/utils.h"
@@ -19,6 +15,16 @@
 #include "sdb/sdb.h"
 #include "memory/pmem.h"
 #include "device/map.h"
+
+#ifdef CONFIG_SOC 
+class VysyxSoCFull;
+static VysyxSoCFull *ysyxSoCFull = NULL;
+#endif
+
+#ifdef CONFIG_NPC 
+class Vysyx_23060336;
+static Vysyx_23060336 *ysyx_23060336 = NULL;
+#endif
 
 #define NR_WP 32
 #define R 16
@@ -33,12 +39,26 @@ static bool			ret = false;
 NPCState npc_state;
 CPU_state cpu = {};
 
-static VysyxSoCFull *ysyxSoCFull = new VysyxSoCFull;
+#ifdef CONFIG_SOC
+#include <nvboard.h>
+#include "VysyxSoCFull.h"
+#include "VysyxSoCFull___024unit.h"
+#include "VysyxSoCFull___024root.h"
+#endif
+
+#ifdef CONFIG_NPC
+#include "Vysyx_23060336.h"
+#include "Vysyx_23060336___024unit.h"
+#include "Vysyx_23060336___024root.h"
+#endif
+
 static vluint64_t sim_time = 0;
 IFDEF(CONFIG_WAVE, VerilatedFstC *m_trace = new VerilatedFstC);
 IFDEF(CONFIG_PCOUNTER, std::ofstream output_file("/home/romeo/ysyx-workbench/npc/performance_trace.csv", std::ios::out | std::ios::app));
 
+#ifdef CONFIG_SOC 
 void nvboard_bind_all_pins(VysyxSoCFull* top);
+#endif
 
 static void statistic(){
 	g_nr_guest_inst++;
@@ -46,7 +66,7 @@ static void statistic(){
 	Log("total guest instructions = %ld", g_nr_guest_inst);
 	Log("total guest clock = %ld", g_nr_guest_clk);
 	if(g_timer > 0) {
-		Log("simulation IPC = %ld clk/inst ", g_nr_guest_clk / g_nr_guest_inst );
+		Log("simulation IPC = %.8f inst/clk ", (float)g_nr_guest_inst / g_nr_guest_clk);
 		Log("simulation frequency = %ld inst/s", g_nr_guest_inst * 1000000 / g_timer);
 		Log("simulation frequency = %ld clk/s", g_nr_guest_clk * 1000000 / g_timer);
 	} else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
@@ -118,7 +138,6 @@ static void performance_count(bool ebreak, uint32_t ifu_count, uint32_t lsu_coun
 		// 计算前后端平均占用的周期
 		float backend_avg_cycles  = (float)backend_clk / g_nr_guest_clk * 100; 
 		float frontend_avg_cycles = (float)ifu_clk_count / g_nr_guest_clk * 100; 
-		//printf("lsu clk = %ld, total clk = %ld, psram clk = %ld, flash clk = %ld, i_clk = %ld, s_clk = %ld, u_clk = %ld, b_clk = %ld, r_clk = %ld, j_clk = %ld, c_clk = %ld\n", lsu_clk_count, g_nr_guest_clk, ifu_psram_clk, ifu_flash_clk, i_clk, s_clk, u_clk, b_clk, r_clk, j_clk, c_clk);
 
     // 打印信息
 		if(ebreak) {
@@ -146,7 +165,8 @@ extern "C" void set_npc_state(int ebreak, uint32_t ifu_count, uint32_t lsu_count
 		IFDEF(CONFIG_WAVE, m_trace->close());
 		IFDEF(CONFIG_PCOUNTER, output_file.close());
 
-		ysyxSoCFull->final();
+		IFDEF(CONFIG_SOC, ysyxSoCFull->final());
+		IFDEF(CONFIG_NPC, ysyx_23060336->final());
 		exit(0);
 	}
 }
@@ -169,8 +189,9 @@ static long load_program(char * img,uint32_t addr) {
 	fseek(fp, 0, SEEK_END);
 	long size = ftell(fp);
 
+	Log("Guest: The image is %s, size = %ld, addr = 0x%08x, fp = 0x%08x", img, size, addr, fp);
+
 	fseek(fp, 0, SEEK_SET);
-	Log("Guest: The image is %s, size = %ld", img, size);
 	int ret = fread(guest_to_host(addr), size, 1, fp);
 	assert(ret == 1);
 
@@ -179,15 +200,27 @@ static long load_program(char * img,uint32_t addr) {
 }
 
 static void renew_pc(){
+#ifdef CONFIG_SOC
 		npc_state.halt_ret = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[10];
 		npc_state.halt_pc  = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__PC;;
 
 		cpu.pc   = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__PC;
 		cpu.dnpc = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT___lsu_wbu_io_dnpc;
 		cpu.valid= ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu__DOT__state == 5;
+#endif
+
+#ifdef CONFIG_NPC
+		npc_state.halt_ret = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[10];
+		npc_state.halt_pc  = ysyx_23060336->rootp->ysyx_23060336__DOT__ifu__DOT__PC;;
+
+		cpu.pc    = ysyx_23060336->rootp->ysyx_23060336__DOT__ifu__DOT__PC;
+		cpu.dnpc  = ysyx_23060336->rootp->ysyx_23060336__DOT___lsu_wbu_io_dnpc;
+		cpu.valid = ysyx_23060336->rootp->ysyx_23060336__DOT__lsu_wbu__DOT__state == 5;
+#endif
 }
 
 static void renew_reg(){
+#ifdef CONFIG_SOC
 		for(int i = 0; i < R; i++){
 			cpu.gpr[i] = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[i];
 		}
@@ -196,17 +229,51 @@ static void renew_reg(){
 		cpu.mtvec   = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__mtvec;
 		cpu.mcause  = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__mcause;
 		cpu.mstatus = ysyxSoCFull->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr__DOT__mstatus;
+#endif
+
+#ifdef CONFIG_NPC
+		for(int i = 0; i < R; i++){
+			cpu.gpr[i] = ysyx_23060336->rootp->ysyx_23060336__DOT__reg_0__DOT__ysyx_23060336_regs_ext__DOT__Memory[i];
+		}
+
+		cpu.mepc    = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__mepc;
+		cpu.mtvec   = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__mtvec;
+		cpu.mcause  = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__mcause;
+		cpu.mstatus = ysyx_23060336->rootp->ysyx_23060336__DOT__csr__DOT__mstatus;
+#endif
 }
 
 static void init_npc(){
-	cpu.pc = RESET_VECTOR;
+#ifdef CONFIG_SOC
+	if(ysyxSoCFull == NULL) {
+		ysyxSoCFull = new VysyxSoCFull;
+	}
+#endif
+
+#ifdef CONFIG_NPC
+	if(ysyx_23060336 == NULL) {
+		ysyx_23060336 = new Vysyx_23060336;
+	}
+#endif
+
 	for(int i = 0; i < R; i++){
 		cpu.gpr[i] = 0;
 	}
 
+#ifdef CONFIG_SOC
 	ysyxSoCFull->clock = 0;
 	ysyxSoCFull->reset = 1;
 	ysyxSoCFull->eval();
+	cpu.pc = 0x30000000;
+#endif
+
+#ifdef CONFIG_NPC
+	ysyx_23060336->clock = 0;
+	ysyx_23060336->reset = 1;
+	ysyx_23060336->eval();
+	cpu.pc = 0x80000000;
+#endif
+
 	cpu.mstatus = 0x1800;
 	cpu.mvendorid = 0x79737978;
 	cpu.marchid = 0x015fdf70;
@@ -220,10 +287,19 @@ static void trace_and_difftest(){
 }
 
 void sim_once(){
+#ifdef CONFIG_SOC
 		if(sim_time >= 0 && sim_time <= 21) ysyxSoCFull->reset = 1;
 		else ysyxSoCFull->reset = 0;
 
 		ysyxSoCFull->clock = !ysyxSoCFull->clock; ysyxSoCFull->eval();
+#endif
+
+#ifdef CONFIG_NPC
+		if(sim_time >= 0 && sim_time <= 21) ysyx_23060336->reset = 1;
+		else ysyx_23060336->reset = 0;
+
+		ysyx_23060336->clock = !ysyx_23060336->clock; ysyx_23060336->eval();
+#endif
 		sim_time++;
 		IFDEF(CONFIG_WAVE, m_trace->dump(sim_time));
 }
@@ -231,9 +307,7 @@ void sim_once(){
 void exec_once(){
 		sim_once(); // clock 1 -> 0
 		renew_reg();
-		if(npc_state.state != NPC_END){
-			trace_and_difftest();
-		}
+		if(npc_state.state != NPC_END) trace_and_difftest();
 		sim_once(); // clock 0 -> 1
 		renew_pc();
 }
@@ -241,7 +315,7 @@ void exec_once(){
 void execute(uint32_t n){
 	for(; n > 0; n--){
 		exec_once();
-		nvboard_update();
+		IFDEF(CONFIG_SOC, nvboard_update());
 		g_nr_guest_clk++;
 
 		if(npc_state.state != NPC_RUNNING) break;
@@ -277,7 +351,13 @@ void cpu_exec(uint32_t n){
 }
 
 static void welcome(){
-	printf("Welcome to %s\n", ANSI_FMT("riscv32e-npc", ANSI_FG_GREEN));
+	printf("Welcome to %s\n", ANSI_FMT(
+#ifdef CONFIG_SOC 
+				"riscv32e-ysyxsoc"
+#else 
+				"riscv32e-npc"
+#endif
+				, ANSI_FG_GREEN));
 }
 
 static int is_exit_status_bad() {
@@ -289,6 +369,7 @@ int main(int argc, char **argv)
 {
 	Verilated::commandArgs(argc, argv); //设置仿真参数
 																			
+	init_npc();
 	if(argc < 2) {
      std::cerr << "Usage: " << argv[0] << " <program.bin>" << std::endl;
      return 1;
@@ -296,18 +377,27 @@ int main(int argc, char **argv)
 	
 #ifdef CONFIG_WAVE
 	Verilated::traceEverOn(true); //开启波形跟踪
-	ysyxSoCFull->trace(m_trace, 99);
+	IFDEF(CONFIG_SOC, ysyxSoCFull->trace(m_trace, 99));
+	IFDEF(CONFIG_NPC, ysyx_23060336->trace(m_trace, 99));
 	m_trace->open("waveform.fst");
 #endif
 
 	char * img_file = argv[1];
 	
+#ifdef CONFIG_SOC 
 	nvboard_bind_all_pins(ysyxSoCFull);
 	nvboard_init();
+#endif
 
-	init_npc();
-	IFDEF(CONFIG_DEVICE, init_device());
+#ifdef CONFIG_SOC
 	long img_size = load_program(img_file, MBASE);
+#endif
+
+#ifdef CONFIG_NPC
+	long img_size = load_program(img_file, 0x80000000);
+#endif
+
+	IFDEF(CONFIG_DEVICE, init_device());
 	IFDEF(CONFIG_DIFFTEST, init_difftest(argv[2], img_size));
 
 	welcome();
@@ -319,8 +409,16 @@ int main(int argc, char **argv)
 
 	IFDEF(CONFIG_WAVE, m_trace->close());
 	IFDEF(CONFIG_PCOUNTER, output_file.close());
+#ifdef CONFIG_SOC
 	ysyxSoCFull->final();
 	delete ysyxSoCFull;
+#endif
+
+#ifdef CONFIG_NPC
+	ysyx_23060336->final();
+	delete ysyx_23060336;
+#endif
+
 
 	return is_exit_status_bad();
 }

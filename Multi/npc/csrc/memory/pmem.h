@@ -7,8 +7,15 @@
 #include"../include/macro.h"
 #include"../include/common.h"
 
+#ifdef CONFIG_SOC
 #define MBASE				(0x00000000)
 #define MSIZE				(0x08000000)
+#endif 
+
+#ifdef CONFIG_NPC
+#define MBASE				(0x80000000)
+#define MSIZE				(0x08000000)
+#endif 
 
 #define FLASH_START (0x30000000)
 #define FLASH_END		(0x31ffffff)

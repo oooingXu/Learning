@@ -39,6 +39,13 @@ VM_USER_CFLAGS = \
 	-O3 \
 	-I/usr/include/SDL2 \
 	-D_REENTRANT \
+	-I/home/romeo/ysyx-workbench/npc/csrc \
+	-I/home/romeo/ysyx-workbench/npc/csrc/cpu \
+	-I/home/romeo/ysyx-workbench/npc/csrc/memory \
+	-I/home/romeo/ysyx-workbench/npc/csrc/sdb \
+	-I/home/romeo/ysyx-workbench/npc/csrc/device \
+	-I/home/romeo/ysyx-workbench/npc/csrc/utils \
+	-I/home/romeo/ysyx-workbench/npc/csrc/include \
 	-I/home/romeo/ysyx-workbench/nvboard/usr/include \
 	-DTOP_NAME="VysyxSoCFull" \
 

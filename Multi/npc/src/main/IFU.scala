@@ -88,7 +88,7 @@ class IFU_COUNTER extends BlackBox with HasBlackBoxInline{
   })
 
   setInline(
-    "IFU_COUNTER.sv",
+    "ifu_counter.sv",
   """
     | module IFU_COUNTER(
     |   input         clock,

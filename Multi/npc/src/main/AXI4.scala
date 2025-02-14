@@ -31,8 +31,8 @@ class ysyx_23060336_AXI4Slave extends Bundle{
     val rvalid  = Output(Bool())
     val rresp   = Output(UInt(2.W))
     val rdata   = Output(UInt(32.W))
-    val rlast   = Output(Bool())
     val rid     = Output(UInt(4.W))
+    val rlast   = Output(Bool())
 }
 
 class ysyx_23060336_AXI4Master extends Bundle{

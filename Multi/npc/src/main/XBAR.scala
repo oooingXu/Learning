@@ -15,6 +15,7 @@ class ysyx_23060336_XBAR extends Module{
 
   io.slave <> io.clint
   io.slave <> io.master
+
   when(io.slave.araddr >= CLINT_START && io.slave.araddr <= CLINT_END) {
     io.clint.arvalid  := io.slave.arvalid
     io.slave.arready  := io.clint.arready
@@ -32,3 +33,4 @@ class ysyx_23060336_XBAR extends Module{
   }
 
 }
+
