@@ -39,6 +39,7 @@ class ysyx_23060336_IDU_EXU extends Module{
       BitPat("b0110111") -> BitPat("b00"), // U pc += 4 
       BitPat("b0010111") -> BitPat("b00"), // U pc += 4
       BitPat("b0000011") -> BitPat("b00"), // I pc += 4
+      BitPat("b0001111") -> BitPat("b00"), // C pc += 4 fence.i
       BitPat("b0100011") -> BitPat("b00"), // S pc += 4
       BitPat("b0010011") -> BitPat("b00"), // I pc += 4
       BitPat("b0110011") -> BitPat("b00"), // R pc += 4
@@ -224,6 +225,7 @@ class ysyx_23060336_IDU_EXU extends Module{
       BitPat("b0000011") -> BitPat("b0001"), // rs1 imm
       BitPat("b0100011") -> BitPat("b0001"), // rs1 imm
       BitPat("b0010011") -> BitPat("b0001"), // rs1 imm
+      BitPat("b0001111") -> BitPat("b0001"), // rs1 imm
       BitPat("b1100011") -> BitPat("b0111"), // rs1 rs2
       BitPat("b0110011") -> BitPat("b0111")  // rs1 rs2
     ),

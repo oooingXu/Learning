@@ -7,10 +7,8 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   val io = IO(new Bundle{
     val master = new ysyx_23060336_AXI4Master()
     val slave  = new ysyx_23060336_AXI4Slave()
-    val icache_count      = Output(UInt(32.W))
-    val icache_miss_count = Output(UInt(32.W))
-    val access_time       = Output(UInt(64.W))
-    val miss_penalty      = Output(UInt(64.W))
+    val awvalid = Input(Bool())
+    val awaddr = Input(UInt(32.W))
   })
   
   val icache = Module(new ysyx_23060336_ICACHE_METADATA(m, n))
@@ -21,6 +19,9 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
 
   val slave_tag   = Wire(UInt(((1 << (m + 3)) - m - n).W))
   val slave_index = Wire(UInt((1 << n).W))
+
+  val store_tag   = io.awaddr(31, m + n)
+  val store_index = io.awaddr(m + n - 1, m)
 
   val araddr      = RegInit(0.U(32.W))
   val hit_miss    = slave_tag === icache.io.out_tag && icache.io.out_valid
@@ -48,7 +49,8 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   slave_tag   := araddr(31, m + n)
   slave_index := araddr(m + n - 1, m)
 
-  icache.io.in_index := slave_index
+  icache.io.in_index := Mux(io.awvalid, store_index, slave_index)
+  icache.io.in_data  := io.master.rdata
 
   when(io.slave.arvalid) {
     araddr := io.slave.araddr
@@ -56,12 +58,14 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
 
   when(state === s_update_data && io.master.rvalid) {
     icache.io.in_tag   := slave_tag
-    icache.io.in_data  := io.master.rdata
     icache.io.in_valid := true.B
+    icache.io.wen      := true.B
+  } .elsewhen(io.awvalid) {
+    icache.io.in_tag   := store_tag
+    icache.io.in_valid := false.B
     icache.io.wen      := true.B
   } .otherwise {
     icache.io.in_tag   := slave_tag
-    icache.io.in_data  := io.master.rdata
     icache.io.in_valid := true.B
     icache.io.wen      := false.B
   }
@@ -78,10 +82,6 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   icache_counter.io.slave_rvalid   := io.slave.rvalid
   icache_counter.io.master_arvalid := io.master.arvalid
   icache_counter.io.master_rvalid  := io.master.rvalid
-  io.icache_count                  := icache_counter.io.icache_count
-  io.icache_miss_count             := icache_counter.io.icache_miss_count
-  io.access_time                   := icache_counter.io.access_time
-  io.miss_penalty                  := icache_counter.io.miss_penalty
 
 }
 
@@ -119,25 +119,19 @@ class ICACHE_COUNTER extends BlackBox with HasBlackBoxInline{
     val slave_rvalid      = Input(Bool())
     val master_arvalid    = Input(Bool())
     val master_rvalid     = Input(Bool())
-    val icache_count      = Output(UInt(32.W))
-    val icache_miss_count = Output(UInt(32.W))
-    val access_time       = Output(UInt(64.W))
-    val miss_penalty      = Output(UInt(64.W))
   })
 
   setInline(
     "icache_counter.sv",
-  """
+  """ `ifdef VERILATOR
+    | import "DPI-C" function void icache_counter(input int icache_count, input int icache_miss_count, input int access_time_h, input int access_time_l, input int miss_penalty_h, input int miss_penalty_l);
+    | `endif
     | module ICACHE_COUNTER(
     |   input clock,
     |   input slave_arvalid,
     |   input slave_rvalid,
     |   input master_arvalid,
-    |   input master_rvalid,
-    |   output [31:0] icache_count,
-    |   output [31:0] icache_miss_count,
-    |   output [63:0] access_time,
-    |   output [63:0] miss_penalty
+    |   input master_rvalid
     | );
     |
     | `ifdef VERILATOR
@@ -146,11 +140,6 @@ class ICACHE_COUNTER extends BlackBox with HasBlackBoxInline{
     | reg [63:0] _access_time, _miss_penalty;
     | reg [31:0] _icache_count, _icache_miss_count;
     | reg [1:0]  state = idle;
-    |
-    | assign icache_count = _icache_count;
-    | assign icache_miss_count = _icache_miss_count;
-    | assign access_time = _access_time;
-    | assign miss_penalty = _miss_penalty;
     |
     | always@(posedge slave_arvalid) begin
     |   _icache_count++;
@@ -178,6 +167,11 @@ class ICACHE_COUNTER extends BlackBox with HasBlackBoxInline{
     |     _miss_penalty++;
     |   end
     | end
+    |
+    | always@(posedge clock) begin
+    |   icache_counter(_icache_count, _icache_miss_count, _access_time[63:32], _access_time[31:0], _miss_penalty[63:32], _miss_penalty[31:0]);
+    | end
+    |
     | `endif
     |
     | endmodule

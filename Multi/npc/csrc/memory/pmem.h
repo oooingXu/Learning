@@ -10,9 +10,7 @@
 #ifdef CONFIG_SOC
 #define MBASE				(0x00000000)
 #define MSIZE				(0x08000000)
-#endif 
-
-#ifdef CONFIG_NPC
+#else
 #define MBASE				(0x80000000)
 #define MSIZE				(0x08000000)
 #endif 

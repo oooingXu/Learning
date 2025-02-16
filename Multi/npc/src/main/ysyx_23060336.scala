@@ -11,7 +11,7 @@ class ysyx_23060336 extends Module {
     val master    = new ysyx_23060336_AXI4Master()
     val slave     = new ysyx_23060336_AXI4Slave()
 })
-  val useNPCSim = false
+  val useNPCSim = true
 
   val ifu     = Module(new ysyx_23060336_IFU(useNPCSim))
   val idu_exu = Module(new ysyx_23060336_IDU_EXU())
@@ -21,7 +21,7 @@ class ysyx_23060336 extends Module {
   val arbiter = Module(new ysyx_23060336_ARBITER())
   val xbar    = Module(new ysyx_23060336_XBAR())
   val clint   = Module(new ysyx_23060336_CLINT())
-  val icache  = Module(new ysyx_23060336_ICACHE(2, 4))
+  val icache  = Module(new ysyx_23060336_ICACHE(2, 10))
 
 
   // cpu slave
@@ -119,15 +119,13 @@ class ysyx_23060336 extends Module {
   icache.io.master <> arbiter.io.ifu
   lsu_wbu.io.axi   <> arbiter.io.lsu
 
-  // icache <-> lsu_wbu
-  lsu_wbu.io.icache_count      := icache.io.icache_count
-  lsu_wbu.io.icache_miss_count := icache.io.icache_miss_count
-  lsu_wbu.io.access_time       := icache.io.access_time
-  lsu_wbu.io.miss_penalty      := icache.io.miss_penalty
-
   // ifu <-> idu_exu
   idu_exu.io.inst     := ifu.io.inst
   idu_exu.io.pc       := ifu.io.pc 
+
+  // icache <-> lsu_wbu
+  icache.io.awvalid := lsu_wbu.io.axi.awvalid
+  icache.io.awaddr  := lsu_wbu.io.axi.awaddr
 
   // idu_exu <-> lsu_wbu
   lsu_wbu.io.result   := idu_exu.io.result

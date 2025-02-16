@@ -33,6 +33,8 @@ SOC_HOME = $(NPC_HOME)/../ysyxSoC
 PERF = ./perf
 PERF_REF = $(PERF)/$(TOP_NAME)
 PERF_BIN = $(PERF)/$(MICROBENCH)
+CACHESIM = $(PERF)/cachesim
+CACHESIM_BIN = $(PERF)/pc_trace.bin
 BIN = $(BUILD_DIR)/$(TOP_NAME)
 
 default: $(BIN)
@@ -106,6 +108,10 @@ wave:
 perf:
 	$(PERF_REF) $(PERF_BIN)
 
+cachesim:
+	@gcc $(CACHESIM).c -o $(CACHESIM)
+	@$(CACHESIM) $(CACHESIM_BIN)
+
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -rf $(OBJ)
@@ -115,7 +121,7 @@ clean:
 cleansim:
 	rm -rf performance_trace.csv $(OBJ) $(BUILD_DIR)
 
-.PHONY:	default all	run test verilog help reformat checkformat clean sim wave cleansim perf
+.PHONY:	default all	run test verilog help reformat checkformat clean sim wave cleansim perf cachesim
 
 include ../Makefile
 
