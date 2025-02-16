@@ -19,3 +19,4 @@ INC_PATH += $(NPC_HOME)/csrc/sdb
 INC_PATH += $(NPC_HOME)/csrc/device
 INC_PATH += $(NPC_HOME)/csrc/utils
 INC_PATH += $(NPC_HOME)/csrc/include
+INC_PATH += $(NPC_HOME)/csrc/include/generated

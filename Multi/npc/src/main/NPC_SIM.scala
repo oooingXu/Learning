@@ -12,9 +12,10 @@ class NPC_SIM extends BlackBox with HasBlackBoxInline{
 
   setInline(
     "npc_sim.sv",
-  """ //`define CONFIG_NPC
+  """ `ifdef VERILATOR
     |import "DPI-C" function int pmem_read(input int araddr);
     |import "DPI-C" function int pmem_write(input int awaddr, int wdata, int wstrb);
+    | `endif
     | 
     | module NPC_SIM(
     |   input         clock,
@@ -49,7 +50,7 @@ class NPC_SIM extends BlackBox with HasBlackBoxInline{
     |   output [31:0] axi_rdata
     | );
     |
-    | `ifdef CONFIG_NPC
+    | `ifdef VERILATOR
     | reg npc_rvalid, npc_bvalid;
     | reg [1:0]  npc_bresp;
     | reg [31:0] npc_rdata;

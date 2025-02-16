@@ -20,15 +20,11 @@ extern "C" {
     extern void flash_read(int addr, int* data);
     // DPI import at /home/romeo/ysyx-workbench/npc/../ysyxSoC/build/ysyxSoCFull.v:4716:30
     extern void mrom_read(int raddr, int* rdata);
-    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4551:29
-    extern int pmem_read(int araddr);
-    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4552:29
-    extern int pmem_write(int awaddr, int wdata, int wstrb);
     // DPI import at /home/romeo/ysyx-workbench/npc/../ysyxSoC/perip/psram/psram.v:1:30
     extern void psram_read(int addr, int* data, int wr);
-    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4440:30
-    extern void set_npc_state(int ebreak, int ifu_count, int lsu_count, int i_type_count, int s_type_count, int u_type_count, int b_type_count, int r_type_count, int j_type_count, int c_type_count, int w_type_count, int ifu_clk_count_h, int ifu_clk_count_l, int lsu_clk_count_h, int lsu_clk_count_l, int ifu_psram_clk_h, int ifu_psram_clk_l, int ifu_flash_clk_h, int ifu_flash_clk_l, int i_clk, int s_clk, int u_clk, int b_clk, int r_clk, int j_clk, int c_clk, int w_clk, int backend_clk_h, int backend_clk_l, int ifu_flash_count, int ifu_psram_count);
-    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4523:30
+    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4690:30
+    extern void set_npc_state(int ebreak, int ifu_count, int lsu_count, int i_type_count, int s_type_count, int u_type_count, int b_type_count, int r_type_count, int j_type_count, int c_type_count, int w_type_count, int ifu_clk_count_h, int ifu_clk_count_l, int lsu_clk_count_h, int lsu_clk_count_l, int ifu_psram_clk_h, int ifu_psram_clk_l, int ifu_flash_clk_h, int ifu_flash_clk_l, int i_clk, int s_clk, int u_clk, int b_clk, int r_clk, int j_clk, int c_clk, int w_clk, int backend_clk_h, int backend_clk_l, int ifu_flash_count, int ifu_psram_count, int icache_count, int icache_miss_count, int access_time_h, int access_time_l, int miss_penalty_h, int miss_penalty_l);
+    // DPI import at /home/romeo/ysyx-workbench/npc/vsrc/ysyx_23060336.sv:4777:30
     extern void sram_read(int araddr, int arvalid, int arready, int arsize, int awaddr, int wdata, int awvalid, int awready, int wstrb);
 
 #ifdef __cplusplus

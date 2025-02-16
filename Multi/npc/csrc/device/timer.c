@@ -1,5 +1,5 @@
-#include "map.h"
-#include "../include/utils.h"
+#include <map.h>
+#include <utils.h>
 
 static uint32_t *rtc_port_base = NULL;
 

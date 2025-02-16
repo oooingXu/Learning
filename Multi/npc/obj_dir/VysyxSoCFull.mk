@@ -46,6 +46,7 @@ VM_USER_CFLAGS = \
 	-I/home/romeo/ysyx-workbench/npc/csrc/device \
 	-I/home/romeo/ysyx-workbench/npc/csrc/utils \
 	-I/home/romeo/ysyx-workbench/npc/csrc/include \
+	-I/home/romeo/ysyx-workbench/npc/csrc/include/generated \
 	-I/home/romeo/ysyx-workbench/nvboard/usr/include \
 	-DTOP_NAME="VysyxSoCFull" \
 

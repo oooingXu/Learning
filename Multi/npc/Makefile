@@ -23,12 +23,16 @@ CPU_NAME = ysyx_23060336
 VERILATOR = verilator
 PRJ = playground
 NXDC_FILES = constr/top.nxdc
+MICROBENCH = microbench-riscv32e-ysyxsoc.bin
 INC_PATH ?=
 
 BUILD_DIR = ./build
 OBJ = ./obj_dir
 VSRC = ./vsrc
 SOC_HOME = $(NPC_HOME)/../ysyxSoC
+PERF = ./perf
+PERF_REF = $(PERF)/$(TOP_NAME)
+PERF_BIN = $(PERF)/$(MICROBENCH)
 BIN = $(BUILD_DIR)/$(TOP_NAME)
 
 default: $(BIN)
@@ -99,6 +103,9 @@ checkformat:
 wave:
 	gtkwave waveform.*
 
+perf:
+	$(PERF_REF) $(PERF_BIN)
+
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -rf $(OBJ)
@@ -108,7 +115,7 @@ clean:
 cleansim:
 	rm -rf performance_trace.csv $(OBJ) $(BUILD_DIR)
 
-.PHONY:	default all	run test verilog help reformat checkformat clean sim wave cleansim
+.PHONY:	default all	run test verilog help reformat checkformat clean sim wave cleansim perf
 
 include ../Makefile
 

@@ -70,11 +70,12 @@ class ysyx_23060336_ARBITER extends Module{
   val rlast   = Wire(Bool())
   val rid     = Wire(UInt(4.W))
 
-  val s_wait_lsu :: s_lsu :: s_ifu :: Nil = Enum(3)
+  val s_wait_lsu :: s_lsu :: s_ifu :: s_wait :: Nil = Enum(4)
   val state = RegInit(s_ifu)
   state := MuxLookup(state, s_wait_lsu)(List(
     s_wait_lsu -> Mux(io.lsu.arvalid, s_lsu, s_wait_lsu),
-    s_lsu      -> Mux(rvalid === 1.U, s_ifu, s_lsu),
+    s_lsu      -> Mux(rvalid === 1.U, s_wait, s_lsu),
+    s_wait     -> Mux(io.ifu.arvalid, s_ifu, Mux(io.lsu.arvalid, s_lsu, s_wait)),
     s_ifu      -> Mux(rvalid === 1.U, s_wait_lsu, s_ifu)
   ))
 

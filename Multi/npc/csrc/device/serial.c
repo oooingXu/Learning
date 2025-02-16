@@ -12,13 +12,14 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-//#include "../../abstract-machine/am/include/am.h"
-#include "../include/utils.h"
-#include "map.h"
+#include <common.h>
+#include <utils.h>
+#include <map.h>
 
 /* http://en.wikibooks.org/wiki/Serial_Programming/8250_UART_Programming */
 // NOTE: this is compatible to 16550
 
+#ifdef CONFIG_DEVICE
 #define CH_OFFSET 0
 
 static uint8_t *serial_base = NULL;
@@ -47,3 +48,4 @@ void init_serial() {
   add_mmio_map("serial", CONFIG_SERIAL_MMIO, serial_base, 8, serial_io_handler);
 
 }
+#endif

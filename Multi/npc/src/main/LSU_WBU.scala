@@ -5,39 +5,43 @@ import chisel3.util._
 
 class ysyx_23060336_LSU_WBU extends Module{
   val io = IO(new Bundle{
-    val axi             = new ysyx_23060336_AXI4Master()
-    val ifu_clk_count   = Input(UInt(64.W))
-    val ifu_psram_count = Input(UInt(32.W))
-    val ifu_flash_count = Input(UInt(32.W))
-    val ifu_psram_clk   = Input(UInt(64.W))
-    val ifu_flash_clk   = Input(UInt(64.W))
-    val result          = Input(UInt(32.W))
-    val dnpc_in         = Input(UInt(32.W))
-    val src2            = Input(UInt(32.W))
-    val Csr             = Input(UInt(32.W))
-    val csr_in          = Input(UInt(12.W))
-    val rd_in           = Input(UInt(5.W))
-    val instType        = Input(UInt(4.W))
-    val wstrb           = Input(UInt(4.W))
-    val awsize          = Input(UInt(3.W))
-    val RegNum          = Input(UInt(3.W))
-    val arsize          = Input(UInt(3.W))
-    val CsrWr_in        = Input(Bool())
-    val RegWr_in        = Input(Bool())
-    val ecall_in        = Input(Bool())
-    val MemWr           = Input(Bool())
-    val MemtoReg        = Input(Bool())
-    val ebreak          = Input(Bool())
-    val in_valid        = Input(Bool())
-    val dnpc            = Output(UInt(32.W))
-    val regdata         = Output(UInt(32.W))
-    val csrdata         = Output(UInt(32.W))
-    val csr             = Output(UInt(12.W))
-    val rd              = Output(UInt(5.W))
-    val CsrWr           = Output(Bool())
-    val RegWr           = Output(Bool())
-    val ecall           = Output(Bool())
-    val out_valid       = Output(Bool())
+    val axi               = new ysyx_23060336_AXI4Master()
+    val access_time       = Input(UInt(64.W))
+    val miss_penalty      = Input(UInt(64.W))
+    val ifu_clk_count     = Input(UInt(64.W))
+    val ifu_psram_count   = Input(UInt(32.W))
+    val ifu_flash_count   = Input(UInt(32.W))
+    val ifu_psram_clk     = Input(UInt(64.W))
+    val ifu_flash_clk     = Input(UInt(64.W))
+    val icache_count      = Input(UInt(32.W))
+    val icache_miss_count = Input(UInt(32.W))
+    val result            = Input(UInt(32.W))
+    val dnpc_in           = Input(UInt(32.W))
+    val src2              = Input(UInt(32.W))
+    val Csr               = Input(UInt(32.W))
+    val csr_in            = Input(UInt(12.W))
+    val rd_in             = Input(UInt(5.W))
+    val instType          = Input(UInt(4.W))
+    val wstrb             = Input(UInt(4.W))
+    val awsize            = Input(UInt(3.W))
+    val RegNum            = Input(UInt(3.W))
+    val arsize            = Input(UInt(3.W))
+    val CsrWr_in          = Input(Bool())
+    val RegWr_in          = Input(Bool())
+    val ecall_in          = Input(Bool())
+    val MemWr             = Input(Bool())
+    val MemtoReg          = Input(Bool())
+    val ebreak            = Input(Bool())
+    val in_valid          = Input(Bool())
+    val dnpc              = Output(UInt(32.W))
+    val regdata           = Output(UInt(32.W))
+    val csrdata           = Output(UInt(32.W))
+    val csr               = Output(UInt(12.W))
+    val rd                = Output(UInt(5.W))
+    val CsrWr             = Output(Bool())
+    val RegWr             = Output(Bool())
+    val ecall             = Output(Bool())
+    val out_valid         = Output(Bool())
   })
 
   val ebreak    = Module(new ysyx_23060336_EBREAK())
@@ -145,40 +149,48 @@ class ysyx_23060336_LSU_WBU extends Module{
 
 
   // ebreak
-  ebreak.io.clock           := clock
-  ebreak.io.ebreak          := io.ebreak
-  ebreak.io.instType        := io.instType
-  ebreak.io.in_valid        := io.in_valid
-  ebreak.io.out_valid       := io.out_valid
-  ebreak.io.ifu_clk_count   := io.ifu_clk_count
-  ebreak.io.ifu_psram_count := io.ifu_psram_count
-  ebreak.io.ifu_flash_count := io.ifu_flash_count
-  ebreak.io.ifu_psram_clk   := io.ifu_psram_clk
-  ebreak.io.ifu_flash_clk   := io.ifu_flash_clk
-  ebreak.io.state           := state
-  ebreak.io.axi_rvalid      := io.axi.rvalid
+  ebreak.io.clock             := clock
+  ebreak.io.ebreak            := io.ebreak
+  ebreak.io.instType          := io.instType
+  ebreak.io.in_valid          := io.in_valid
+  ebreak.io.out_valid         := io.out_valid
+  ebreak.io.ifu_clk_count     := io.ifu_clk_count
+  ebreak.io.ifu_psram_count   := io.ifu_psram_count
+  ebreak.io.ifu_flash_count   := io.ifu_flash_count
+  ebreak.io.ifu_psram_clk     := io.ifu_psram_clk
+  ebreak.io.ifu_flash_clk     := io.ifu_flash_clk
+  ebreak.io.icache_count      := io.icache_count
+  ebreak.io.icache_miss_count := io.icache_miss_count
+  ebreak.io.access_time       := io.access_time
+  ebreak.io.miss_penalty      := io.miss_penalty
+  ebreak.io.state             := state
+  ebreak.io.axi_rvalid        := io.axi.rvalid
 }
 
 class ysyx_23060336_EBREAK extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
-    val clock           = Input(Clock())
-    val ebreak          = Input(Bool())
-    val in_valid        = Input(Bool())
-    val out_valid       = Input(Bool())
-    val axi_rvalid      = Input(Bool())
-    val state           = Input(UInt(3.W))
-    val instType        = Input(UInt(4.W))
-    val ifu_psram_count = Input(UInt(32.W))
-    val ifu_flash_count = Input(UInt(32.W))
-    val ifu_clk_count   = Input(UInt(64.W))
-    val ifu_psram_clk   = Input(UInt(64.W))
-    val ifu_flash_clk   = Input(UInt(64.W))
+    val clock             = Input(Clock())
+    val ebreak            = Input(Bool())
+    val in_valid          = Input(Bool())
+    val out_valid         = Input(Bool())
+    val axi_rvalid        = Input(Bool())
+    val state             = Input(UInt(3.W))
+    val instType          = Input(UInt(4.W))
+    val icache_count      = Input(UInt(32.W))
+    val icache_miss_count = Input(UInt(32.W))
+    val ifu_psram_count   = Input(UInt(32.W))
+    val ifu_flash_count   = Input(UInt(32.W))
+    val ifu_clk_count     = Input(UInt(64.W))
+    val ifu_psram_clk     = Input(UInt(64.W))
+    val ifu_flash_clk     = Input(UInt(64.W))
+    val access_time       = Input(UInt(64.W))
+    val miss_penalty      = Input(UInt(64.W))
   })
 
   setInline(
     "ebreak.sv",
   """`ifdef VERILATOR
-    |import "DPI-C" function void set_npc_state(input int ebreak, input int ifu_count, input int lsu_count, input int i_type_count, input int s_type_count, input int u_type_count, input int b_type_count, input int r_type_count, input int j_type_count, input int c_type_count, input int w_type_count, input int ifu_clk_count_h, input int ifu_clk_count_l, input int lsu_clk_count_h, input int lsu_clk_count_l, input int ifu_psram_clk_h, input int ifu_psram_clk_l, input int ifu_flash_clk_h, input int ifu_flash_clk_l, input int i_clk, input int s_clk, input int u_clk, input int b_clk, input int r_clk, input int j_clk, input int c_clk, input int w_clk, input int backend_clk_h, input int backend_clk_l, input int ifu_flash_count, input int ifu_psram_count);
+    |import "DPI-C" function void set_npc_state(input int ebreak, input int ifu_count, input int lsu_count, input int i_type_count, input int s_type_count, input int u_type_count, input int b_type_count, input int r_type_count, input int j_type_count, input int c_type_count, input int w_type_count, input int ifu_clk_count_h, input int ifu_clk_count_l, input int lsu_clk_count_h, input int lsu_clk_count_l, input int ifu_psram_clk_h, input int ifu_psram_clk_l, input int ifu_flash_clk_h, input int ifu_flash_clk_l, input int i_clk, input int s_clk, input int u_clk, input int b_clk, input int r_clk, input int j_clk, input int c_clk, input int w_clk, input int backend_clk_h, input int backend_clk_l, input int ifu_flash_count, input int ifu_psram_count, input int icache_count, input int icache_miss_count, input int access_time_h, input int access_time_l, input int miss_penalty_h, input int miss_penalty_l);
     |`endif
     | module ysyx_23060336_EBREAK(
     |   input        clock,
@@ -188,8 +200,12 @@ class ysyx_23060336_EBREAK extends BlackBox with HasBlackBoxInline{
     |   input        axi_rvalid,
     |   input [2:0]  state,
     |   input [3:0]  instType,
+    |   input [31:0] icache_count,
+    |   input [31:0] icache_miss_count,
     |   input [31:0] ifu_psram_count,
     |   input [31:0] ifu_flash_count,
+    |   input [63:0] access_time,
+    |   input [63:0] miss_penalty,
     |   input [63:0] ifu_psram_clk,
     |   input [63:0] ifu_flash_clk,
     |   input [63:0] ifu_clk_count
@@ -250,7 +266,7 @@ class ysyx_23060336_EBREAK extends BlackBox with HasBlackBoxInline{
     | end
     |
     | always@(posedge clock) begin
-    |   set_npc_state({31'b0, ebreak}, ifu_count, lsu_count, i_type_count, s_type_count, u_type_count, b_type_count, r_type_count, j_type_count, c_type_count, w_type_count, ifu_clk_count[63:32], ifu_clk_count[31:0], lsu_clk_count[63:32], lsu_clk_count[31:0], ifu_psram_clk[63:32], ifu_psram_clk[31:0], ifu_flash_clk[63:32], ifu_flash_clk[31:0], i_clk, s_clk, b_clk, u_clk, j_clk, r_clk, c_clk, w_clk, backend_clk[63:32], backend_clk[31:0], ifu_flash_count, ifu_psram_count);
+    |   set_npc_state({31'b0, ebreak}, ifu_count, lsu_count, i_type_count, s_type_count, u_type_count, b_type_count, r_type_count, j_type_count, c_type_count, w_type_count, ifu_clk_count[63:32], ifu_clk_count[31:0], lsu_clk_count[63:32], lsu_clk_count[31:0], ifu_psram_clk[63:32], ifu_psram_clk[31:0], ifu_flash_clk[63:32], ifu_flash_clk[31:0], i_clk, s_clk, b_clk, u_clk, j_clk, r_clk, c_clk, w_clk, backend_clk[63:32], backend_clk[31:0], ifu_flash_count, ifu_psram_count, icache_count, icache_miss_count, access_time[63:32], access_time[31:0], miss_penalty[63:32], miss_penalty[31:0]);
     | end
     |`endif
     |

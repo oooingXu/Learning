@@ -8,13 +8,13 @@
 
 #include <dlfcn.h>
 
-#include "include/common.h"
-#include "include/utils.h"
-#include "include/debug.h"
-#include "cpu/cpu.h"
-#include "sdb/sdb.h"
-#include "memory/pmem.h"
-#include "device/map.h"
+#include <common.h>
+#include <utils.h>
+#include <debug.h>
+#include <cpu.h>
+#include <sdb.h>
+#include <pmem.h>
+#include <map.h>
 
 #ifdef CONFIG_SOC 
 class VysyxSoCFull;
@@ -90,7 +90,7 @@ static void check_state(){
 		}
 }
 
-static void performance_count(bool ebreak, uint32_t ifu_count, uint32_t lsu_count, uint32_t i_type_count, uint32_t s_type_count, uint32_t u_type_count, uint32_t b_type_count, uint32_t r_type_count, uint32_t j_type_count, uint32_t c_type_count, uint32_t w_type_count, uint64_t ifu_clk_count, uint64_t lsu_clk_count, uint64_t ifu_psram_clk, uint64_t ifu_flash_clk, uint32_t i_clk, uint32_t s_clk, uint32_t u_clk, uint32_t b_clk, uint32_t r_clk, uint32_t j_clk, uint32_t c_clk, uint32_t w_clk, uint64_t backend_clk, uint32_t ifu_flash_count, uint32_t ifu_psram_count) {
+static void performance_count(bool ebreak, uint32_t ifu_count, uint32_t lsu_count, uint32_t i_type_count, uint32_t s_type_count, uint32_t u_type_count, uint32_t b_type_count, uint32_t r_type_count, uint32_t j_type_count, uint32_t c_type_count, uint32_t w_type_count, uint64_t ifu_clk_count, uint64_t lsu_clk_count, uint64_t ifu_psram_clk, uint64_t ifu_flash_clk, uint32_t i_clk, uint32_t s_clk, uint32_t u_clk, uint32_t b_clk, uint32_t r_clk, uint32_t j_clk, uint32_t c_clk, uint32_t w_clk, uint64_t backend_clk, uint32_t ifu_flash_count, uint32_t ifu_psram_count, uint32_t icache_count, uint32_t icache_miss_count, uint64_t access_time, uint64_t miss_penalty) {
 
 #ifdef CONFIG_PCOUNTER
 	output_file << g_nr_guest_clk << ","
@@ -104,7 +104,11 @@ static void performance_count(bool ebreak, uint32_t ifu_count, uint32_t lsu_coun
 							<< j_clk					<< ","
 							<< c_clk					<< "\n";
 #endif
+		// AMAT
+		float p = (float)icache_miss_count / icache_count * 100;
+		uint64_t AMAT = access_time + (uint64_t)((1 - p) * miss_penalty);
 
+		// 指令的占比
 	  float lsu_ratio		 = (float)lsu_count / ifu_count * 100;
 	  float i_type_ratio = (float)i_type_count / ifu_count * 100;
     float s_type_ratio = (float)s_type_count / ifu_count * 100;
@@ -142,6 +146,7 @@ static void performance_count(bool ebreak, uint32_t ifu_count, uint32_t lsu_coun
     // 打印信息
 		if(ebreak) {
 			printf("Performance  counter\n");
+			printf("icache: AMAT = %ld, 命中率: %.2f%, access_time = %ld, miss_penalty = %ld\n", AMAT, p, access_time, miss_penalty);
 			printf("前端时钟占比: %.2f%, 后端时钟占比: %.2f%\n", frontend_avg_cycles, backend_avg_cycles);
     	printf("ifu指令  : %-8u, 平均周期: %.2f, 时钟占比: %.2f%, flash时钟占比: %.2f%, 平均周期: %.2f, psram时钟占比: %.2f%, 平均周期: %.2f\n", ifu_count, ifu_avg_cycles_inst, ifu_avg_cycles, ifu_flash_avg_cycles, flash_avg,  ifu_psram_avg_cycles, psram_avg);
     	printf("lsu指令  : %-8u, 指令占比: %.2f%, 平均周期: %.2f, 时钟占比: %.2f%\n", lsu_count, lsu_ratio, lsu_avg_cycles_inst, lsu_avg_cycles);
@@ -156,8 +161,8 @@ static void performance_count(bool ebreak, uint32_t ifu_count, uint32_t lsu_coun
 		}
 }
 
-extern "C" void set_npc_state(int ebreak, uint32_t ifu_count, uint32_t lsu_count, uint32_t i_type_count, uint32_t s_type_count, uint32_t u_type_count, uint32_t b_type_count, uint32_t r_type_count, uint32_t j_type_count, uint32_t c_type_count, uint32_t w_type_count, uint32_t ifu_clk_count_h, uint32_t ifu_clk_count_l, uint32_t lsu_clk_count_h, uint32_t lsu_clk_count_l, uint32_t ifu_psram_clk_h, uint32_t ifu_psram_clk_l, uint32_t ifu_flash_clk_h, uint32_t ifu_flash_clk_l, uint32_t i_clk, uint32_t s_clk, uint32_t u_clk, uint32_t b_clk, uint32_t r_clk, uint32_t j_clk, uint32_t c_clk, uint32_t w_clk, uint32_t backend_clk_h, uint32_t backend_clk_l, uint32_t ifu_flash_count, uint32_t ifu_psram_count){
-	IFDEF(CONFIG_COUNTER, performance_count(ebreak, ifu_count, lsu_count, i_type_count, s_type_count, u_type_count, b_type_count, r_type_count, j_type_count, c_type_count, w_type_count, ifu_clk_count_h << 32 | ifu_clk_count_l, lsu_clk_count_h << 32 | lsu_clk_count_l, ifu_psram_clk_h << 32 | ifu_psram_clk_l, ifu_flash_clk_h << 32 | ifu_flash_clk_l, i_clk, s_clk, u_clk, b_clk, r_clk, j_clk, c_clk, w_clk, backend_clk_h << 32 | backend_clk_l, ifu_flash_count, ifu_psram_count));
+extern "C" void set_npc_state(int ebreak, uint32_t ifu_count, uint32_t lsu_count, uint32_t i_type_count, uint32_t s_type_count, uint32_t u_type_count, uint32_t b_type_count, uint32_t r_type_count, uint32_t j_type_count, uint32_t c_type_count, uint32_t w_type_count, uint32_t ifu_clk_count_h, uint32_t ifu_clk_count_l, uint32_t lsu_clk_count_h, uint32_t lsu_clk_count_l, uint32_t ifu_psram_clk_h, uint32_t ifu_psram_clk_l, uint32_t ifu_flash_clk_h, uint32_t ifu_flash_clk_l, uint32_t i_clk, uint32_t s_clk, uint32_t u_clk, uint32_t b_clk, uint32_t r_clk, uint32_t j_clk, uint32_t c_clk, uint32_t w_clk, uint32_t backend_clk_h, uint32_t backend_clk_l, uint32_t ifu_flash_count, uint32_t ifu_psram_count, uint32_t icache_count, uint32_t icache_miss_count, uint32_t access_time_h, uint32_t access_time_l, uint32_t miss_penalty_h, uint32_t miss_penalty_l){
+	IFDEF(CONFIG_COUNTER, performance_count(ebreak, ifu_count, lsu_count, i_type_count, s_type_count, u_type_count, b_type_count, r_type_count, j_type_count, c_type_count, w_type_count, ifu_clk_count_h << 32 | ifu_clk_count_l, lsu_clk_count_h << 32 | lsu_clk_count_l, ifu_psram_clk_h << 32 | ifu_psram_clk_l, ifu_flash_clk_h << 32 | ifu_flash_clk_l, i_clk, s_clk, u_clk, b_clk, r_clk, j_clk, c_clk, w_clk, backend_clk_h << 32 | backend_clk_l, ifu_flash_count, ifu_psram_count, icache_count, icache_miss_count, access_time_h << 32 | access_time_l, miss_penalty_h << 32 | miss_penalty_l));
 	if(ebreak){
 		npc_state.state = NPC_END;
 		check_state();

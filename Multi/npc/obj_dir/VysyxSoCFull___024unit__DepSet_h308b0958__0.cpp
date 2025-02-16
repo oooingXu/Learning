@@ -35,9 +35,9 @@ VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_flash_read_TOP____024uni
     data = data__Vcvt;
 }
 
-extern "C" void set_npc_state(int ebreak, int ifu_count, int lsu_count, int i_type_count, int s_type_count, int u_type_count, int b_type_count, int r_type_count, int j_type_count, int c_type_count, int w_type_count, int ifu_clk_count_h, int ifu_clk_count_l, int lsu_clk_count_h, int lsu_clk_count_l, int ifu_psram_clk_h, int ifu_psram_clk_l, int ifu_flash_clk_h, int ifu_flash_clk_l, int i_clk, int s_clk, int u_clk, int b_clk, int r_clk, int j_clk, int c_clk, int w_clk, int backend_clk_h, int backend_clk_l, int ifu_flash_count, int ifu_psram_count);
+extern "C" void set_npc_state(int ebreak, int ifu_count, int lsu_count, int i_type_count, int s_type_count, int u_type_count, int b_type_count, int r_type_count, int j_type_count, int c_type_count, int w_type_count, int ifu_clk_count_h, int ifu_clk_count_l, int lsu_clk_count_h, int lsu_clk_count_l, int ifu_psram_clk_h, int ifu_psram_clk_l, int ifu_flash_clk_h, int ifu_flash_clk_l, int i_clk, int s_clk, int u_clk, int b_clk, int r_clk, int j_clk, int c_clk, int w_clk, int backend_clk_h, int backend_clk_l, int ifu_flash_count, int ifu_psram_count, int icache_count, int icache_miss_count, int access_time_h, int access_time_l, int miss_penalty_h, int miss_penalty_l);
 
-VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit(IData/*31:0*/ ebreak, IData/*31:0*/ ifu_count, IData/*31:0*/ lsu_count, IData/*31:0*/ i_type_count, IData/*31:0*/ s_type_count, IData/*31:0*/ u_type_count, IData/*31:0*/ b_type_count, IData/*31:0*/ r_type_count, IData/*31:0*/ j_type_count, IData/*31:0*/ c_type_count, IData/*31:0*/ w_type_count, IData/*31:0*/ ifu_clk_count_h, IData/*31:0*/ ifu_clk_count_l, IData/*31:0*/ lsu_clk_count_h, IData/*31:0*/ lsu_clk_count_l, IData/*31:0*/ ifu_psram_clk_h, IData/*31:0*/ ifu_psram_clk_l, IData/*31:0*/ ifu_flash_clk_h, IData/*31:0*/ ifu_flash_clk_l, IData/*31:0*/ i_clk, IData/*31:0*/ s_clk, IData/*31:0*/ u_clk, IData/*31:0*/ b_clk, IData/*31:0*/ r_clk, IData/*31:0*/ j_clk, IData/*31:0*/ c_clk, IData/*31:0*/ w_clk, IData/*31:0*/ backend_clk_h, IData/*31:0*/ backend_clk_l, IData/*31:0*/ ifu_flash_count, IData/*31:0*/ ifu_psram_count) {
+VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit(IData/*31:0*/ ebreak, IData/*31:0*/ ifu_count, IData/*31:0*/ lsu_count, IData/*31:0*/ i_type_count, IData/*31:0*/ s_type_count, IData/*31:0*/ u_type_count, IData/*31:0*/ b_type_count, IData/*31:0*/ r_type_count, IData/*31:0*/ j_type_count, IData/*31:0*/ c_type_count, IData/*31:0*/ w_type_count, IData/*31:0*/ ifu_clk_count_h, IData/*31:0*/ ifu_clk_count_l, IData/*31:0*/ lsu_clk_count_h, IData/*31:0*/ lsu_clk_count_l, IData/*31:0*/ ifu_psram_clk_h, IData/*31:0*/ ifu_psram_clk_l, IData/*31:0*/ ifu_flash_clk_h, IData/*31:0*/ ifu_flash_clk_l, IData/*31:0*/ i_clk, IData/*31:0*/ s_clk, IData/*31:0*/ u_clk, IData/*31:0*/ b_clk, IData/*31:0*/ r_clk, IData/*31:0*/ j_clk, IData/*31:0*/ c_clk, IData/*31:0*/ w_clk, IData/*31:0*/ backend_clk_h, IData/*31:0*/ backend_clk_l, IData/*31:0*/ ifu_flash_count, IData/*31:0*/ ifu_psram_count, IData/*31:0*/ icache_count, IData/*31:0*/ icache_miss_count, IData/*31:0*/ access_time_h, IData/*31:0*/ access_time_l, IData/*31:0*/ miss_penalty_h, IData/*31:0*/ miss_penalty_l) {
     VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024unit\n"); );
     // Body
     int ebreak__Vcvt;
@@ -102,7 +102,19 @@ VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_set_npc_state_TOP____024
     for (size_t ifu_flash_count__Vidx = 0; ifu_flash_count__Vidx < 1; ++ifu_flash_count__Vidx) ifu_flash_count__Vcvt = ifu_flash_count;
     int ifu_psram_count__Vcvt;
     for (size_t ifu_psram_count__Vidx = 0; ifu_psram_count__Vidx < 1; ++ifu_psram_count__Vidx) ifu_psram_count__Vcvt = ifu_psram_count;
-    set_npc_state(ebreak__Vcvt, ifu_count__Vcvt, lsu_count__Vcvt, i_type_count__Vcvt, s_type_count__Vcvt, u_type_count__Vcvt, b_type_count__Vcvt, r_type_count__Vcvt, j_type_count__Vcvt, c_type_count__Vcvt, w_type_count__Vcvt, ifu_clk_count_h__Vcvt, ifu_clk_count_l__Vcvt, lsu_clk_count_h__Vcvt, lsu_clk_count_l__Vcvt, ifu_psram_clk_h__Vcvt, ifu_psram_clk_l__Vcvt, ifu_flash_clk_h__Vcvt, ifu_flash_clk_l__Vcvt, i_clk__Vcvt, s_clk__Vcvt, u_clk__Vcvt, b_clk__Vcvt, r_clk__Vcvt, j_clk__Vcvt, c_clk__Vcvt, w_clk__Vcvt, backend_clk_h__Vcvt, backend_clk_l__Vcvt, ifu_flash_count__Vcvt, ifu_psram_count__Vcvt);
+    int icache_count__Vcvt;
+    for (size_t icache_count__Vidx = 0; icache_count__Vidx < 1; ++icache_count__Vidx) icache_count__Vcvt = icache_count;
+    int icache_miss_count__Vcvt;
+    for (size_t icache_miss_count__Vidx = 0; icache_miss_count__Vidx < 1; ++icache_miss_count__Vidx) icache_miss_count__Vcvt = icache_miss_count;
+    int access_time_h__Vcvt;
+    for (size_t access_time_h__Vidx = 0; access_time_h__Vidx < 1; ++access_time_h__Vidx) access_time_h__Vcvt = access_time_h;
+    int access_time_l__Vcvt;
+    for (size_t access_time_l__Vidx = 0; access_time_l__Vidx < 1; ++access_time_l__Vidx) access_time_l__Vcvt = access_time_l;
+    int miss_penalty_h__Vcvt;
+    for (size_t miss_penalty_h__Vidx = 0; miss_penalty_h__Vidx < 1; ++miss_penalty_h__Vidx) miss_penalty_h__Vcvt = miss_penalty_h;
+    int miss_penalty_l__Vcvt;
+    for (size_t miss_penalty_l__Vidx = 0; miss_penalty_l__Vidx < 1; ++miss_penalty_l__Vidx) miss_penalty_l__Vcvt = miss_penalty_l;
+    set_npc_state(ebreak__Vcvt, ifu_count__Vcvt, lsu_count__Vcvt, i_type_count__Vcvt, s_type_count__Vcvt, u_type_count__Vcvt, b_type_count__Vcvt, r_type_count__Vcvt, j_type_count__Vcvt, c_type_count__Vcvt, w_type_count__Vcvt, ifu_clk_count_h__Vcvt, ifu_clk_count_l__Vcvt, lsu_clk_count_h__Vcvt, lsu_clk_count_l__Vcvt, ifu_psram_clk_h__Vcvt, ifu_psram_clk_l__Vcvt, ifu_flash_clk_h__Vcvt, ifu_flash_clk_l__Vcvt, i_clk__Vcvt, s_clk__Vcvt, u_clk__Vcvt, b_clk__Vcvt, r_clk__Vcvt, j_clk__Vcvt, c_clk__Vcvt, w_clk__Vcvt, backend_clk_h__Vcvt, backend_clk_l__Vcvt, ifu_flash_count__Vcvt, ifu_psram_count__Vcvt, icache_count__Vcvt, icache_miss_count__Vcvt, access_time_h__Vcvt, access_time_l__Vcvt, miss_penalty_h__Vcvt, miss_penalty_l__Vcvt);
 }
 
 extern "C" void sram_read(int araddr, int arvalid, int arready, int arsize, int awaddr, int wdata, int awvalid, int awready, int wstrb);
@@ -129,32 +141,4 @@ VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_sram_read_TOP____024unit
     int wstrb__Vcvt;
     for (size_t wstrb__Vidx = 0; wstrb__Vidx < 1; ++wstrb__Vidx) wstrb__Vcvt = wstrb;
     sram_read(araddr__Vcvt, arvalid__Vcvt, arready__Vcvt, arsize__Vcvt, awaddr__Vcvt, wdata__Vcvt, awvalid__Vcvt, awready__Vcvt, wstrb__Vcvt);
-}
-
-extern "C" int pmem_read(int araddr);
-
-VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_pmem_read_TOP____024unit(IData/*31:0*/ araddr, IData/*31:0*/ &pmem_read__Vfuncrtn) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_pmem_read_TOP____024unit\n"); );
-    // Body
-    int araddr__Vcvt;
-    for (size_t araddr__Vidx = 0; araddr__Vidx < 1; ++araddr__Vidx) araddr__Vcvt = araddr;
-    int pmem_read__Vfuncrtn__Vcvt;
-    pmem_read__Vfuncrtn__Vcvt = pmem_read(araddr__Vcvt);
-    pmem_read__Vfuncrtn = pmem_read__Vfuncrtn__Vcvt;
-}
-
-extern "C" int pmem_write(int awaddr, int wdata, int wstrb);
-
-VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_pmem_write_TOP____024unit(IData/*31:0*/ awaddr, IData/*31:0*/ wdata, IData/*31:0*/ wstrb, IData/*31:0*/ &pmem_write__Vfuncrtn) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_pmem_write_TOP____024unit\n"); );
-    // Body
-    int awaddr__Vcvt;
-    for (size_t awaddr__Vidx = 0; awaddr__Vidx < 1; ++awaddr__Vidx) awaddr__Vcvt = awaddr;
-    int wdata__Vcvt;
-    for (size_t wdata__Vidx = 0; wdata__Vidx < 1; ++wdata__Vidx) wdata__Vcvt = wdata;
-    int wstrb__Vcvt;
-    for (size_t wstrb__Vidx = 0; wstrb__Vidx < 1; ++wstrb__Vidx) wstrb__Vcvt = wstrb;
-    int pmem_write__Vfuncrtn__Vcvt;
-    pmem_write__Vfuncrtn__Vcvt = pmem_write(awaddr__Vcvt, wdata__Vcvt, wstrb__Vcvt);
-    pmem_write__Vfuncrtn = pmem_write__Vfuncrtn__Vcvt;
 }
