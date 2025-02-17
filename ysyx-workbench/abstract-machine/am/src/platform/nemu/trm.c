@@ -30,11 +30,11 @@ void halt(int code) {
 }
 
 extern void _trm_init() {
-	uint32_t mvendodir, marchid;
-	asm volatile("csrr %0, mvendorid" : "=r"(mvendodir));
-	asm volatile("csrr %0, marchid" : "=r"(marchid));
-	printf("mvendodir = %d\n",mvendodir);
-	printf("marchid = %d\n",marchid);
+	//uint32_t mvendodir, marchid;
+	//asm volatile("csrr %0, mvendorid" : "=r"(mvendodir));
+	//asm volatile("csrr %0, marchid" : "=r"(marchid));
+	//printf("mvendodir = %d\n",mvendodir);
+	//printf("marchid = %d\n",marchid);
 
   int ret = main(mainargs);
   halt(ret);

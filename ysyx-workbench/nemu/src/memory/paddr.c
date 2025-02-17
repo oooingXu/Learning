@@ -28,7 +28,7 @@ uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static uint8_t psram[PSRAM_SIZE];
-static uint8_t* p_guest_to_host(paddr_t paddr) { return psram + paddr - PSRAM_BASE; }
+uint8_t* p_guest_to_host(paddr_t paddr) { return psram + paddr - PSRAM_BASE; }
 
 static uint8_t sram[SRAM_SIZE];
 static uint8_t* s_guest_to_host(paddr_t paddr) { return sram + paddr - SRAM_BASE; }

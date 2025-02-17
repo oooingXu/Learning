@@ -20,6 +20,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <generated/autoconf.h>
 #include <macro.h>

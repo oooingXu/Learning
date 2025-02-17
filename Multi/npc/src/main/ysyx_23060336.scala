@@ -11,7 +11,7 @@ class ysyx_23060336 extends Module {
     val master    = new ysyx_23060336_AXI4Master()
     val slave     = new ysyx_23060336_AXI4Slave()
 })
-  val useNPCSim = true
+  val useNPCSim = false 
 
   val ifu     = Module(new ysyx_23060336_IFU(useNPCSim))
   val idu_exu = Module(new ysyx_23060336_IDU_EXU())

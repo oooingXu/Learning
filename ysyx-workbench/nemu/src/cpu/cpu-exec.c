@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include <common.h>
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
@@ -35,6 +36,31 @@ static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
 void device_update();
+
+IFDEF(CONFIG_CACHESIM, FILE *pc_trace_file = NULL);
+
+void cache_sim_start() {
+    const char *dir_path = "/home/romeo/ysyx-workbench/npc/perf";
+    const char *file_name = "pc_trace.bin";
+    char file_path[256];
+
+    // 构造完整的文件路径
+    snprintf(file_path, sizeof(file_path), "%s/%s", dir_path, file_name);
+
+    // 打开文件
+    pc_trace_file = fopen(file_path, "wb");
+    if (!pc_trace_file) {
+        perror("Failed to open pc trace file");
+        exit(1);
+    }
+}
+
+void cache_sim_end() {
+    if (pc_trace_file) {
+        fclose(pc_trace_file);
+        pc_trace_file = NULL;
+    }
+}
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
@@ -70,6 +96,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
+	IFDEF(CONFIG_CACHESIM, if (pc_trace_file) fwrite(&pc, sizeof(pc), 1, pc_trace_file);)
   s->pc = pc;
   s->snpc = pc;
   isa_exec_once(s);
@@ -145,7 +172,11 @@ void cpu_exec(uint64_t n) {
 
   uint64_t timer_start = get_time();
 
+	IFDEF(CONFIG_CACHESIM, cache_sim_start());
+
   execute(n);
+
+	IFDEF(CONFIG_CACHESIM, cache_sim_end());
 
   uint64_t timer_end = get_time();
   g_timer += timer_end - timer_start;

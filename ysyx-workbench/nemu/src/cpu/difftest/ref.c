@@ -20,15 +20,12 @@
 
 #define R 16
 
-#define MEPC		0x341
-#define MTVEC		0x305
-#define MCAUSE	0x342
-#define MSTATUS 0x300
-
-__EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
+__EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, int direction) {
 	if(addr != 0){
 		if( direction == DIFFTEST_TO_REF) {
 			memcpy(guest_to_host(addr), buf, n);
+		} else if(direction == DIFFTEST_TO_NPC) {
+			memcpy(p_guest_to_host(addr), buf, n);
 		} else {
 			assert(0);
 		}

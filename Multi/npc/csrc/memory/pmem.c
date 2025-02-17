@@ -140,7 +140,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 
 	if(addr >= 0x00000000 && addr <= 0x0fffffff){
 		*data = host_read(guest_to_host(addr));
-		IFDEF(CONFIG_FMTRACE, printf("flash_read guest_addr = 0x%08x, addr = 0x%08x, data = 0x%08x\n", guest_to_host(addr), addr, *data));
+		IFDEF(CONFIG_FMTRACE, printf("(npc)  flash READ: addr = 0x%08x, data = 0x%08x\n", addr, *data));
 		return;
 	} else {
 		*data = mmio_read(addr);

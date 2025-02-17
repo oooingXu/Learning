@@ -3,6 +3,9 @@
 
 #define SYNC_ADDR (VGACTL_ADDR + 4)
 
+#define W 400
+#define H 300
+
 void __am_gpu_init() {
 	int w = io_read(AM_GPU_CONFIG).width;
 	int h = io_read(AM_GPU_CONFIG).height;
@@ -15,7 +18,7 @@ void __am_gpu_init() {
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
   *cfg = (AM_GPU_CONFIG_T) {
     .present = true, .has_accel = false,
-    .width = 400, .height = 300,
+    .width = W, .height = H,
     .vmemsz = 0
   };
 }

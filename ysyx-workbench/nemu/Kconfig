@@ -194,6 +194,11 @@ config WATCHPOINT
 	bool "Enable watchpoint"
 	default n
 
+config CACHESIM
+	depends on TRACE
+	bool "cache sim"
+	default n
+
 config BATCH
 	depends on TRACE
 	bool "Enable batch"

@@ -53,17 +53,19 @@ void init_map() {
 }
 
 word_t map_read(paddr_t addr, int len, IOMap *map) {
-	IFDEF(CONFIG_DTRACE, printf("name = %s, addr = 0x%08x\n", map->name, addr));
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, false); // prepare data to read
   word_t ret = host_read(map->space + offset, len);
+	IFDEF(CONFIG_DEVICE, if(addr == CONFIG_SERIAL_MMIO + 0x5) ret |= 0x20);
+
+	IFDEF(CONFIG_DTRACE, printf("(nemu) map_read: name = %s, addr = 0x%08x, data = 0x%08x\n", map->name, addr, ret));
   return ret;
 }
 
 void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
-	IFDEF(CONFIG_DTRACE, printf("name = %s, addr = 0x%08x, data = 0x%08x\n", map->name, addr, data));
+	IFDEF(CONFIG_DTRACE, printf("(nemu) map_write: name = %s, addr = 0x%08x, data = 0x%08x, low = 0x%08x, high = 0x%08x\n", map->name, addr, data, map->low, map->high));
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);
   paddr_t offset = addr - map->low;

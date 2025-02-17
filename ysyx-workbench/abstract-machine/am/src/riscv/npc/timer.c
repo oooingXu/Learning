@@ -1,6 +1,5 @@
 #include <am.h>
-
-#define RTC_ADDR 0xa0000048
+#include <npc.h>
 
 static uint64_t bool_time = 0;
 

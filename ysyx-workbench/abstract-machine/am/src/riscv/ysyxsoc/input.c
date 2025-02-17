@@ -30,9 +30,9 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
 void __am_input_uart(AM_UART_RX_T *uart)
 {
 	char data = inb(UART_RX);
-	if(data == 0xff) {
-		uart->data = 0xff;
-	} else {
+	if(data != 0xff) {
 		uart->data = data;
+	} else {
+		uart->data = 0xff;
 	}
 }

@@ -72,10 +72,10 @@ SECTIONS {
 	_bss_size = _ebss - _bss;
 
   _heap_start = ALIGN(0x1000);
-  _heap_end = ORIGIN(psram) + LENGTH(psram) - 0x4;
+  _heap_end = ORIGIN(psram) + LENGTH(psram);
 
   _stack_top = ORIGIN(sram);
-	. = _stack_top + LENGTH(sram) - 0x4;
+	. = _stack_top + LENGTH(sram);
   _stack_pointer = .;
 	_stack_end = .;
 }
