@@ -19,7 +19,7 @@ static int cmd_q(char args[]) {
 static int cmd_si(char args[]) {
 	int n;
 	if(args[0] == '\0'){
-		n = 1;
+		n = 2;
 	}
 	else{
 		sscanf(args,"%d", &n);

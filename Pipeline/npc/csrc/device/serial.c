@@ -12,18 +12,22 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-//#include "../../abstract-machine/am/include/am.h"
-#include "../include/utils.h"
-#include "map.h"
+#include <common.h>
+#include <utils.h>
+#include <map.h>
 
 /* http://en.wikibooks.org/wiki/Serial_Programming/8250_UART_Programming */
 // NOTE: this is compatible to 16550
 
+#ifdef CONFIG_DEVICE
 #define CH_OFFSET 0
 
 static uint8_t *serial_base = NULL;
 
+char tmp = 0;
+
 static void serial_putc(char ch) {
+	//printf("cpu: pc = 0x%08x, dnpc = 0x%08x, valid = %d\n", cpu.pc, cpu.dnpc, cpu.valid);
   MUXDEF(CONFIG_TARGET_AM, putch(ch), putc(ch, stderr));
 }
 
@@ -41,6 +45,7 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
 
 void init_serial() {
   serial_base = new_space(8);
-  add_mmio_map("serial", SERIAL_MMIO, serial_base, 8, serial_io_handler);
+  add_mmio_map("serial", CONFIG_SERIAL_MMIO, serial_base, 8, serial_io_handler);
 
 }
+#endif

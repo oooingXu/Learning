@@ -1,0 +1,81 @@
+package npc
+
+import chisel3._
+import chisel3.util._
+
+class ysyx_23060336_IFU(useNPCSim: Boolean) extends Module{
+  val io = IO(new Bundle{
+    val out           = Decoupled(new IFU_IDU_DATA())
+    val axi           = new ysyx_23060336_AXI4Master()
+    val dnpc          = Input(UInt(32.W))
+    val exu_valid     = Input(Bool())
+    val isRAW_control = Input(Bool())
+  })
+
+  val npc = if(useNPCSim) {
+    "h80000000".U(32.W)
+  } else {
+    "h30000000".U(32.W)
+  }
+  val PC    = RegInit(npc)
+  val finst = RegInit(0.U(32.W))
+  val araddr = Wire(UInt(32.W))
+
+  val s_idle :: s_wait_rvalid :: s_wait_ready :: s_wait_control :: s_wait_control_rvalid :: s_begin :: s_wait_exu_valid :: Nil = Enum(7)
+  val state = RegInit(s_begin)
+  state := MuxLookup(state, s_idle)(List(
+    s_begin               -> Mux(io.axi.arready, s_wait_exu_valid, s_begin),
+    s_wait_exu_valid      -> Mux(io.exu_valid, s_wait_rvalid, s_wait_exu_valid),
+    s_idle                -> Mux(io.axi.arready, Mux(io.axi.rvalid, s_wait_ready, s_wait_rvalid), s_idle),
+    s_wait_rvalid         -> Mux(io.axi.rvalid, Mux(io.isRAW_control, s_wait_control_rvalid, Mux(io.out.ready, s_idle, s_wait_ready)), s_wait_rvalid),
+    s_wait_control_rvalid -> Mux(io.axi.rvalid, Mux(io.out.ready, s_idle, s_wait_control), s_wait_control_rvalid),
+    s_wait_control        -> Mux(io.out.ready, s_idle, s_wait_control),
+    s_wait_ready          -> Mux(io.isRAW_control, s_wait_control_rvalid, Mux(io.out.ready, s_idle, s_wait_ready))
+  ))
+
+  io.out.valid := ((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid && io.out.ready)) && !io.isRAW_control) || (state === s_wait_control_rvalid && io.axi.rvalid && io.out.ready) || (state === s_wait_control) || (state === s_wait_exu_valid && io.axi.rvalid)
+
+  io.out.bits.inst := Mux(io.axi.rvalid && io.out.ready, io.axi.rdata, finst)
+  io.out.bits.pc   := PC
+
+  PC := Mux(reset.asBool, npc,      
+        Mux(io.exu_valid && state === s_wait_exu_valid, io.dnpc,
+        Mux((state === s_wait_control_rvalid && io.axi.rvalid) && io.out.ready, PC + 4.U,
+        Mux(state === s_wait_control_rvalid, io.dnpc, 
+        Mux(((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid) || state === s_wait_control) && io.out.ready), PC + 4.U, PC)))))
+
+  araddr  := Mux(reset.asBool, npc, 
+                    Mux(state === s_begin, PC, 
+                    Mux(state === s_wait_control_rvalid, io.dnpc, 
+                    Mux(state === s_wait_exu_valid && io.exu_valid, io.dnpc, PC)))) 
+
+  io.axi.araddr  := Mux(io.axi.arvalid, araddr, 0.U)
+  io.axi.rready  := state === s_idle || state === s_wait_rvalid || state === s_wait_exu_valid || state === s_wait_rvalid || state === s_wait_control_rvalid
+  io.axi.arvalid := Mux(reset.asBool, false.B, state === s_idle || state === s_begin || state === s_wait_control_rvalid || (state === s_wait_exu_valid && io.exu_valid)) 
+  io.axi.awvalid := false.B
+  io.axi.awaddr  := 0.U
+  io.axi.awid    := "h1".U
+  io.axi.awlen   := "h0".U
+  io.axi.awsize  := "h3".U
+  io.axi.awburst := "h1".U
+  io.axi.wvalid  := false.B
+  io.axi.wdata   := 0.U
+  io.axi.wstrb   := "b11".U
+  io.axi.wlast   := false.B
+  io.axi.bready  := false.B
+  io.axi.arid    := "h1".U
+  io.axi.arlen   := "h0".U
+  io.axi.arsize  := "h2".U
+  io.axi.arburst := "h1".U
+
+  when(io.axi.rvalid) {
+    finst := io.axi.rdata
+  }
+
+  val ifu_counter = Module(new IFU_COUNTER())
+  ifu_counter.io.clock   := clock
+  ifu_counter.io.state   := state
+  ifu_counter.io.araddr  := io.axi.araddr
+  ifu_counter.io.arvalid := io.axi.arvalid
+}
+

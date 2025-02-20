@@ -8,28 +8,81 @@ include $(NPC_HOME)/scripts/config.mk
 # Include files for cpp or c
 -include $(NPC_HOME)/scripts/build.mk
 
+# rules for NVBoard
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
+ifdef CONFIG_SOC
+TOP_NAME = ysyxSoCFull
+endif
+
+ifdef CONFIG_NPC
 TOP_NAME = ysyx_23060336
+endif
+
+CPU_NAME = ysyx_23060336
 VERILATOR = verilator
 PRJ = playground
+NXDC_FILES = constr/top.nxdc
+MICROBENCH = microbench-riscv32e-ysyxsoc.bin
+INC_PATH ?=
 
 BUILD_DIR = ./build
 OBJ = ./obj_dir
 VSRC = ./vsrc
+SOC_HOME = $(NPC_HOME)/../ysyxSoC
+PERF = ./perf
+PERF_REF = $(PERF)/$(TOP_NAME)
+PERF_BIN = $(PERF)/$(MICROBENCH)
+CACHESIM = $(PERF)/cachesim
+CACHESIM_BIN = $(PERF)/pc_trace.bin
+BIN = $(BUILD_DIR)/$(TOP_NAME)
+
+default: $(BIN)
+
+$(shell mkdir -p $(BUILD_DIR))
 
 VERILATOR_CFLAGS += $(shell llvm-config --cflags) 
 VERILATOR_CFLAGS += $(shell sdl2-config --cflags) 
 VERILATOR_CFLAGS += -MMD --build --cc --trace-fst\
 									 	-O3 --x-assign fast --x-initial fast\
-									 	--exe -Wno-DECLFILENAME --noassert
+									 	--exe -Wno-DECLFILENAME\
+										--timescale "1ns/1ns" --no-timing\
+										--assert --autoflush 
 
-NPC = $(NPC_HOME)/csrc/$(TOP_NAME).cpp
-SIM = $(abspath ./vsrc/$(TOP_NAME).sv)
+ifdef CONFIG_SOC
+# constraint file
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+$(SRC_AUTO_BIND): $(NXDC_FILES)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
+endif
+
+NPC = $(NPC_HOME)/csrc/$(CPU_NAME).cpp
+ifdef CONFIG_SOC
+VSRCS += $(SOC_HOME)/build/ysyxSoCFull.v
+VSRCS += $(shell find $(SOC_HOME)/perip -name "*.v")
+endif
+VSRCS += $(abspath $(NPC_HOME)/vsrc/$(CPU_NAME).sv)
+CSRCS += $(SRC_AUTO_BIND)
+CSRCS += $(NPC)
+
+INVFLAGS += -I$(SOC_HOME)/perip/uart16550/rtl
+INVFLAGS += -I$(SOC_HOME)/perip/spi/rtl
+
+INCFLAGS = $(addprefix -I, $(INC_PATH))
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\""
+
+$(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+	@rm -rf $(OBJ)
+	$(VERILATOR) $(VERILATOR_CFLAGS) \
+		-top-module $(TOP_NAME) $^ \
+	 	$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
+		$(INVFLAGS) --exe -o $(abspath $(BIN))
+
+all: default
 
 # rules for verilator
-sim:
+sim: $(BIN)
 	$(call git_commit, "sim RTL")
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(SIM) $(INCFLAGS) $(CSRCS) $(NPC) 
-	$(MAKE) -C $(OBJ) -f V$(TOP_NAME).mk 
 
 test:
 	mill -i $(PRJ).test
@@ -49,11 +102,15 @@ reformat:
 checkformat:
 	mill -i __.checkFormat
 
-run: $(BIN)
-	@$^
-
 wave:
 	gtkwave waveform.*
+
+perf:
+	$(PERF_REF) $(PERF_BIN)
+
+cachesim:
+	@gcc $(CACHESIM).c -o $(CACHESIM)
+	@$(CACHESIM) $(CACHESIM_BIN)
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -62,10 +119,9 @@ clean:
 	rm -f waveform.*
 
 cleansim:
-	rm -rf $(OBJ)
+	rm -rf performance_trace.csv $(OBJ) $(BUILD_DIR)
 
-.PHONY:	default all	run test verilog help reformat checkformat clean sim wave cleansim
+.PHONY:	default all	run test verilog help reformat checkformat clean sim wave cleansim perf cachesim
 
 include ../Makefile
-#include $(AM_HOME)/Makefile
 

@@ -8,8 +8,7 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-	int len = (sizeof(regs) / sizeof(regs[0]));
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < R; i++) {
 		printf("%-3s --->  0x%x\n",regs[i],cpu.gpr[i]);
 	}
 	printf("\ncsr\n");
@@ -18,16 +17,12 @@ void isa_reg_display() {
 	printf("mstatus ---> 0x%08x\n", cpu.mstatus);
 	printf("mcause	---> 0x%08x\n", cpu.mcause);
 	printf("\n");
-	for(int i = 0; i < 4096; i++){
-		if(cpu.csr[i]) printf("%x 0x%08x\n", i, cpu.csr[i]);
-	}
 }
 
 uint32_t isa_reg_str2val(const char *s, bool *success) {
-	int len = (sizeof(regs) / sizeof(regs[0]));
 	const char *s1 = (s[0] == '$' ? s + 1 : s);
 	int cmp = strcmp(s1,"pc");
-	for(int i = 0; i < len; i++) {
+	for(int i = 0; i < R; i++) {
 		int compare = strcmp(s1,regs[i]);
 		if( compare == 0){
 			*success = true;

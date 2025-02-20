@@ -1,5 +1,6 @@
 menuconfig DEVICE
   bool "Devices"
+	depends on NPC
   default y
   help
     Provide device support for NPC.
@@ -13,7 +14,7 @@ menuconfig HAS_SERIAL
 if HAS_SERIAL
 config SERIAL_MMIO
   hex "MMIO address of the serial controller"
-  default 0xa00003f8
+  default 0x10000000
 
 config SERIAL_INPUT_FIFO
   bool "Enable input FIFO with /tmp/nemu.serial"
@@ -27,7 +28,7 @@ menuconfig HAS_TIMER
 if HAS_TIMER
 config RTC_MMIO
   hex "MMIO address of the timer"
-  default 0xa0000048
+  default 0x02000000
 endif # HAS_TIMER
 
 menuconfig HAS_KEYBOARD
@@ -37,7 +38,7 @@ menuconfig HAS_KEYBOARD
 if HAS_KEYBOARD
 config I8042_DATA_MMIO
   hex "MMIO address of the keyboard controller"
-  default 0xa0000060
+  default 0x10011000
 endif # HAS_KEYBOARD
 
 menuconfig HAS_VGA
@@ -46,11 +47,11 @@ menuconfig HAS_VGA
 if HAS_VGA
 config FB_ADDR
   hex "Physical address of the VGA frame buffer"
-  default 0xa1000000
+  default 0x21000010
 
 config VGA_CTL_MMIO
   hex "MMIO address of the VGA controller"
-  default 0xa0000100
+  default 0x21000000
 
 config VGA_SHOW_SCREEN
   bool "Enable SDL SCREEN"
@@ -87,7 +88,7 @@ endif # HAS_AUDIO
 
 menuconfig HAS_DISK
   bool "Enable disk"
-  default y
+  default n
 
 if HAS_DISK
 config DISK_CTL_MMIO

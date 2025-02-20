@@ -1,5 +1,14 @@
 mainmenu "ysyx_23060336 Configuration Menu"
 
+menu "ISA-dependent Options for riscv"
+config NPC
+	bool "riscv32e-npc"
+	default n
+config SOC
+	bool "riscv32e-ysyxsoc"
+	default y
+endmenu
+
 choice
 	prompt "Running mode"
 	default MODE_SYSTEM
@@ -98,6 +107,31 @@ config MTRACE
 	bool "Enable instruction mtracer"
 	default n
 
+config SMTRACE
+	depends on MTRACE
+	bool "Enable instruction sramtracer"
+	default n
+
+config PMTRACE
+	depends on MTRACE
+	bool "Enable instruction psramtracer"
+	default n
+
+config FMTRACE
+	depends on MTRACE
+	bool "Enable instruction flashtrace"
+	default n
+
+config COUNTER
+	depends on TRACE
+	bool "Enable instruction performance counter"
+	default y
+
+config PCOUNTER
+	depends on COUNTER
+	bool "Enable instruction performance counter"
+	default n
+
 config DTRACE
 	depends on TRACE
 	bool "Enable instruction dtracer"
@@ -111,11 +145,6 @@ config FTRACE
 config RTRACE
 	depends on TRACE
 	bool "Enable instruction rtracer"
-	default n
-
-config PTRACE
-	depends on TRACE
-	bool "Enable instruction ptracer"
 	default n
 
 config CTRACE
@@ -132,6 +161,12 @@ config DIFFTEST
  depends on TRACE
  bool "Enable instruction difftest"
  default n
+
+config PTRACE
+	depends on DIFFTEST
+	bool "Enable instruction ptracer"
+	default n
+
 endmenu
 
 if MODE_SYSTEM

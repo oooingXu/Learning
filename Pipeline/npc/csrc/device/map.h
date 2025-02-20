@@ -7,8 +7,24 @@
 #define TIMER_HZ 60
 
 #define DEVICE_BASE 0xa0000000
-#define RTC_MMIO (DEVICE_BASE + 0x00000048)
-#define SERIAL_MMIO (DEVICE_BASE + 0x000003f8)
+
+#define UART_START	(0x10000000)
+#define UART_END		(0x10000fff)
+
+#define CLINT_START	(0x02000000)
+#define CLINT_END		(0x0200ffff)
+
+#define GPIO_START	(0x10002000)
+#define GPIO_END		(0x1000200f)
+
+#define KBD_START		(0x10011000)
+#define KBD_END			(0x10011007)
+
+#define VGA_START		(0x21000000)
+#define VGA_END			(0x211fffff)
+
+#define CHIPL_START (0xc0000000)
+#define CHIPL_END		(0xffffffff)
 
 typedef void(*io_callback_t)(uint32_t, int, bool);
 uint8_t* new_space(int size);
