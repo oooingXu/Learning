@@ -76,14 +76,16 @@ parameter _spi_master = 4'd0;
 parameter spi_addr_start = 32'h10001000;
 parameter spi_addr_end = 32'h10001fff;
 
-parameter xip_tx		 = 4'd1;
-parameter xip_divider= 4'd2;
-parameter xip_ss		 = 4'd3;
-parameter xip_ctrl_w = 4'd4;
-parameter xip_ctrl_r = 4'd5;
-parameter xip_rx		 = 4'd6;
-parameter xip_ss_re	 = 4'd7;
-parameter wait_en_sel= 4'd8;
+parameter xip_tx        = 4'd1;
+parameter xip_divider   = 4'd2;
+parameter xip_ss        = 4'd3;
+parameter xip_ctrl_w    = 4'd4;
+parameter xip_ctrl_r    = 4'd5;
+parameter xip_rx        = 4'd6;
+parameter xip_ss_re     = 4'd7;
+parameter wait_en_sel   = 4'd8;
+parameter xip_ctrl_intr = 4'd9;
+parameter xip_ctrl_go_bsy = 4'd10;
 
 reg [31:0] pwdata, paddr, rdata;
 reg [3:0]	 pstrb;
@@ -96,7 +98,7 @@ wire				spi_check;
 wire [3:0]  fstrb;
 wire [31:0] prdata, faddr, fwdata;
 
-assign in_pready = state == wait_en_sel;
+assign in_pready = state == xip_ss_re && pready;
 assign in_prdata = (state == _spi_master) ? prdata : reverse_bytes(rdata);
 assign spi_check = ((state == _spi_master) && (in_paddr >= spi_addr_start) && (in_paddr <= spi_addr_end));
 
@@ -126,9 +128,10 @@ always@(posedge clock) begin
 		end
 			
 		xip_divider:begin
+			//state <= (pready	? xip_ss : xip_divider);
 			state <= (pready	? xip_ss : xip_divider);
 			paddr   <= _spi_base + _spi_divider;
-			pwdata  <= 32'h00000005;
+			pwdata  <= 32'h00000000;
 			psel    <= pready ? 1'b0 : 1'b1;
 			pwrite  <= pready ? 1'b0 : 1'b1;
 			penable <= pready ? 1'b0 : ((psel == 1'b1 && pwrite == 1'b1) ? 1'b1 : 1'b0);
@@ -144,17 +147,34 @@ always@(posedge clock) begin
 			penable <= pready ? 1'b0 : ((psel == 1'b1 && pwrite == 1'b1) ? 1'b1 : 1'b0);
 			pstrb   <= pready ? 4'h0 : 4'hf;
 		end
-		
+
 		xip_ctrl_w:begin
-			state <= (pready ? xip_ctrl_r : xip_ctrl_w);
+			//state <= (pready ? xip_ctrl_r : xip_ctrl_w);
+			state <= (pready ? xip_ctrl_go_bsy : xip_ctrl_w);
 			paddr   <= _spi_base + _spi_ctrl;
-			pwdata  <= 32'h00000d40;
+			pwdata  <= 32'h00000c40 | 32'h00001000| 32'h00002000;
+			psel    <= pready ? 1'b0 : 1'b1;
+			pwrite  <= pready ? 1'b0 : 1'b1;
+			penable <= pready ? 1'b0 : ((psel == 1'b1 && pwrite == 1'b1) ? 1'b1 : 1'b0);
+			pstrb   <= pready ? 4'h0 : 4'hf;
+		end
+		
+		xip_ctrl_go_bsy :begin
+			//state <= (pready ? xip_ctrl_r : xip_ctrl_w);
+			state <= (pready ? xip_ctrl_intr : xip_ctrl_go_bsy);
+			paddr   <= _spi_base + _spi_ctrl;
+			pwdata  <= 32'h00000d40 | 32'h00001000| 32'h00002000;
 			psel    <= pready ? 1'b0 : 1'b1;
 			pwrite  <= pready ? 1'b0 : 1'b1;
 			penable <= pready ? 1'b0 : ((psel == 1'b1 && pwrite == 1'b1) ? 1'b1 : 1'b0);
 			pstrb   <= pready ? 4'h0 : 4'hf;
 		end
 
+		xip_ctrl_intr: begin
+			state <= spi_irq_out ? xip_rx : xip_ctrl_intr;
+		end
+
+		/*
 		xip_ctrl_r:begin
 			state <= ((pready && !prdata[8]) ? xip_rx : xip_ctrl_r);
 			paddr   <= _spi_base + _spi_ctrl;
@@ -163,6 +183,7 @@ always@(posedge clock) begin
 			penable <= pready ? 1'b0 : ((psel == 1'b1) ? 1'b1 : 1'b0);
 			pstrb   <= 4'h0;
 		end
+		*/
 
 		xip_rx:begin
 			state <= (pready ? xip_ss_re : xip_rx);
@@ -175,7 +196,7 @@ always@(posedge clock) begin
 		end
 
 		xip_ss_re:begin
-			state <= (pready ? wait_en_sel : xip_ss_re);
+			state <= (pready ? _spi_master: xip_ss_re);
 			paddr   <= _spi_base + _spi_ss;
 			pwdata  <= 32'h00000000;
 			psel    <= pready ? 1'b0 : 1'b1;
@@ -183,11 +204,6 @@ always@(posedge clock) begin
 			penable <= pready ? 1'b0 : ((psel == 1'b1 && pwrite == 1'b1) ? 1'b1 : 1'b0);
 			pstrb   <= pready ? 4'h0 : 4'hf;
 		end
-
-		wait_en_sel: begin
-			state <= (!in_penable && !in_psel) ? _spi_master : wait_en_sel;
-		end
-
 
 		default:begin
 			state <= _spi_master;
