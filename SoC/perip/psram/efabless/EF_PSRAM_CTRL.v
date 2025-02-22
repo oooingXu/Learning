@@ -113,7 +113,7 @@ module PSRAM_READER (
             saddr <= {addr[23:0]};
 
     // Sample with the negedge of sck
-    wire[1:0] byte_index = {counter[7:1] - 8'd10}[1:0];
+    wire[1:0] byte_index = {counter[7:1] - 8'd11 }[1:0];
     always @ (posedge clk)
         if(counter >= 14 && counter <= FINAL_COUNT)
             if(sck)
