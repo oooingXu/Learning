@@ -21,37 +21,35 @@ class ysyx_23060336_IFU(useNPCSim: Boolean) extends Module{
   val finst = RegInit(0.U(32.W))
   val araddr = Wire(UInt(32.W))
 
-  val s_idle :: s_wait_rvalid :: s_wait_ready :: s_wait_control :: s_wait_control_rvalid :: s_begin :: s_wait_exu_valid :: Nil = Enum(7)
+  val s_idle :: s_wait_rvalid :: s_wait_ready :: s_wait_control_arready :: s_begin :: s_wait_exu_valid :: Nil = Enum(6)
   val state = RegInit(s_begin)
   state := MuxLookup(state, s_idle)(List(
-    s_begin               -> Mux(io.axi.arready, s_wait_exu_valid, s_begin),
-    s_wait_exu_valid      -> Mux(io.exu_valid, s_wait_rvalid, s_wait_exu_valid),
-    s_idle                -> Mux(io.axi.arready, Mux(io.axi.rvalid, s_wait_ready, s_wait_rvalid), s_idle),
-    s_wait_rvalid         -> Mux(io.axi.rvalid, Mux(io.isRAW_control, s_wait_control_rvalid, Mux(io.out.ready, s_idle, s_wait_ready)), s_wait_rvalid),
-    s_wait_control_rvalid -> Mux(io.axi.rvalid, Mux(io.out.ready, s_idle, s_wait_control), s_wait_control_rvalid),
-    s_wait_control        -> Mux(io.out.ready, s_idle, s_wait_control),
-    s_wait_ready          -> Mux(io.isRAW_control, s_wait_control_rvalid, Mux(io.out.ready, s_idle, s_wait_ready))
+    s_begin                -> Mux(io.axi.arready, s_wait_exu_valid, s_begin),
+    s_wait_exu_valid       -> Mux(io.exu_valid, s_wait_rvalid, s_wait_exu_valid),
+    s_idle                 -> Mux(io.axi.arready, Mux(io.axi.rvalid, s_wait_ready, s_wait_rvalid), s_idle),
+    s_wait_rvalid          -> Mux(io.axi.rvalid, Mux(io.isRAW_control, s_wait_control_arready, Mux(io.out.ready, s_idle, s_wait_ready)), s_wait_rvalid),
+    s_wait_control_arready -> Mux(io.axi.arready, s_wait_exu_valid, s_wait_control_arready),
+    s_wait_ready           -> Mux(io.isRAW_control, s_wait_control_arready, Mux(io.out.ready, s_idle, s_wait_ready))
   ))
 
-  io.out.valid := ((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid && io.out.ready)) && !io.isRAW_control) || (state === s_wait_control_rvalid && io.axi.rvalid && io.out.ready) || (state === s_wait_control) || (state === s_wait_exu_valid && io.axi.rvalid)
+  io.out.valid := ((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid && io.out.ready)) && !io.isRAW_control) || (state === s_wait_control_arready && io.axi.rvalid && io.out.ready) || (state === s_wait_exu_valid && io.axi.rvalid)
 
   io.out.bits.inst := Mux(io.axi.rvalid && io.out.ready, io.axi.rdata, finst)
   io.out.bits.pc   := PC
 
   PC := Mux(reset.asBool, npc,      
         Mux(io.exu_valid && state === s_wait_exu_valid, io.dnpc,
-        Mux((state === s_wait_control_rvalid && io.axi.rvalid) && io.out.ready, PC + 4.U,
-        Mux(state === s_wait_control_rvalid, io.dnpc, 
-        Mux(((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid) || state === s_wait_control) && io.out.ready), PC + 4.U, PC)))))
+        Mux((state === s_wait_control_arready && io.axi.arready), io.dnpc,
+        Mux(((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid)) && io.out.ready), PC + 4.U, PC))))
 
   araddr  := Mux(reset.asBool, npc, 
-                    Mux(state === s_begin, PC, 
-                    Mux(state === s_wait_control_rvalid, io.dnpc, 
-                    Mux(state === s_wait_exu_valid && io.exu_valid, io.dnpc, PC)))) 
+             Mux(state === s_begin, PC, 
+             Mux(state === s_wait_control_arready, io.dnpc, 
+             Mux(state === s_wait_exu_valid && io.exu_valid, io.dnpc, PC)))) 
 
-  io.axi.araddr  := Mux(io.axi.arvalid, araddr, 0.U)
-  io.axi.rready  := state === s_idle || state === s_wait_rvalid || state === s_wait_exu_valid || state === s_wait_rvalid || state === s_wait_control_rvalid
-  io.axi.arvalid := Mux(reset.asBool, false.B, state === s_idle || state === s_begin || state === s_wait_control_rvalid || (state === s_wait_exu_valid && io.exu_valid)) 
+  io.axi.araddr  := araddr
+  io.axi.rready  := state === s_idle || state === s_wait_rvalid || state === s_wait_exu_valid || state === s_wait_rvalid || state === s_wait_control_arready
+  io.axi.arvalid := Mux(reset.asBool, false.B, state === s_idle || state === s_begin || state === s_wait_control_arready || (state === s_wait_exu_valid && io.exu_valid)) 
   io.axi.awvalid := false.B
   io.axi.awaddr  := 0.U
   io.axi.awid    := "h1".U

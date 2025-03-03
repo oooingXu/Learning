@@ -40,8 +40,8 @@ class ysyx_23060336_CSR extends Module{
     }
   }
 
-  io.csr_idu_data.csrdata := Mux(io.csr_idu_data.csr === MEPC, mepc, Mux(io.csr_idu_data.csr === MCAUSE, mcause, Mux(io.csr_idu_data.csr === MSTATUS, mstatus, Mux(io.csr_idu_data.csr === mtvec, MTVEC, 0.U))))
-  io.csr_idu_data.mepc  := mepc
-  io.csr_idu_data.mtvec := mtvec
+  io.csr_idu_data.mepc    := mepc
+  io.csr_idu_data.mtvec   := mtvec
+  io.csr_idu_data.csrdata := Mux(io.csr_idu_data.csr === MEPC, mepc, Mux(io.csr_idu_data.csr === MCAUSE, mcause, Mux(io.csr_idu_data.csr === MSTATUS, mstatus, Mux(io.csr_idu_data.csr === mtvec, MTVEC,Mux(io.csr_idu_data.csr === MVENDORID, mvendorid, Mux(io.csr_idu_data.csr === MARCHID, marchid, 0.U))))))
 }
 

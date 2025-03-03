@@ -25,8 +25,6 @@ class ysyx_23060336_WBU extends Module {
   ebreak.io.clock      := clock
   ebreak.io.ebreak     := io.in.bits.wbu.ebreak
   ebreak.io.instType   := io.in.bits.wbu.instType
-  ebreak.io.in_valid   := io.in.valid
-  ebreak.io.out_valid  := state === s_reg
   ebreak.io.state      := state
 
   // diff pipeline pc/dnpc

@@ -364,5 +364,11 @@ class ysyx_23060336_IDU extends Module{
   io.reg.rs1  := rs1
   io.reg.rs2  := rs2
 
+  // idu <> idu_counter
+  val idu_counter = Module(new IDU_COUNTER())
+  idu_counter.io.clock      := clock
+  idu_counter.io.state      := state
+  idu_counter.io.isRAW_data := isRAW_data
+
 }
 

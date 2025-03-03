@@ -37,6 +37,7 @@ class ysyx_23060336_EXU extends Module {
   io.out.bits.exu.pc   := io.in.bits.pc
   io.out.bits.exu.dnpc := io.dnpc
 
+  // exu <> alu
   ina  := Mux(io.in.bits.AluMux === "b0111".U, io.in.bits.src1,
           Mux(io.in.bits.AluMux === "b0001".U, io.in.bits.src1,
           Mux(io.in.bits.AluMux === "b0010".U, io.in.bits.pc,
@@ -60,6 +61,7 @@ class ysyx_23060336_EXU extends Module {
   alu.io.sel         := io.in.bits.AluSel
   io.out.bits.result := alu.io.result
 
+  // exu <> pc_add
   PCMux := Cat(io.in.bits.branch, io.out.bits.result(0), io.in.bits.pcmux)
 
   pca   := Mux(PCMux === "b0010".U, io.in.bits.src1,
@@ -80,5 +82,11 @@ class ysyx_23060336_EXU extends Module {
   io.exu_rd := io.in.bits.lsu.wbu.rd
   io.exu_valid := state === s_wait_ready
   io.isRAW_control := (io.in.bits.pc + 4.U) =/= io.dnpc
+
+  // exu <> exu_counter
+  val exu_counter = Module(new EXU_COUNTER())
+  exu_counter.io.clock         := clock
+  exu_counter.io.state         := state
+  exu_counter.io.isRAW_control := io.isRAW_control
 
 }

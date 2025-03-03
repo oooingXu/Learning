@@ -44,12 +44,14 @@ class ysyx_23060336_LSU extends Module{
   io.in.ready  := state === s_idle
   io.out.valid := state === s_wait_ready || ((state === s_wait_prepare && prepare) || (state === s_wait_rslave && io.axi.arready && io.axi.rvalid) && io.out.ready)
 
+  // rdata
   rdata_h := Mux(io.in.bits.result(1,0) === 2.U, io.axi.rdata >> 16,
              Mux(io.in.bits.result(1,0) === 0.U, io.axi.rdata, 0.U))
   rdata_b := Mux(io.in.bits.result(1,0) === 3.U, io.axi.rdata >> 24,
              Mux(io.in.bits.result(1,0) === 2.U, io.axi.rdata >> 16,
              Mux(io.in.bits.result(1,0) === 1.U, io.axi.rdata >> 8, io.axi.rdata)))
 
+  // wdata
   wdata_h := Mux(io.in.bits.result(1,0) === 2.U, io.in.bits.lsu.src2 << 16, 
              Mux(io.in.bits.result(1,0) === 0.U, io.in.bits.lsu.src2, 0.U))
   wdata_b := Mux(io.in.bits.result(1,0) === "b11".U, Cat(io.in.bits.lsu.src2(7,0), Fill(24, 0.U)),
@@ -57,6 +59,7 @@ class ysyx_23060336_LSU extends Module{
              Mux(io.in.bits.result(1,0) === "b01".U, Cat(Fill(16, 0.U), io.in.bits.lsu.src2(7,0), Fill(8, 0.U)), Cat(Fill(24, 0.U), io.in.bits.lsu.src2(7,0)))))
 
 
+  // wstrb
   wstrb_h := Mux(io.in.bits.result(1,0) === 2.U, io.in.bits.lsu.wstrb << 2, 
              Mux(io.in.bits.result(1,0) === 0.U, io.in.bits.lsu.wstrb, 0.U))
   wstrb_b := Mux(io.in.bits.result(1,0) === 3.U, io.in.bits.lsu.wstrb << 3, Mux(io.in.bits.result(1,0) === 2.U, io.in.bits.lsu.wstrb << 2, Mux(io.in.bits.result(1,0) === 1.U, io.in.bits.lsu.wstrb << 1, io.in.bits.lsu.wstrb)))
@@ -115,6 +118,11 @@ class ysyx_23060336_LSU extends Module{
 
   // lsu rd <> idu rd
   io.lsu_rd := io.in.bits.lsu.wbu.rd
+
+  // lsu <> lsu_counter
+  val lsu_counter = Module(new LSU_COUNTER())
+  lsu_counter.io.clock := clock
+  lsu_counter.io.state := state
 
 }
 
