@@ -8,33 +8,67 @@ class IFU_IDU_DATA extends Bundle {
   val inst = Output(UInt(32.W))
 }
 
+class IFU_EXU_RAW extends Bundle {
+  val dnpc          = Input(UInt(32.W))
+  val exu_valid     = Input(Bool())
+  val isRAW_control = Input(Bool())
+}
+
+class EXU_IFU_RAW extends Bundle {
+  val dnpc          = Output(UInt(32.W))
+  val exu_valid     = Output(Bool())
+  val isRAW_control = Output(Bool())
+}
+
 class IDU_EXU_DATA extends Bundle {
-  val pc       = Output(UInt(32.W))
-  val src1     = Output(UInt(32.W))
-  val rezimm   = Output(UInt(32.W))
-  val zimm     = Output(UInt(32.W))
-  val rers1    = Output(UInt(32.W))
-  val imm      = Output(UInt(32.W))
-  val mtvec    = Output(UInt(32.W))
-  val mepc     = Output(UInt(32.W))
-  val pcmux    = Output(UInt(2.W))
-  val AluSel   = Output(UInt(4.W))
-  val AluMux   = Output(UInt(4.W))
-  val branch   = Output(Bool())
-  val mret     = Output(Bool())
-  val lsu      = new IDU_LSU_DATA()
+  val pc           = Output(UInt(32.W))
+  val src1         = Output(UInt(32.W))
+  val rezimm       = Output(UInt(32.W))
+  val zimm         = Output(UInt(32.W))
+  val rers1        = Output(UInt(32.W))
+  val imm          = Output(UInt(32.W))
+  val mtvec        = Output(UInt(32.W))
+  val mepc         = Output(UInt(32.W))
+  val pcmux        = Output(UInt(2.W))
+  val AluSel       = Output(UInt(4.W))
+  val AluMux       = Output(UInt(4.W))
+  val branch       = Output(Bool())
+  val mret         = Output(Bool())
+  val idu_lsu_data = new IDU_LSU_DATA()
+}
+
+class IDU_EXU_RAW extends Bundle {
+  val exu_regdata   = Input(UInt(32.W))
+  val exu_rd        = Input(UInt(5.W))
+}
+
+class EXU_IDU_RAW extends Bundle {
+  val exu_regdata   = Output(UInt(32.W))
+  val exu_rd        = Output(UInt(5.W))
 }
 
 class IDU_LSU_DATA extends Bundle {
-  val MemWr    = Output(Bool())
-  val MemtoReg = Output(Bool())
-  val awsize   = Output(UInt(3.W))
-  val arsize   = Output(UInt(3.W))
-  val RegNum   = Output(UInt(3.W))
-  val wstrb    = Output(UInt(4.W))
-  val src2     = Output(UInt(32.W))
-  val csrdata  = Output(UInt(32.W))
-  val wbu      = new IDU_WBU_DATA()
+  val MemWr        = Output(Bool())
+  val MemtoReg     = Output(Bool())
+  val awsize       = Output(UInt(3.W))
+  val arsize       = Output(UInt(3.W))
+  val RegNum       = Output(UInt(3.W))
+  val wstrb        = Output(UInt(4.W))
+  val src2         = Output(UInt(32.W))
+  val csrdata      = Output(UInt(32.W))
+  val idu_wbu_data = new IDU_WBU_DATA()
+}
+
+class IDU_LSU_RAW extends Bundle {
+  val lsu_valid   = Input(Bool())
+  val lsu_rd      = Input(UInt(5.W))
+  val lsu_regdata = Input(UInt(32.W))
+}
+
+class LSU_IDU_RAW extends Bundle {
+  val lsu_valid   = Output(Bool())
+  val lsu_rd      = Output(UInt(5.W))
+  val lsu_regdata = Output(UInt(32.W))
 }
 
 class IDU_WBU_DATA extends Bundle {
@@ -48,10 +82,20 @@ class IDU_WBU_DATA extends Bundle {
   val csr        = Output(UInt(12.W))
 }
 
+class IDU_WBU_RAW extends Bundle {
+  val wbu_rd      = Input(UInt(5.W))
+  val wbu_regdata = Input(UInt(32.W))
+}
+
+class WBU_IDU_RAW extends Bundle {
+  val wbu_rd      = Output(UInt(5.W))
+  val wbu_regdata = Output(UInt(32.W))
+}
+
 class EXU_LSU_DATA extends Bundle {
-  val result = Output(UInt(32.W))
-  val lsu    = new IDU_LSU_DATA()
-  val exu    = new EXU_WBU_DATA()
+  val result       = Output(UInt(32.W))
+  val idu_lsu_data = new IDU_LSU_DATA()
+  val exu_wbu_data = new EXU_WBU_DATA()
 }
 
 class EXU_WBU_DATA extends Bundle {
@@ -60,10 +104,10 @@ class EXU_WBU_DATA extends Bundle {
 }
 
 class LSU_WBU_DATA extends Bundle {
-  val regdata = Output(UInt(32.W))
-  val csrdata = Output(UInt(32.W))
-  val wbu     = new IDU_WBU_DATA()
-  val exu     = new EXU_WBU_DATA()
+  val regdata      = Output(UInt(32.W))
+  val csrdata      = Output(UInt(32.W))
+  val idu_wbu_data = new IDU_WBU_DATA()
+  val exu_wbu_data = new EXU_WBU_DATA()
 }
 
 class IDU_REG_DATA extends Bundle {

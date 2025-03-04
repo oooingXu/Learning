@@ -7,13 +7,13 @@ import chisel3.util.experimental.decode._
 
 class ysyx_23060336_IDU extends Module{
 	val io = IO(new Bundle{
-    val in         = Flipped(Decoupled(new IFU_IDU_DATA()))
-    val out        = Decoupled(new IDU_EXU_DATA())
-    val reg        = new IDU_REG_DATA()
-    val csr        = new IDU_CSR_DATA()
-    val exu_rd     = Input(UInt(5.W))
-    val lsu_rd     = Input(UInt(5.W))
-    val wbu_rd     = Input(UInt(5.W))
+    val ifu_idu_data = Flipped(Decoupled(new IFU_IDU_DATA()))
+    val idu_exu_data = Decoupled(new IDU_EXU_DATA())
+    val idu_reg_data = new IDU_REG_DATA()
+    val idu_csr_data = new IDU_CSR_DATA()
+    val idu_exu_raw  = new IDU_EXU_RAW()
+    val idu_lsu_raw  = new IDU_LSU_RAW()
+    val idu_wbu_raw  = new IDU_WBU_RAW()
 	})
 
   val PcMux = TruthTable(
@@ -190,13 +190,13 @@ class ysyx_23060336_IDU extends Module{
       BitPat("b1100111") -> BitPat("b000"), // I
       BitPat("b1100011") -> BitPat("b010"), // B
       BitPat("b0000011") -> BitPat("b000"), // I
-      BitPat("b0100011") -> BitPat("b001"), // S
-      BitPat("b0010011") -> BitPat("b000"), // I
+      BitPat("b0100011") -> BitPat("b001"), // S store
+      BitPat("b0010011") -> BitPat("b111"), // I load
       BitPat("b0110011") -> BitPat("b101"), // R
       BitPat("b0001111") -> BitPat("b000"), // I
       BitPat("b1110011") -> BitPat("b110")  // I csr
     ),
-  BitPat("b111")) // wrong
+  BitPat("b000")) 
   
   val AluMux1 = TruthTable(
     Map(
@@ -232,6 +232,8 @@ class ysyx_23060336_IDU extends Module{
   BitPat("b0"))
 
   val Imm      = Wire(UInt(32.W))
+  //val src1     = Wire(UInt(32.W))
+  //val src2     = Wire(UInt(32.W))
   val instType = Wire(UInt(4.W))
   val AluSela  = Wire(UInt(4.W))
   val AluSelb  = Wire(UInt(4.W))
@@ -241,19 +243,19 @@ class ysyx_23060336_IDU extends Module{
   val AluMux   = Wire(UInt(4.W))
   val immNum   = Wire(Bool())
 
-  val rd       = io.in.bits.inst(11, 7)
-  val rs1      = io.in.bits.inst(19, 15)
-  val rs2      = io.in.bits.inst(24, 20)
-  val func7    = io.in.bits.inst(31, 25)
-  val func3    = io.in.bits.inst(14, 12)
-  val opcode   = io.in.bits.inst(6, 0)
+  val rd       = io.ifu_idu_data.bits.inst(11, 7)
+  val rs1      = io.ifu_idu_data.bits.inst(19, 15)
+  val rs2      = io.ifu_idu_data.bits.inst(24, 20)
+  val func7    = io.ifu_idu_data.bits.inst(31, 25)
+  val func3    = io.ifu_idu_data.bits.inst(14, 12)
+  val opcode   = io.ifu_idu_data.bits.inst(6, 0)
 
-  val csr    = io.in.bits.inst(31, 20)
-  val immI12 = io.in.bits.inst(31, 20)
-  val immU20 = io.in.bits.inst(31, 12)
-  val immS12 = Cat(io.in.bits.inst(31, 25), io.in.bits.inst(11, 7))
-  val immB13 = Cat(io.in.bits.inst(31), io.in.bits.inst(7), io.in.bits.inst(30, 25), io.in.bits.inst(11, 8), 0.U)
-  val immJ21 = Cat(io.in.bits.inst(31), io.in.bits.inst(19, 12), io.in.bits.inst(20), io.in.bits.inst(30, 21), 0.U)
+  val csr    = io.ifu_idu_data.bits.inst(31, 20)
+  val immI12 = io.ifu_idu_data.bits.inst(31, 20)
+  val immU20 = io.ifu_idu_data.bits.inst(31, 12)
+  val immS12 = Cat(io.ifu_idu_data.bits.inst(31, 25), io.ifu_idu_data.bits.inst(11, 7))
+  val immB13 = Cat(io.ifu_idu_data.bits.inst(31), io.ifu_idu_data.bits.inst(7), io.ifu_idu_data.bits.inst(30, 25), io.ifu_idu_data.bits.inst(11, 8), 0.U)
+  val immJ21 = Cat(io.ifu_idu_data.bits.inst(31), io.ifu_idu_data.bits.inst(19, 12), io.ifu_idu_data.bits.inst(20), io.ifu_idu_data.bits.inst(30, 21), 0.U)
 
   val immU  = Cat(immU20, Fill(12, 0.U))
   val immI  = Cat(Fill(20, immI12(11)), immI12)
@@ -274,26 +276,27 @@ class ysyx_23060336_IDU extends Module{
   val s_idle :: s_wait_ready :: Nil = Enum(2)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(
-    s_idle       -> Mux(io.in.valid, s_wait_ready, s_idle),
-    s_wait_ready -> Mux(isRAW_data, s_wait_ready, Mux(io.out.ready, s_idle, s_wait_ready))
+    s_idle       -> Mux(io.ifu_idu_data.valid, s_wait_ready, s_idle),
+    s_wait_ready -> Mux(isRAW_data, s_wait_ready, Mux(io.idu_exu_data.ready, s_idle, s_wait_ready))
   ))
 
-  io.out.valid := state === s_wait_ready
-  io.in.ready  := state === s_idle
+  io.idu_exu_data.valid := state === s_wait_ready
+  io.ifu_idu_data.ready := state === s_idle
 
-  // data raw
-  isRAW_data_a := ((conflict(rs1, io.exu_rd)  ||
-                    conflict(rs1, io.lsu_rd)  ||
-                    conflict(rs1, io.wbu_rd)) &&
+  // rs1 raw
+  isRAW_data_a := ((conflict(rs1, io.idu_exu_raw.exu_rd)  ||
+                    conflict(rs1, io.idu_lsu_raw.lsu_rd)  ||
+                    conflict(rs1, io.idu_wbu_raw.wbu_rd)) &&
                    (instType === "b000".U ||
                     instType === "b001".U ||
                     instType === "b010".U ||
                     instType === "b110".U ||
                     instType === "b101".U))
 
-  isRAW_data_b := ((conflict(rs2, io.exu_rd)  ||
-                    conflict(rs2, io.lsu_rd)  ||
-                    conflict(rs2, io.wbu_rd)) &&
+  // rs2 raw
+  isRAW_data_b := ((conflict(rs2, io.idu_exu_raw.exu_rd)  ||
+                    conflict(rs2, io.idu_lsu_raw.lsu_rd)  ||
+                    conflict(rs2, io.idu_wbu_raw.wbu_rd)) &&
                    (instType === "b001".U ||
                     instType === "b010".U ||
                     instType === "b101".U))
@@ -307,8 +310,8 @@ class ysyx_23060336_IDU extends Module{
   AluSela  := decoder(Cat(func7, func3, opcode), AluSel1)
   AluSelb  := decoder(Cat(func3, opcode), AluSel2)
   recsr    := decoder(Cat(func3, opcode), Recsr)
-  branch   := decoder(io.in.bits.inst, Branch)
-  mret     := decoder(io.in.bits.inst, Mret)
+  branch   := decoder(io.ifu_idu_data.bits.inst, Branch)
+  mret     := decoder(io.ifu_idu_data.bits.inst, Mret)
   pcmux    := Mux(isRAW_data, 0.U, decoder(opcode, PcMux))
 
   AluMux   := (AluMuxa | AluMuxb)
@@ -318,51 +321,52 @@ class ysyx_23060336_IDU extends Module{
          Mux(instType === "b001".U, immS,
          Mux(instType === "b010".U, immB,
          Mux(instType === "b011".U, immU,
-         Mux(instType === "b100".U, immJ, 0.U(32.W))))))
+         Mux(instType === "b100".U, immJ, 
+         Mux(instType === "b111".U, immI, 0.U(32.W)))))))
 
   // idu <> exu
-  io.out.bits.mret   := mret
-  io.out.bits.pcmux  := pcmux
-  io.out.bits.branch := branch
-  io.out.bits.AluMux := Mux(isRAW_data, "b0011".U, AluMux)
-  io.out.bits.AluSel := Mux(isRAW_data, 0.U, AluSel)
-  io.out.bits.pc     := io.in.bits.pc
-  io.out.bits.imm    := Mux(isRAW_data, 0.U, Mux(immNum, Cat(Fill(27, Imm(4)), Imm(4, 0)), Imm))
-  io.out.bits.zimm   := Cat(Fill(27, 0.U), rs1)
-  io.out.bits.rers1  := Mux(recsr, ~io.reg.src1, io.reg.src1)
-  io.out.bits.rezimm := Mux(recsr, ~io.out.bits.zimm, io.out.bits.zimm)
+  io.idu_exu_data.bits.mret   := mret
+  io.idu_exu_data.bits.pcmux  := pcmux
+  io.idu_exu_data.bits.branch := branch
+  io.idu_exu_data.bits.AluMux := Mux(isRAW_data, "b0011".U, AluMux)
+  io.idu_exu_data.bits.AluSel := Mux(isRAW_data, 0.U, AluSel)
+  io.idu_exu_data.bits.pc     := io.ifu_idu_data.bits.pc
+  io.idu_exu_data.bits.imm    := Mux(isRAW_data, 0.U, Mux(immNum, Cat(Fill(27, Imm(4)), Imm(4, 0)), Imm))
+  io.idu_exu_data.bits.zimm   := Cat(Fill(27, 0.U), rs1)
+  io.idu_exu_data.bits.rers1  := Mux(recsr, ~io.idu_reg_data.src1, io.idu_reg_data.src1)
+  io.idu_exu_data.bits.rezimm := Mux(recsr, ~io.idu_exu_data.bits.zimm, io.idu_exu_data.bits.zimm)
 
   // idu <> lsu
-  io.out.bits.lsu.MemWr    := Mux(isRAW_data, 0.U, decoder(opcode, MemWr))
-  io.out.bits.lsu.MemtoReg := Mux(isRAW_data, 0.U, decoder(opcode, MemtoReg))
-  io.out.bits.lsu.wstrb    := decoder(Cat(func3, opcode), Wstrb)
-  io.out.bits.lsu.awsize   := decoder(Cat(func3, opcode), Awsize)
-  io.out.bits.lsu.arsize   := decoder(Cat(func3, opcode), Arsize)
-  io.out.bits.lsu.RegNum   := decoder(Cat(func3, opcode), RegNum)
+  io.idu_exu_data.bits.idu_lsu_data.MemWr    := Mux(isRAW_data, 0.U, decoder(opcode, MemWr))
+  io.idu_exu_data.bits.idu_lsu_data.MemtoReg := Mux(isRAW_data, 0.U, decoder(opcode, MemtoReg))
+  io.idu_exu_data.bits.idu_lsu_data.wstrb    := decoder(Cat(func3, opcode), Wstrb)
+  io.idu_exu_data.bits.idu_lsu_data.awsize   := decoder(Cat(func3, opcode), Awsize)
+  io.idu_exu_data.bits.idu_lsu_data.arsize   := decoder(Cat(func3, opcode), Arsize)
+  io.idu_exu_data.bits.idu_lsu_data.RegNum   := decoder(Cat(func3, opcode), RegNum)
 
   // idu <> wbu
-  io.out.bits.lsu.wbu.csr        := csr
-  io.out.bits.lsu.wbu.instType   := instType
-  io.out.bits.lsu.wbu.isRAW_data := isRAW_data
-  io.out.bits.lsu.wbu.rd         := Mux(isRAW_data, 0.U, rd)
-  io.out.bits.lsu.wbu.ecall      := Mux(isRAW_data, 0.U, decoder(io.in.bits.inst, Ecall))
-  io.out.bits.lsu.wbu.ebreak     := Mux(isRAW_data, 0.U, decoder(io.in.bits.inst, Ebreak))
-  io.out.bits.lsu.wbu.RegWr      := Mux(isRAW_data, 0.U, decoder(opcode, RegWr) | decoder(Cat(func3, opcode), CsrWr))
-  io.out.bits.lsu.wbu.CsrWr      := Mux(isRAW_data, 0.U, decoder(Cat(func3, opcode), CsrWr))
+  io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.csr        := csr
+  io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.instType   := instType
+  io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.isRAW_data := isRAW_data
+  io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.rd         := Mux(isRAW_data, 0.U, rd)
+  io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.ecall      := Mux(isRAW_data, 0.U, decoder(io.ifu_idu_data.bits.inst, Ecall))
+  io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.ebreak     := Mux(isRAW_data, 0.U, decoder(io.ifu_idu_data.bits.inst, Ebreak))
+  io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.RegWr      := Mux(isRAW_data, 0.U, decoder(opcode, RegWr) | decoder(Cat(func3, opcode), CsrWr))
+  io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.CsrWr      := Mux(isRAW_data, 0.U, decoder(Cat(func3, opcode), CsrWr))
 
   // idu <> csr
-  io.csr.csr               := csr
-  io.out.bits.mepc         := io.csr.mepc
-  io.out.bits.mtvec        := io.csr.mtvec
-  io.out.bits.lsu.csrdata  := io.csr.csrdata
+  io.idu_csr_data.csr                  := csr
+  io.idu_exu_data.bits.mepc            := io.idu_csr_data.mepc
+  io.idu_exu_data.bits.mtvec           := io.idu_csr_data.mtvec
+  io.idu_exu_data.bits.idu_lsu_data.csrdata := io.idu_csr_data.csrdata
 
   // exu <> reg
-  io.out.bits.src1     := io.reg.src1
-  io.out.bits.lsu.src2 := io.reg.src2
+  io.idu_exu_data.bits.src1         := io.idu_reg_data.src1
+  io.idu_exu_data.bits.idu_lsu_data.src2 := io.idu_reg_data.src2
 
   // idu <> reg
-  io.reg.rs1  := rs1
-  io.reg.rs2  := rs2
+  io.idu_reg_data.rs1  := rs1
+  io.idu_reg_data.rs2  := rs2
 
   // idu <> idu_counter
   val idu_counter = Module(new IDU_COUNTER())
