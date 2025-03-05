@@ -105,10 +105,10 @@ class ysyx_23060336 extends Module {
     thisIn.valid  := prevOut.valid 
   }
 
-  pipelineConnect(ifu.io.ifu_idu_data, idu.io.ifu_idu_data)
-  pipelineConnect(idu.io.idu_exu_data, exu.io.idu_exu_data) 
-  pipelineConnect(exu.io.exu_lsu_data, lsu.io.exu_lsu_data)
-  pipelineConnect(lsu.io.lsu_wbu_data, wbu.io.lsu_wbu_data)
+  pipelineConnect(ifu.io.out, idu.io.in)
+  pipelineConnect(idu.io.out, exu.io.in) 
+  pipelineConnect(exu.io.out, lsu.io.in)
+  pipelineConnect(lsu.io.out, wbu.io.in)
 
   if(useNPCSim) {
   // npc_sim <-> xbar
@@ -137,28 +137,26 @@ class ysyx_23060336 extends Module {
   icache.io.awaddr  := lsu.io.axi.awaddr
 
   // reg <> idu <> wbu
-  idu.io.idu_reg_data <> reg.io.reg_idu_data
+  idu.io.reg <> reg.io.reg_idu_data
 
   // reg <> wbu
-  wbu.io.wbu_reg_data <> reg.io.reg_wbu_data
+  wbu.io.reg <> reg.io.reg_wbu_data
 
   // csr <> idu
-  idu.io.idu_csr_data <> csr.io.csr_idu_data
+  idu.io.csr <> csr.io.csr_idu_data
 
   // csr <> wbu
-  wbu.io.wbu_csr_data <> csr.io.csr_wbu_data
+  wbu.io.csr <> csr.io.csr_wbu_data
 
   // ifu <> exu
-  ifu.io.ifu_exu_raw <> exu.io.exu_ifu_raw
+  ifu.io.isRAW_control := exu.io.isRAW_control
+  ifu.io.exu_valid     := exu.io.exu_valid
+  ifu.io.dnpc          := exu.io.dnpc
 
-  // idu <> exu 
-  idu.io.idu_exu_raw <> exu.io.exu_idu_raw
-
-  // idu <> lsu
-  idu.io.idu_lsu_raw <> lsu.io.lsu_idu_raw
-
-  // idu <> wbu
-  idu.io.idu_wbu_raw <> wbu.io.wbu_idu_raw
+  // rd: idu <> exu <> lsu <> wbu
+  idu.io.exu_rd := exu.io.exu_rd
+  idu.io.lsu_rd := lsu.io.lsu_rd
+  idu.io.wbu_rd := wbu.io.wbu_rd
 
 }
 
