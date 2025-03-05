@@ -22,7 +22,7 @@ class IDU_EXU_DATA extends Bundle {
   val AluMux   = Output(UInt(4.W))
   val branch   = Output(Bool())
   val mret     = Output(Bool())
-  val lsu      = new IDU_LSU_DATA()
+  val idu_lsu_data = new IDU_LSU_DATA()
 }
 
 class IDU_LSU_DATA extends Bundle {
@@ -34,7 +34,7 @@ class IDU_LSU_DATA extends Bundle {
   val wstrb    = Output(UInt(4.W))
   val src2     = Output(UInt(32.W))
   val csrdata  = Output(UInt(32.W))
-  val wbu      = new IDU_WBU_DATA()
+  val idu_wbu_data = new IDU_WBU_DATA()
 }
 
 class IDU_WBU_DATA extends Bundle {
@@ -50,8 +50,8 @@ class IDU_WBU_DATA extends Bundle {
 
 class EXU_LSU_DATA extends Bundle {
   val result = Output(UInt(32.W))
-  val lsu    = new IDU_LSU_DATA()
-  val exu    = new EXU_WBU_DATA()
+  val idu_lsu_data = new IDU_LSU_DATA()
+  val exu_wbu_data = new EXU_WBU_DATA()
 }
 
 class EXU_WBU_DATA extends Bundle {
@@ -62,8 +62,58 @@ class EXU_WBU_DATA extends Bundle {
 class LSU_WBU_DATA extends Bundle {
   val regdata = Output(UInt(32.W))
   val csrdata = Output(UInt(32.W))
-  val wbu     = new IDU_WBU_DATA()
-  val exu     = new EXU_WBU_DATA()
+  val idu_wbu_data = new IDU_WBU_DATA()
+  val exu_wbu_data = new EXU_WBU_DATA()
+}
+
+class IFU_EXU_RAW extends Bundle {
+  val exu_valid     = Input(Bool())
+  val isRAW_control = Input(Bool())
+  val dnpc          = Input(UInt(32.W))
+}
+
+class EXU_IFU_RAW extends Bundle {
+  val exu_valid     = Output(Bool())
+  val isRAW_control = Output(Bool())
+  val dnpc          = Output(UInt(32.W))
+}
+
+class IDU_EXU_RAW extends Bundle {
+  val exu_instType = Input(UInt(4.W))
+  val exu_rd       = Input(UInt(5.W))
+  val exu_regdata  = Input(UInt(32.W))
+}
+
+class EXU_IDU_RAW extends Bundle {
+  val exu_instType = Output(UInt(4.W))
+  val exu_rd       = Output(UInt(5.W))
+  val exu_regdata  = Output(UInt(32.W))
+}
+
+class IDU_LSU_RAW extends Bundle {
+  val lsu_valid    = Input(Bool())
+  val lsu_instType = Input(UInt(4.W))
+  val lsu_rd       = Input(UInt(5.W))
+  val lsu_regdata  = Input(UInt(32.W))
+}
+
+class LSU_IDU_RAW extends Bundle {
+  val lsu_valid    = Output(Bool())
+  val lsu_instType = Output(UInt(4.W))
+  val lsu_rd       = Output(UInt(5.W))
+  val lsu_regdata  = Output(UInt(32.W))
+}
+
+class IDU_WBU_RAW extends Bundle {
+  val wbu_instType = Input(UInt(4.W))
+  val wbu_rd       = Input(UInt(5.W))
+  val wbu_regdata  = Input(UInt(32.W))
+}
+
+class WBU_IDU_RAW extends Bundle {
+  val wbu_instType = Output(UInt(4.W))
+  val wbu_rd       = Output(UInt(5.W))
+  val wbu_regdata  = Output(UInt(32.W))
 }
 
 class IDU_REG_DATA extends Bundle {

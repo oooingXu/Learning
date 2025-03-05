@@ -5,11 +5,9 @@ import chisel3.util._
 
 class ysyx_23060336_IFU(useNPCSim: Boolean) extends Module{
   val io = IO(new Bundle{
-    val out           = Decoupled(new IFU_IDU_DATA())
-    val axi           = new ysyx_23060336_AXI4Master()
-    val dnpc          = Input(UInt(32.W))
-    val exu_valid     = Input(Bool())
-    val isRAW_control = Input(Bool())
+    val ifu_idu_data = Decoupled(new IFU_IDU_DATA())
+    val ifu_exu_raw  = new IFU_EXU_RAW()
+    val axi          = new ysyx_23060336_AXI4Master()
   })
 
   val npc = if(useNPCSim) {
@@ -25,31 +23,31 @@ class ysyx_23060336_IFU(useNPCSim: Boolean) extends Module{
   val state = RegInit(s_begin)
   state := MuxLookup(state, s_idle)(List(
     s_begin                -> Mux(io.axi.arready, s_wait_exu_valid, s_begin),
-    s_wait_exu_valid       -> Mux(io.exu_valid, s_wait_rvalid, s_wait_exu_valid),
+    s_wait_exu_valid       -> Mux(io.ifu_exu_raw.exu_valid, s_wait_rvalid, s_wait_exu_valid),
     s_idle                 -> Mux(io.axi.arready, Mux(io.axi.rvalid, s_wait_ready, s_wait_rvalid), s_idle),
-    s_wait_rvalid          -> Mux(io.axi.rvalid, Mux(io.isRAW_control, s_wait_control_arready, Mux(io.out.ready, s_idle, s_wait_ready)), s_wait_rvalid),
+    s_wait_rvalid          -> Mux(io.axi.rvalid, Mux(io.ifu_exu_raw.isRAW_control, s_wait_control_arready, Mux(io.ifu_idu_data.ready, s_idle, s_wait_ready)), s_wait_rvalid),
     s_wait_control_arready -> Mux(io.axi.arready, s_wait_exu_valid, s_wait_control_arready),
-    s_wait_ready           -> Mux(io.isRAW_control, s_wait_control_arready, Mux(io.out.ready, s_idle, s_wait_ready))
+    s_wait_ready           -> Mux(io.ifu_exu_raw.isRAW_control, s_wait_control_arready, Mux(io.ifu_idu_data.ready, s_idle, s_wait_ready))
   ))
 
-  io.out.valid := ((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid && io.out.ready)) && !io.isRAW_control) || (state === s_wait_control_arready && io.axi.rvalid && io.out.ready) || (state === s_wait_exu_valid && io.axi.rvalid)
+  io.ifu_idu_data.valid := ((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid && io.ifu_idu_data.ready)) && !io.ifu_exu_raw.isRAW_control) || (state === s_wait_control_arready && io.axi.rvalid && io.ifu_idu_data.ready) || (state === s_wait_exu_valid && io.axi.rvalid)
 
-  io.out.bits.inst := Mux(io.axi.rvalid && io.out.ready, io.axi.rdata, finst)
-  io.out.bits.pc   := PC
+  io.ifu_idu_data.bits.inst := Mux(io.axi.rvalid && io.ifu_idu_data.ready, io.axi.rdata, finst)
+  io.ifu_idu_data.bits.pc   := PC
 
   PC := Mux(reset.asBool, npc,      
-        Mux(io.exu_valid && state === s_wait_exu_valid, io.dnpc,
-        Mux((state === s_wait_control_arready && io.axi.arready), io.dnpc,
-        Mux(((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid)) && io.out.ready), PC + 4.U, PC))))
+        Mux(io.ifu_exu_raw.exu_valid && state === s_wait_exu_valid, io.ifu_exu_raw.dnpc,
+        Mux((state === s_wait_control_arready && io.axi.arready), io.ifu_exu_raw.dnpc,
+        Mux(((state === s_wait_ready || (state === s_wait_rvalid && io.axi.rvalid)) && io.ifu_idu_data.ready), PC + 4.U, PC))))
 
   araddr  := Mux(reset.asBool, npc, 
              Mux(state === s_begin, PC, 
-             Mux(state === s_wait_control_arready, io.dnpc, 
-             Mux(state === s_wait_exu_valid && io.exu_valid, io.dnpc, PC)))) 
+             Mux(state === s_wait_control_arready, io.ifu_exu_raw.dnpc, 
+             Mux(state === s_wait_exu_valid && io.ifu_exu_raw.exu_valid, io.ifu_exu_raw.dnpc, PC)))) 
 
   io.axi.araddr  := araddr
   io.axi.rready  := state === s_idle || state === s_wait_rvalid || state === s_wait_exu_valid || state === s_wait_rvalid || state === s_wait_control_arready
-  io.axi.arvalid := Mux(reset.asBool, false.B, state === s_idle || state === s_begin || state === s_wait_control_arready || (state === s_wait_exu_valid && io.exu_valid)) 
+  io.axi.arvalid := Mux(reset.asBool, false.B, state === s_idle || state === s_begin || state === s_wait_control_arready || (state === s_wait_exu_valid && io.ifu_exu_raw.exu_valid)) 
   io.axi.awvalid := false.B
   io.axi.awaddr  := 0.U
   io.axi.awid    := "h1".U

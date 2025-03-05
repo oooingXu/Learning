@@ -11,7 +11,7 @@ class ysyx_23060336 extends Module {
     val master    = new ysyx_23060336_AXI4Master()
     val slave     = new ysyx_23060336_AXI4Slave()
 })
-  val useNPCSim = false
+  val useNPCSim = true
 
   val ifu     = Module(new ysyx_23060336_IFU(useNPCSim))
   val idu     = Module(new ysyx_23060336_IDU())
@@ -105,10 +105,10 @@ class ysyx_23060336 extends Module {
     thisIn.valid  := prevOut.valid 
   }
 
-  pipelineConnect(ifu.io.out, idu.io.in)
-  pipelineConnect(idu.io.out, exu.io.in) 
-  pipelineConnect(exu.io.out, lsu.io.in)
-  pipelineConnect(lsu.io.out, wbu.io.in)
+  pipelineConnect(ifu.io.ifu_idu_data, idu.io.ifu_idu_data)
+  pipelineConnect(idu.io.idu_exu_data, exu.io.idu_exu_data) 
+  pipelineConnect(exu.io.exu_lsu_data, lsu.io.exu_lsu_data)
+  pipelineConnect(lsu.io.lsu_wbu_data, wbu.io.lsu_wbu_data)
 
   if(useNPCSim) {
   // npc_sim <-> xbar
@@ -137,38 +137,27 @@ class ysyx_23060336 extends Module {
   icache.io.awaddr  := lsu.io.axi.awaddr
 
   // reg <> idu <> wbu
-  idu.io.reg <> reg.io.reg_idu_data
+  idu.io.idu_reg_data <> reg.io.reg_idu_data
 
   // reg <> wbu
-  wbu.io.reg <> reg.io.reg_wbu_data
+  wbu.io.wbu_reg_data <> reg.io.reg_wbu_data
 
   // csr <> idu
-  idu.io.csr <> csr.io.csr_idu_data
+  idu.io.idu_csr_data <> csr.io.csr_idu_data
 
   // csr <> wbu
-  wbu.io.csr <> csr.io.csr_wbu_data
+  wbu.io.wbu_csr_data <> csr.io.csr_wbu_data
 
   // ifu <> exu
-  ifu.io.isRAW_control := exu.io.isRAW_control
-  ifu.io.exu_valid     := exu.io.exu_valid
-  ifu.io.dnpc          := exu.io.dnpc
+  ifu.io.ifu_exu_raw <> exu.io.exu_ifu_raw
 
-  // rd: idu <> exu <> lsu <> wbu
-  idu.io.exu_rd := exu.io.exu_rd
-  idu.io.lsu_rd := lsu.io.lsu_rd
-  idu.io.wbu_rd := wbu.io.wbu_rd
+  // idu <> exu
+  idu.io.idu_exu_raw <> exu.io.exu_idu_raw
 
-  // instType: idu <> exu <> lsu <> wbu
-  idu.io.exu_instType := exu.io.exu_instType
-  idu.io.lsu_instType := lsu.io.lsu_instType
-  idu.io.wbu_instType := wbu.io.wbu_instType
+  // idu <> lsu
+  idu.io.idu_lsu_raw <> lsu.io.lsu_idu_raw
 
-  // regdata: idu <> exu <> lsu <> wbu
-  idu.io.exu_regdata := exu.io.exu_regdata
-  idu.io.lsu_regdata := lsu.io.lsu_regdata
-  idu.io.wbu_regdata := wbu.io.wbu_regdata
-
-  // valid: idu <> lsu
-  idu.io.lsu_valid := lsu.io.lsu_valid
+  // idu <> wbu
+  idu.io.idu_wbu_raw <> wbu.io.wbu_idu_raw
 }
 
