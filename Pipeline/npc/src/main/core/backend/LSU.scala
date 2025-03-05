@@ -8,7 +8,10 @@ class ysyx_23060336_LSU extends Module{
     val axi = new ysyx_23060336_AXI4Master()
     val in  = Flipped(Decoupled(new EXU_LSU_DATA()))
     val out = Decoupled(new LSU_WBU_DATA())
+    val lsu_valid = Output(Bool())
+    val lsu_instType = Output(UInt(4.W))
     val lsu_rd = Output(UInt(5.W))
+    val lsu_regdata = Output(UInt(32.W))
   })
 
   val sram_read = Module(new SRAM_READ())
@@ -118,6 +121,9 @@ class ysyx_23060336_LSU extends Module{
 
   // lsu rd <> idu rd
   io.lsu_rd := io.in.bits.lsu.wbu.rd
+  io.lsu_valid := state === s_wait_ready || io.axi.rvalid
+  io.lsu_regdata := io.out.bits.regdata
+  io.lsu_instType := io.out.bits.wbu.instType
 
   // lsu <> lsu_counter
   val lsu_counter = Module(new LSU_COUNTER())

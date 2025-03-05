@@ -7,13 +7,20 @@ import chisel3.util.experimental.decode._
 
 class ysyx_23060336_IDU extends Module{
 	val io = IO(new Bundle{
-    val in         = Flipped(Decoupled(new IFU_IDU_DATA()))
-    val out        = Decoupled(new IDU_EXU_DATA())
-    val reg        = new IDU_REG_DATA()
-    val csr        = new IDU_CSR_DATA()
-    val exu_rd     = Input(UInt(5.W))
-    val lsu_rd     = Input(UInt(5.W))
-    val wbu_rd     = Input(UInt(5.W))
+    val in           = Flipped(Decoupled(new IFU_IDU_DATA()))
+    val out          = Decoupled(new IDU_EXU_DATA())
+    val reg          = new IDU_REG_DATA()
+    val csr          = new IDU_CSR_DATA()
+    val exu_rd       = Input(UInt(5.W))
+    val exu_instType = Input(UInt(4.W))
+    val exu_regdata  = Input(UInt(32.W))
+    val lsu_rd       = Input(UInt(5.W))
+    val lsu_regdata  = Input(UInt(32.W))
+    val lsu_instType = Input(UInt(4.W))
+    val lsu_valid    = Input(Bool())
+    val wbu_rd       = Input(UInt(5.W))
+    val wbu_instType = Input(UInt(4.W))
+    val wbu_regdata  = Input(UInt(32.W))
 	})
 
   val PcMux = TruthTable(
@@ -189,14 +196,14 @@ class ysyx_23060336_IDU extends Module{
       BitPat("b1101111") -> BitPat("b100"), // J
       BitPat("b1100111") -> BitPat("b000"), // I
       BitPat("b1100011") -> BitPat("b010"), // B
-      BitPat("b0000011") -> BitPat("b000"), // I
+      BitPat("b0000011") -> BitPat("b111"), // I load
       BitPat("b0100011") -> BitPat("b001"), // S
       BitPat("b0010011") -> BitPat("b000"), // I
       BitPat("b0110011") -> BitPat("b101"), // R
       BitPat("b0001111") -> BitPat("b000"), // I
       BitPat("b1110011") -> BitPat("b110")  // I csr
     ),
-  BitPat("b111")) // wrong
+  BitPat("b000")) 
   
   val AluMux1 = TruthTable(
     Map(
@@ -231,6 +238,8 @@ class ysyx_23060336_IDU extends Module{
     ),
   BitPat("b0"))
 
+  val src1     = Wire(UInt(32.W)) 
+  val src2     = Wire(UInt(32.W)) 
   val Imm      = Wire(UInt(32.W))
   val instType = Wire(UInt(4.W))
   val AluSela  = Wire(UInt(4.W))
@@ -266,10 +275,26 @@ class ysyx_23060336_IDU extends Module{
   val mret  = Wire(Bool())
   val pcmux = Wire(UInt(2.W))
 
+  // def conflict israw_data
   def conflict(rs: UInt, rd: UInt) = (rs === rd) && (rs =/= 0.U)
-  val isRAW_data   = Wire(Bool())
-  val isRAW_data_a = Wire(Bool())
-  val isRAW_data_b = Wire(Bool())
+  def israw_data_load(rs: UInt, rd: UInt, instType: UInt) = conflict(rs, rd) && (instType === "b111".U) 
+  def israw_data_lsu(rs: UInt, rd: UInt, instType: UInt, valid: UInt) = israw_data_load(rs, rd, instType) && !valid 
+
+  // def no_bypass_instType B/S
+  def no_bypass_instType(instType: UInt) = !(instType === "b001".U || instType === "b010".U) 
+
+  // def bypass 
+  def bypass_exu(rs: UInt, rd: UInt, instType: UInt) = conflict(rs, rd) && !(instType === "b111".U) && no_bypass_instType(instType)
+  def bypass_lsu(rs: UInt, rd: UInt, instType: UInt, valid: UInt) = !israw_data_lsu(rs, rd, instType, valid) && conflict(rs, rd) && no_bypass_instType(instType)
+  def bypass_wbu(rs: UInt, rd: UInt, instType: UInt) = conflict(rs, rd) && no_bypass_instType(instType)
+
+  // def bypass src1/src2
+  def bypass_instType_idu_src1(instType: UInt) = (instType === "b000".U || instType === "b001".U || instType === "b010".U || instType === "b110".U || instType === "b101".U)
+  def bypass_instType_idu_src2(instType: UInt) = (instType === "b001".U || instType === "b010".U || instType === "b101".U)
+  
+  val isRAW_data      = Wire(Bool())
+  val isRAW_data_src1 = Wire(Bool())
+  val isRAW_data_src2 = Wire(Bool())
 
   val s_idle :: s_wait_ready :: Nil = Enum(2)
   val state = RegInit(s_idle)
@@ -282,23 +307,17 @@ class ysyx_23060336_IDU extends Module{
   io.in.ready  := state === s_idle
 
   // data raw
-  isRAW_data_a := ((conflict(rs1, io.exu_rd)  ||
-                    conflict(rs1, io.lsu_rd)  ||
-                    conflict(rs1, io.wbu_rd)) &&
-                   (instType === "b000".U ||
-                    instType === "b001".U ||
-                    instType === "b010".U ||
-                    instType === "b110".U ||
-                    instType === "b101".U))
+  isRAW_data_src1 := bypass_instType_idu_src1(instType) && (israw_data_load(rs1, io.exu_rd, io.exu_instType) || israw_data_lsu(rs1, io.lsu_rd, io.lsu_instType, io.lsu_valid))
+  isRAW_data_src2 := bypass_instType_idu_src2(instType) && (israw_data_load(rs2, io.exu_rd, io.exu_instType) || israw_data_lsu(rs2, io.lsu_rd, io.lsu_instType, io.lsu_valid))
+  isRAW_data := (isRAW_data_src1 || isRAW_data_src2) && state === s_wait_ready
 
-  isRAW_data_b := ((conflict(rs2, io.exu_rd)  ||
-                    conflict(rs2, io.lsu_rd)  ||
-                    conflict(rs2, io.wbu_rd)) &&
-                   (instType === "b001".U ||
-                    instType === "b010".U ||
-                    instType === "b101".U))
+  src1 := Mux(bypass_exu(rs1, io.exu_rd, io.exu_instType), io.exu_regdata,
+          Mux(bypass_lsu(rs1, io.lsu_rd, io.lsu_instType, io.lsu_valid), io.lsu_regdata,
+          Mux(bypass_wbu(rs1, io.wbu_rd, io.wbu_instType), io.wbu_regdata, io.reg.src1)))
 
-  isRAW_data := (isRAW_data_a || isRAW_data_b) && state === s_wait_ready
+  src2 := Mux(bypass_exu(rs2, io.exu_rd, io.exu_instType), io.exu_regdata,
+          Mux(bypass_lsu(rs2, io.lsu_rd, io.lsu_instType, io.lsu_valid), io.lsu_regdata,
+          Mux(bypass_wbu(rs2, io.wbu_rd, io.wbu_instType), io.wbu_regdata, io.reg.src2)))
 
   immNum   := decoder(Cat(func3, opcode), ImmNum)
   instType := decoder(opcode, InstType)
@@ -318,7 +337,8 @@ class ysyx_23060336_IDU extends Module{
          Mux(instType === "b001".U, immS,
          Mux(instType === "b010".U, immB,
          Mux(instType === "b011".U, immU,
-         Mux(instType === "b100".U, immJ, 0.U(32.W))))))
+         Mux(instType === "b100".U, immJ, 
+         Mux(instType === "b111".U, immI, 0.U(32.W)))))))
 
   // idu <> exu
   io.out.bits.mret   := mret
@@ -329,7 +349,7 @@ class ysyx_23060336_IDU extends Module{
   io.out.bits.pc     := io.in.bits.pc
   io.out.bits.imm    := Mux(isRAW_data, 0.U, Mux(immNum, Cat(Fill(27, Imm(4)), Imm(4, 0)), Imm))
   io.out.bits.zimm   := Cat(Fill(27, 0.U), rs1)
-  io.out.bits.rers1  := Mux(recsr, ~io.reg.src1, io.reg.src1)
+  io.out.bits.rers1  := Mux(recsr, ~src1, src1)
   io.out.bits.rezimm := Mux(recsr, ~io.out.bits.zimm, io.out.bits.zimm)
 
   // idu <> lsu
@@ -357,8 +377,8 @@ class ysyx_23060336_IDU extends Module{
   io.out.bits.lsu.csrdata  := io.csr.csrdata
 
   // exu <> reg
-  io.out.bits.src1     := io.reg.src1
-  io.out.bits.lsu.src2 := io.reg.src2
+  io.out.bits.src1     := src1
+  io.out.bits.lsu.src2 := src2
 
   // idu <> reg
   io.reg.rs1  := rs1

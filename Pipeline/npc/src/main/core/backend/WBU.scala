@@ -8,7 +8,9 @@ class ysyx_23060336_WBU extends Module {
     val in         = Flipped(Decoupled(new LSU_WBU_DATA()))
     val reg        = new WBU_REG_DATA()
     val csr        = new WBU_CSR_DATA()
-    val wbu_rd     = Output(UInt(5.W))
+    val wbu_instType = Output(UInt(4.W))
+    val wbu_rd       = Output(UInt(5.W))
+    val wbu_regdata  = Output(UInt(32.W))
   })
 
   val s_idle :: s_reg :: Nil = Enum(2)
@@ -48,4 +50,6 @@ class ysyx_23060336_WBU extends Module {
 
   // wbu <> idu
   io.wbu_rd := io.in.bits.wbu.rd
+  io.wbu_instType := io.in.bits.wbu.instType
+  io.wbu_regdata := io.in.bits.regdata
 }

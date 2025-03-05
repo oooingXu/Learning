@@ -8,7 +8,9 @@ class ysyx_23060336_EXU extends Module {
     val in            = Flipped(Decoupled(new IDU_EXU_DATA()))
     val out           = Decoupled(new EXU_LSU_DATA())
     val dnpc          = Output(UInt(32.W))
+    val exu_instType  = Output(UInt(5.W))
     val exu_rd        = Output(UInt(5.W))
+    val exu_regdata   = Output(UInt(32.W))
     val exu_valid     = Output(Bool())
     val isRAW_control = Output(Bool())
   })
@@ -80,6 +82,8 @@ class ysyx_23060336_EXU extends Module {
              Mux(io.in.bits.mret,  io.in.bits.mepc, pcadd)))
 
   io.exu_rd := io.in.bits.lsu.wbu.rd
+  io.exu_instType := io.in.bits.lsu.wbu.instType
+  io.exu_regdata := alu.io.result
   io.exu_valid := state === s_wait_ready
   io.isRAW_control := (io.in.bits.pc + 4.U) =/= io.dnpc
 

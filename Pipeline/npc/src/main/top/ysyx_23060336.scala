@@ -11,7 +11,7 @@ class ysyx_23060336 extends Module {
     val master    = new ysyx_23060336_AXI4Master()
     val slave     = new ysyx_23060336_AXI4Slave()
 })
-  val useNPCSim = true
+  val useNPCSim = false
 
   val ifu     = Module(new ysyx_23060336_IFU(useNPCSim))
   val idu     = Module(new ysyx_23060336_IDU())
@@ -158,5 +158,17 @@ class ysyx_23060336 extends Module {
   idu.io.lsu_rd := lsu.io.lsu_rd
   idu.io.wbu_rd := wbu.io.wbu_rd
 
+  // instType: idu <> exu <> lsu <> wbu
+  idu.io.exu_instType := exu.io.exu_instType
+  idu.io.lsu_instType := lsu.io.lsu_instType
+  idu.io.wbu_instType := wbu.io.wbu_instType
+
+  // regdata: idu <> exu <> lsu <> wbu
+  idu.io.exu_regdata := exu.io.exu_regdata
+  idu.io.lsu_regdata := lsu.io.lsu_regdata
+  idu.io.wbu_regdata := wbu.io.wbu_regdata
+
+  // valid: idu <> lsu
+  idu.io.lsu_valid := lsu.io.lsu_valid
 }
 
