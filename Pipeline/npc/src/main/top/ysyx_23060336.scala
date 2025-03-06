@@ -23,7 +23,7 @@ class ysyx_23060336 extends Module {
   val arbiter = Module(new ysyx_23060336_ARBITER())
   val xbar    = Module(new ysyx_23060336_XBAR())
   val clint   = Module(new ysyx_23060336_CLINT())
-  val icache  = Module(new ysyx_23060336_ICACHE(2, 4))
+  val icache  = Module(new ysyx_23060336_ICACHE(4, 4))
 
   // cpu slave
   val awready = Wire(Bool())  
