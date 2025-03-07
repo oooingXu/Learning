@@ -7,14 +7,14 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   val io = IO(new Bundle{
     val master = new ysyx_23060336_AXI4Master()
     val slave  = new ysyx_23060336_AXI4Slave()
-    val awvalid = Input(Bool())
-    val awaddr = Input(UInt(32.W))
+    val coherence_input = new COHERENCE_INPUT()
   })
 
   val icache_ifu = Module(new ysyx_23060336_ICACHE_IFU())
   val icache_lsu = Module(new ysyx_23060336_ICACHE_LSU(m, n))
   val icache_issue = Module(new ysyx_23060336_ICACHE_ISSUE())
 
+  // icache pipeline
   def icacheConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T], thisIn: DecoupledIO[T]) = {
     prevOut.ready := thisIn.ready
     thisIn.bits   := RegEnable(prevOut.bits, prevOut.valid && thisIn.ready)
@@ -24,11 +24,12 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   icacheConnect(icache_ifu.io.out, icache_lsu.io.in)
   icacheConnect(icache_lsu.io.out, icache_issue.io.in)
 
-  val sram_start = "h0f000000".U(32.W)
-  val sram_end   = "h10000000".U(32.W)
+  val sram_start = "h0f000000".U(Base.addrWidth.W)
+  val sram_end   = "h10000000".U(Base.addrWidth.W)
 
   val skip_addr  = io.slave.araddr >= sram_start && io.slave.araddr <= sram_end
 
+  // state machine
   val s_idle :: s_skip :: s_wait_ready :: Nil = Enum(3)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(
@@ -48,8 +49,7 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   // icache <> icache_ifu
   icache_ifu.io.in.arvalid := io.slave.arvalid && !skip_addr
   icache_ifu.io.in.araddr  := io.slave.araddr
-  icache_ifu.io.in.awaddr  := io.awaddr
-  icache_ifu.io.in.awvalid := io.awvalid
+  icache_ifu.io.in.coherence_input := io.coherence_input
 
   // arbiter <> icache_lsu
   io.master.araddr  := Mux(skip_addr, io.slave.araddr, icache_lsu.io.lsu_arbiter.araddr)

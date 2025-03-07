@@ -3,21 +3,17 @@ package npc
 import chisel3._
 import chisel3.util._
 
-class ysyx_23060336_IFU(useNPCSim: Boolean) extends Module{
+class ysyx_23060336_IFU extends Module{
   val io = IO(new Bundle{
     val ifu_idu_data = Decoupled(new IFU_IDU_DATA())
     val ifu_exu_raw  = new IFU_EXU_RAW()
     val axi          = new ysyx_23060336_AXI4Master()
   })
 
-  val npc = if(useNPCSim) {
-    "h80000000".U(32.W)
-  } else {
-    "h30000000".U(32.W)
-  }
+  val npc = if(Config.useNPCSim) {"h80000000".U(Base.addrWidth.W)} else {"h30000000".U(Base.addrWidth.W)}
   val PC    = RegInit(npc)
-  val finst = RegInit(0.U(32.W))
-  val araddr = Wire(UInt(32.W))
+  val finst = RegInit(0.U(Base.dataWidth.W))
+  val araddr = Wire(UInt(Base.addrWidth.W))
 
   val s_idle :: s_wait_rvalid :: s_wait_ready :: s_wait_control_arready :: s_begin :: s_wait_exu_valid :: Nil = Enum(6)
   val state = RegInit(s_begin)

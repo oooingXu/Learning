@@ -11,6 +11,7 @@ class ysyx_23060336_WBU extends Module {
     val wbu_idu_raw  = new WBU_IDU_RAW()
   })
 
+  // state machine
   val s_idle :: s_reg :: Nil = Enum(2)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(

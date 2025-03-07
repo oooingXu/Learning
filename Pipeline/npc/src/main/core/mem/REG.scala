@@ -9,7 +9,7 @@ class ysyx_23060336_REG extends Module{
     val reg_wbu_data = new REG_WBU_DATA()
   })
 
-  val ysyx_23060336_regs = Mem(16,UInt(32.W))
+  val ysyx_23060336_regs = Mem(Base.regNumber,UInt(Base.dataWidth.W))
 
   io.reg_idu_data.src1 := Mux(io.reg_idu_data.rs1.orR, ysyx_23060336_regs(io.reg_idu_data.rs1), 0.U)
   io.reg_idu_data.src2 := Mux(io.reg_idu_data.rs2.orR, ysyx_23060336_regs(io.reg_idu_data.rs2), 0.U)

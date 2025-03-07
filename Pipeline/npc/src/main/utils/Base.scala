@@ -1,9 +1,14 @@
 package npc 
 
 object Base {
+  // riscv32e
+  val regNumber     = 16
+
+  // idu sign
   val pcmuxWidth    = 2
   val instTypeWidth = 3
   val RegNumWidth   = 3
+  val PCMuxWidth    = 4
   val AluSelWidth   = 4
   val AluMuxWidth   = 4
   val rdWidth       = 5

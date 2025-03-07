@@ -16,12 +16,12 @@ class ysyx_23060336_CSR extends Module{
   def MEPC      = "h341".U
   def MCAUSE    = "h342".U
 
-  val mvendorid = RegInit("h79737978".U(32.W))
-  val marchid   = RegInit("h15fdf70".U(32.W))
-  val mstatus   = RegInit("h1800".U(32.W))
-  val mtvec     = RegInit(0.U(32.W))
-  val mepc      = RegInit(0.U(32.W))
-  val mcause    = RegInit(0.U(32.W))
+  val mvendorid = RegInit("h79737978".U(Base.dataWidth.W))
+  val marchid   = RegInit("h15fdf70".U(Base.dataWidth.W))
+  val mstatus   = RegInit("h1800".U(Base.dataWidth.W))
+  val mtvec     = RegInit(0.U(Base.dataWidth.W))
+  val mepc      = RegInit(0.U(Base.dataWidth.W))
+  val mcause    = RegInit(0.U(Base.dataWidth.W))
 
   when(io.csr_wbu_data.ecall) {
     mcause := "hb".U

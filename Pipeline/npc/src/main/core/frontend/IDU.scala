@@ -231,16 +231,16 @@ class ysyx_23060336_IDU extends Module{
     ),
   BitPat("b0"))
 
-  val src1     = Wire(UInt(32.W)) 
-  val src2     = Wire(UInt(32.W)) 
-  val Imm      = Wire(UInt(32.W))
-  val instType = Wire(UInt(4.W))
-  val AluSela  = Wire(UInt(4.W))
-  val AluSelb  = Wire(UInt(4.W))
-  val AluSel   = Wire(UInt(4.W))
-  val AluMuxa  = Wire(UInt(4.W))
-  val AluMuxb  = Wire(UInt(4.W))
-  val AluMux   = Wire(UInt(4.W))
+  val src1     = Wire(UInt(Base.dataWidth.W)) 
+  val src2     = Wire(UInt(Base.dataWidth.W)) 
+  val Imm      = Wire(UInt(Base.dataWidth.W))
+  val instType = Wire(UInt(Base.instTypeWidth.W))
+  val AluSela  = Wire(UInt(Base.AluSelWidth.W))
+  val AluSelb  = Wire(UInt(Base.AluSelWidth.W))
+  val AluSel   = Wire(UInt(Base.AluSelWidth.W))
+  val AluMuxa  = Wire(UInt(Base.AluMuxWidth.W))
+  val AluMuxb  = Wire(UInt(Base.AluMuxWidth.W))
+  val AluMux   = Wire(UInt(Base.AluMuxWidth.W))
   val immNum   = Wire(Bool())
 
   val rd       = io.ifu_idu_data.bits.inst(11, 7)
@@ -266,7 +266,7 @@ class ysyx_23060336_IDU extends Module{
   val recsr = Wire(Bool())
   val branch= Wire(Bool())
   val mret  = Wire(Bool())
-  val pcmux = Wire(UInt(2.W))
+  val pcmux = Wire(UInt(Base.pcmuxWidth.W))
 
   // def conflict israw_data
   def conflict(rs: UInt, rd: UInt) = (rs === rd) && (rs =/= 0.U)

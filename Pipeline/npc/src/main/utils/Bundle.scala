@@ -9,6 +9,8 @@ class IFU_IDU_DATA extends Bundle {
 }
 
 class IDU_EXU_DATA extends Bundle {
+  val branch   = Output(Bool())
+  val mret     = Output(Bool())
   val pc       = Output(UInt(Base.pcWidth.W))
   val mepc     = Output(UInt(Base.pcWidth.W))
   val src1     = Output(UInt(Base.dataWidth.W))
@@ -20,8 +22,6 @@ class IDU_EXU_DATA extends Bundle {
   val pcmux    = Output(UInt(Base.pcmuxWidth.W))
   val AluSel   = Output(UInt(Base.AluSelWidth.W))
   val AluMux   = Output(UInt(Base.AluMuxWidth.W))
-  val branch   = Output(Bool())
-  val mret     = Output(Bool())
   val idu_lsu_data = new IDU_LSU_DATA()
 }
 
@@ -30,10 +30,10 @@ class IDU_LSU_DATA extends Bundle {
   val MemtoReg = Output(Bool())
   val awsize   = Output(UInt(Base.sizeWidth.W))
   val arsize   = Output(UInt(Base.sizeWidth.W))
-  val RegNum   = Output(UInt(Base.RegNumWidth.W))
   val wstrb    = Output(UInt(Base.wstrbWidth.W))
   val src2     = Output(UInt(Base.dataWidth.W))
   val csrdata  = Output(UInt(Base.dataWidth.W))
+  val RegNum   = Output(UInt(Base.RegNumWidth.W))
   val idu_wbu_data = new IDU_WBU_DATA()
 }
 
@@ -175,15 +175,13 @@ class CSR_WBU_DATA extends Bundle {
 class ICACHE_IFU_DATA extends Bundle {
   val arready = Output(Bool())
   val arvalid = Input(Bool())
-  val awvalid = Input(Bool())
-  val awaddr  = Input(UInt(Base.addrWidth.W))
   val araddr  = Input(UInt(Base.addrWidth.W))
+  val coherence_input = new COHERENCE_INPUT()
 }
 
 class ICACHE_IFU_LSU_DATA extends Bundle {
-  val awvalid = Output(Bool())
-  val awaddr  = Output(UInt(Base.addrWidth.W))
   val araddr  = Output(UInt(Base.addrWidth.W))
+  val coherence_output = new COHERENCE_OUTPUT()
 }
 
 class ICACHE_LSU_ARBITER_DATA extends Bundle {
@@ -200,12 +198,12 @@ class ICACHE_LSU_ISSUE_DATA extends Bundle {
 }
 
 class COHERENCE_INPUT extends Bundle {
-  val awvalid = Output(Bool())
-  val awaddr  = Output(UInt(Base.addrWidth.W))
+  val awvalid = Input(Bool())
+  val awaddr  = Input(UInt(Base.addrWidth.W))
 }
 
 class COHERENCE_OUTPUT extends Bundle {
-  val awvalid = Input(Bool())
-  val awaddr  = Input(UInt(Base.addrWidth.W))
+  val awvalid = Output(Bool())
+  val awaddr  = Output(UInt(Base.addrWidth.W))
 }
 

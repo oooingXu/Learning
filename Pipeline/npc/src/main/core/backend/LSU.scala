@@ -14,22 +14,21 @@ class ysyx_23060336_LSU extends Module{
   val sram_read = Module(new SRAM_READ())
 
   val prepare = Wire(Bool())
-  val DataOut = Wire(UInt(32.W))
-  val rdata   = Wire(UInt(32.W))
+  val DataOut = Wire(UInt(Base.dataWidth.W))
+  val rdata   = Wire(UInt(Base.dataWidth.W))
 
-  val wdata_b = Wire(UInt(32.W))
-  val wdata_h = Wire(UInt(32.W))
-  val wstrb_b = Wire(UInt(4.W))
-  val wstrb_h = Wire(UInt(4.W))
+  val wdata_b = Wire(UInt(Base.dataWidth.W))
+  val wdata_h = Wire(UInt(Base.dataWidth.W))
+  val wstrb_b = Wire(UInt(Base.wstrbWidth.W))
+  val wstrb_h = Wire(UInt(Base.wstrbWidth.W))
   
-  val rdata_b = Wire(UInt(32.W))
-  val rdata_h = Wire(UInt(32.W))
+  val rdata_b = Wire(UInt(Base.dataWidth.W))
+  val rdata_h = Wire(UInt(Base.dataWidth.W))
 
-  val regdata   = RegInit(0.U(32.W))
-  val csrdata   = RegInit(0.U(32.W))
-  val lsu_count = RegInit(0.U(32.W))
-  val lsu_clk_count = RegInit(0.U(64.W))
+  val regdata   = RegInit(0.U(Base.dataWidth.W))
+  val csrdata   = RegInit(0.U(Base.dataWidth.W))
 
+  // state machine
   val s_idle :: s_wait_rslave :: s_wait_wslave :: s_wait_ready :: s_wait_prepare :: s_wait_sign :: Nil = Enum(6)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(

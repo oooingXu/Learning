@@ -11,15 +11,16 @@ class ysyx_23060336_EXU extends Module {
     val exu_idu_raw  = new EXU_IDU_RAW()
   })
 
-  val alu = Module(new ysyx_23060336_ALU(32))
+  val alu = Module(new ysyx_23060336_ALU(Base.dataWidth))
 
-  val ina   = Wire(UInt(32.W))
-  val inb   = Wire(UInt(32.W))
-  val pca   = Wire(UInt(32.W))
-  val pcb   = Wire(UInt(32.W))
-  val pcadd = Wire(UInt(32.W))
-  val PCMux = Wire(UInt(4.W))
+  val ina   = Wire(UInt(Base.dataWidth.W))
+  val inb   = Wire(UInt(Base.dataWidth.W))
+  val pca   = Wire(UInt(Base.pcWidth.W))
+  val pcb   = Wire(UInt(Base.pcWidth.W))
+  val pcadd = Wire(UInt(Base.pcWidth.W))
+  val PCMux = Wire(UInt(Base.PCMuxWidth.W))
 
+  // state machine
   val s_idle :: s_wait_ready :: Nil = Enum(2)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(

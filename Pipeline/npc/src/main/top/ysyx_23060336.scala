@@ -11,9 +11,7 @@ class ysyx_23060336 extends Module {
     val master    = new ysyx_23060336_AXI4Master()
     val slave     = new ysyx_23060336_AXI4Slave()
 })
-  val useNPCSim = true
-
-  val ifu     = Module(new ysyx_23060336_IFU(useNPCSim))
+  val ifu     = Module(new ysyx_23060336_IFU)
   val idu     = Module(new ysyx_23060336_IDU())
   val exu     = Module(new ysyx_23060336_EXU())
   val lsu     = Module(new ysyx_23060336_LSU())
@@ -23,7 +21,7 @@ class ysyx_23060336 extends Module {
   val arbiter = Module(new ysyx_23060336_ARBITER())
   val xbar    = Module(new ysyx_23060336_XBAR())
   val clint   = Module(new ysyx_23060336_CLINT())
-  val icache  = Module(new ysyx_23060336_ICACHE(4, 4))
+  val icache  = Module(new ysyx_23060336_ICACHE(4, 2))
 
   // cpu slave
   val awready = Wire(Bool())  
@@ -110,7 +108,7 @@ class ysyx_23060336 extends Module {
   pipelineConnect(exu.io.exu_lsu_data, lsu.io.exu_lsu_data)
   pipelineConnect(lsu.io.lsu_wbu_data, wbu.io.lsu_wbu_data)
 
-  if(useNPCSim) {
+  if(Config.useNPCSim) {
   // npc_sim <-> xbar
     val npc_sim = Module(new NPC_SIM())
     io.master      <> xbar.io.master
@@ -130,11 +128,11 @@ class ysyx_23060336 extends Module {
 
   // arbiter <-> icache <-> lsu
   icache.io.master <> arbiter.io.ifu
-  lsu.io.axi   <> arbiter.io.lsu
+  lsu.io.axi <> arbiter.io.lsu
 
   // icache <-> lsu
-  icache.io.awvalid := lsu.io.axi.awvalid
-  icache.io.awaddr  := lsu.io.axi.awaddr
+  icache.io.coherence_input.awvalid := lsu.io.axi.awvalid
+  icache.io.coherence_input.awaddr  := lsu.io.axi.awaddr
 
   // reg <> idu <> wbu
   idu.io.idu_reg_data <> reg.io.reg_idu_data

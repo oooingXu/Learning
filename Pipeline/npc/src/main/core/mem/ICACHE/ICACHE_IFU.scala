@@ -21,8 +21,7 @@ class ysyx_23060336_ICACHE_IFU extends Module {
   io.out.valid := state === s_wait_ready
 
   // icache_ifu <> icache_lsu
-  io.out.bits.awvalid := io.in.awvalid
-  io.out.bits.awaddr  := io.in.awaddr
+  io.out.bits.coherence_output <> io.in.coherence_input
   io.out.bits.araddr  := araddr
 
   when(io.in.arvalid) {
