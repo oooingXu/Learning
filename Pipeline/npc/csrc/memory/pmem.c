@@ -121,7 +121,7 @@ static int wdata_shift(uint32_t wdata, int wstrb) {
 }
 
 int pmem_write(int awaddr, int wdata, int wstrb) {
-	IFDEF(CONFIG_MTRACE, printf("(npc) pmem WRITE: at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", awaddr, wdata, wstrb));
+	//IFDEF(CONFIG_MTRACE, printf("(npc) pmem WRITE: at " FMT_PADDR ", data = " FMT_WORD ", len = %d\n", awaddr, wdata, wstrb));
 	//awaddr = awaddr & ~0x3u;
 	wdata  = wdata_shift(wdata, wstrb);
 	wstrb  = wmask(wstrb);
@@ -185,10 +185,16 @@ extern "C" void psram_read(uint32_t addr, uint32_t *data, uint32_t wr) {
 	if(wr == 2){
 		*data = host_read(p_guest_to_host(addr));
 		IFDEF(CONFIG_PMTRACE, printf("(npc) psram READ: addr = 0x%08x, data = 0x%08x, size = %d\n", addr, *data, 4));
+		//if(addr >= 0x0000006c && addr <= 0x0000006f){
+		//	printf("(npc) psram READ: addr = 0x%08x, data = 0x%08x, size = %d\n", addr, *data, 4);
+		//}
 		return;
 	} else if(wr == 1 || wr == 3 || wr == 15) {
 		IFDEF(CONFIG_PMTRACE, printf("(npc) psram WRITE: addr = 0x%08x, data = 0x%08x, size = %d\n", addr, *data, (wr == 15) ? 4 : (wr == 3) ? 2 : 1));
 		host_write(p_guest_to_host(addr), wr, *data);
+		//if(addr >= 0x0000006c && addr <= 0x0000006f){
+		//	printf("(npc) psram WRITE: addr = 0x%08x, data = 0x%08x, size = %d\n", addr, *data, (wr == 15) ? 4 : (wr == 3) ? 2 : 1);
+		//}
 		return;
 	}
 }
