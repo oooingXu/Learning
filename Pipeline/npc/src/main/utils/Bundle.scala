@@ -207,3 +207,37 @@ class COHERENCE_OUTPUT extends Bundle {
   val awaddr  = Output(UInt(Base.addrWidth.W))
 }
 
+class IMMGEN_DECODE_DATA extends Bundle {
+  val idu_valid         = Input(Bool())
+  val immNum            = Input(Bool())
+  val recsr             = Input(Bool())
+  val inst              = Input(UInt(Base.dataWidth.W))
+  val instType          = Input(UInt(Base.instTypeWidth.W))
+  val imm               = Output(UInt(Base.dataWidth.W))
+  val zimm              = Output(UInt(Base.dataWidth.W))
+  val rers1             = Output(UInt(Base.dataWidth.W))
+  val rezimm            = Output(UInt(Base.dataWidth.W))
+  val src1              = Output(UInt(Base.dataWidth.W))
+  val src2              = Output(UInt(Base.dataWidth.W))
+  val isRAW_data        = Output(Bool())
+  val idu_reg_data      = new IDU_REG_DATA()
+  val immgen_decode_raw = new IMMGEN_DECODE_RAW()
+}
+
+class DECODE_IDU_DATA extends Bundle {
+  val inst      = Input(UInt(Base.dataWidth.W))
+  val pc        = Input(UInt(Base.pcWidth.W))
+  val idu_valid = Input(Bool())
+  val idu_exu_data = new IDU_EXU_DATA()
+  val idu_reg_data = new IDU_REG_DATA()
+  val idu_csr_data = new IDU_CSR_DATA()
+  val immgen_decode_raw = new IMMGEN_DECODE_RAW()
+}
+
+class IMMGEN_DECODE_RAW extends Bundle {
+  val idu_exu_raw = new IDU_EXU_RAW()
+  val idu_lsu_raw = new IDU_LSU_RAW()
+  val idu_wbu_raw = new IDU_WBU_RAW()
+}
+
+
