@@ -11,8 +11,6 @@ class ysyx_23060336_LSU extends Module{
     val axi          = new ysyx_23060336_AXI4Master()
   })
 
-  val sram_read = Module(new SRAM_READ())
-
   val prepare = Wire(Bool())
   val DataOut = Wire(UInt(Base.dataWidth.W))
   val rdata   = Wire(UInt(Base.dataWidth.W))
@@ -103,17 +101,20 @@ class ysyx_23060336_LSU extends Module{
   io.axi.rready  := state === s_idle || state === s_wait_rslave || state === s_wait_prepare
   io.axi.wstrb   := Mux(io.exu_lsu_data.bits.idu_lsu_data.awsize === 0.U, wstrb_b, Mux(io.exu_lsu_data.bits.idu_lsu_data.awsize === 1.U, wstrb_h, io.exu_lsu_data.bits.idu_lsu_data.wstrb))
 
-  // sram_read
-  sram_read.io.clock   := clock
-  sram_read.io.wstrb   := io.exu_lsu_data.bits.idu_lsu_data.wstrb
-  sram_read.io.araddr  := io.axi.araddr
-  sram_read.io.awaddr  := io.axi.awaddr
-  sram_read.io.wdata   := io.axi.wdata
-  sram_read.io.arsize  := io.axi.arsize
-  sram_read.io.arvalid := io.axi.arvalid
-  sram_read.io.awvalid := io.axi.awvalid
-  sram_read.io.arready := io.axi.arready
-  sram_read.io.awready := io.axi.awready
+  // useSram
+  if(Config.useSram) {
+    val sram_read = Module(new SRAM_READ())
+    sram_read.io.clock   := clock
+    sram_read.io.wstrb   := io.exu_lsu_data.bits.idu_lsu_data.wstrb
+    sram_read.io.araddr  := io.axi.araddr
+    sram_read.io.awaddr  := io.axi.awaddr
+    sram_read.io.wdata   := io.axi.wdata
+    sram_read.io.arsize  := io.axi.arsize
+    sram_read.io.arvalid := io.axi.arvalid
+    sram_read.io.awvalid := io.axi.awvalid
+    sram_read.io.arready := io.axi.arready
+    sram_read.io.awready := io.axi.awready
+  }
 
   // lsu <> idu 
   io.lsu_idu_raw.lsu_rd       := io.exu_lsu_data.bits.idu_lsu_data.idu_wbu_data.rd
@@ -121,10 +122,11 @@ class ysyx_23060336_LSU extends Module{
   io.lsu_idu_raw.lsu_regdata  := io.lsu_wbu_data.bits.regdata
   io.lsu_idu_raw.lsu_instType := io.lsu_wbu_data.bits.idu_wbu_data.instType
 
-  // lsu <> lsu_counter
-  val lsu_counter = Module(new LSU_COUNTER())
-  lsu_counter.io.clock := clock
-  lsu_counter.io.state := state
-
+  // useCounter
+  if(Config.useCounter) {
+    val lsu_counter = Module(new LSU_COUNTER())
+    lsu_counter.io.clock := clock
+    lsu_counter.io.state := state
+  }
 }
 

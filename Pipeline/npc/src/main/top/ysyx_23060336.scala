@@ -21,7 +21,6 @@ class ysyx_23060336 extends Module {
   val xbar      = Module(new ysyx_23060336_XBAR())
   val clint     = Module(new ysyx_23060336_CLINT())
   val arbiter   = Module(new ysyx_23060336_ARBITER())
-  val icache    = Module(new ysyx_23060336_ICACHE(4, 2))
   val top_slave = Module(new ysyx_23060336_TOP_SLAVE())
 
   // pipeline
@@ -36,14 +35,16 @@ class ysyx_23060336 extends Module {
   pipelineConnect(exu.io.exu_lsu_data, lsu.io.exu_lsu_data)
   pipelineConnect(lsu.io.lsu_wbu_data, wbu.io.lsu_wbu_data)
 
+  // NPCSim
   if(Config.useNPCSim) {
-  // npc_sim <-> xbar
     val npc_sim = Module(new NPC_SIM())
+
+    // npc_sim <-> xbar
     io.master      <> xbar.io.master
     npc_sim.io.axi <> xbar.io.master
     npc_sim.io.clock := clock
   } else {
-  // xbar <-> top 
+    // xbar <-> top 
     io.master      <> xbar.io.master
   }
 
@@ -54,18 +55,27 @@ class ysyx_23060336 extends Module {
   xbar.io.clint <> clint.io.axi
   xbar.io.slave <> arbiter.io.axi
 
-  // ifu <-> icache
-  ifu.io.axi <> icache.io.slave
+  // ICache
+  if(Config.useICache) {
+    val icache    = Module(new ysyx_23060336_ICACHE(4, 4))
 
-  // arbiter <-> icache <-> lsu
-  icache.io.master <> arbiter.io.ifu
+    // ifu <-> icache
+    ifu.io.axi <> icache.io.slave
+
+    // arbiter <-> icache <-> lsu
+    icache.io.master <> arbiter.io.ifu
+
+    // icache <-> lsu
+    icache.io.coherence_input.awvalid := lsu.io.axi.awvalid
+    icache.io.coherence_input.awaddr  := lsu.io.axi.awaddr
+  } else {
+    ifu.io.axi <> arbiter.io.ifu
+  }
+
+  // arbiter <> lsu
   lsu.io.axi <> arbiter.io.lsu
 
-  // icache <-> lsu
-  icache.io.coherence_input.awvalid := lsu.io.axi.awvalid
-  icache.io.coherence_input.awaddr  := lsu.io.axi.awaddr
-
-  // reg <> idu <> wbu
+  // reg <> idu 
   idu.io.idu_reg_data <> reg.io.reg_idu_data
 
   // reg <> wbu

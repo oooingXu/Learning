@@ -62,7 +62,7 @@ object MemWrField extends BoolDecodeField[InstructionPattern] {
 object RegWrField extends BoolDecodeField[InstructionPattern] {
   override def name = "regwr"
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or" | "and" | "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" | "lui" | "auipc" | "jal" | "jalr" | "lb" | "lh" | "lw" | "lbu" | "lhu" | "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" => BitPat("b1")
+    case "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or" | "and" | "addi" | "slti" | "slli" | "srli" | "srai" | "sltiu" | "xori" | "ori" | "andi" | "lui" | "auipc" | "jal" | "jalr" | "lb" | "lh" | "lw" | "lbu" | "lhu" | "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" => BitPat("b1")
     case _ => BitPat("b0")
   }
 }
@@ -284,7 +284,7 @@ class ysyx_23060336_DECODE extends Module {
   .toSeq
   
   val instList = rviInstList ++ rv32iInstList ++ rvzicsrInstList ++ rvsystemInstList
-  println(s"The length of instList is: ${instList.length}")
+  //println(s"The length of instList is: ${instList.length}")
 
   // decodefield
   val allfield = Seq(PcMuxField, EcallField, EbreakField, MretField, MemWrField, RegWrField, MemtoRegField, CsrWrField, BranchField, WstrbField, AwsizeField, RegNumField, ArsizeField, AluSelField, InstTypeField, AluMuxField, RecsrField, ImmTypeField) 
@@ -350,10 +350,10 @@ class ysyx_23060336_DECODE extends Module {
   immgen.io.immgen_decode_data.recsr     := recsr
   immgen.io.immgen_decode_data.instType  := instType
   immgen.io.immgen_decode_data.immType   := immType
-  immgen.io.immgen_decode_data.idu_valid := io.decode_idu_data.idu_valid
   isRAW_data                             := immgen.io.immgen_decode_data.isRAW_data
 
   // idu <> immgen
+  immgen.io.immgen_decode_data.idu_valid := io.decode_idu_data.idu_valid
   immgen.io.immgen_decode_data.immgen_decode_raw <> io.decode_idu_data.immgen_decode_raw
 
 }

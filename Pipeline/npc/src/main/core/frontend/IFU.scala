@@ -64,10 +64,13 @@ class ysyx_23060336_IFU extends Module{
     finst := io.axi.rdata
   }
 
-  val ifu_counter = Module(new IFU_COUNTER())
-  ifu_counter.io.clock   := clock
-  ifu_counter.io.state   := state
-  ifu_counter.io.araddr  := io.axi.araddr
-  ifu_counter.io.arvalid := io.axi.arvalid
+  // useCounter
+  if(Config.useCounter) {
+    val ifu_counter = Module(new IFU_COUNTER())
+    ifu_counter.io.clock   := clock
+    ifu_counter.io.state   := state
+    ifu_counter.io.araddr  := io.axi.araddr
+    ifu_counter.io.arvalid := io.axi.arvalid
+  }
 }
 

@@ -65,8 +65,8 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   // icache_counter
   val icache_counter = Module(new ICACHE_COUNTER())
   icache_counter.io.clock          := clock
-  icache_counter.io.slave_arvalid  := io.slave.arvalid
-  icache_counter.io.slave_rvalid   := io.slave.rvalid
+  icache_counter.io.slave_arvalid  := icache_lsu.io.in.valid
+  icache_counter.io.slave_rvalid   := icache_lsu.io.out.valid
   icache_counter.io.master_arvalid := io.master.arvalid
   icache_counter.io.master_rvalid  := io.master.rvalid
 

@@ -29,11 +29,13 @@ class ysyx_23060336_WBU extends Module {
   ebreak.io.state      := state
 
   // diff pipeline pc/dnpc
-  val seepc = Module(new SEEPC())
-  seepc.io.clock := clock
-  seepc.io.pc    := io.lsu_wbu_data.bits.exu_wbu_data.pc
-  seepc.io.dnpc  := io.lsu_wbu_data.bits.exu_wbu_data.dnpc
-  seepc.io.valid := state === s_reg && !io.lsu_wbu_data.bits.idu_wbu_data.isRAW_data
+  if(Config.useDiff) {
+    val seepc = Module(new SEEPC())
+    seepc.io.clock := clock
+    seepc.io.pc    := io.lsu_wbu_data.bits.exu_wbu_data.pc
+    seepc.io.dnpc  := io.lsu_wbu_data.bits.exu_wbu_data.dnpc
+    seepc.io.valid := state === s_reg && !io.lsu_wbu_data.bits.idu_wbu_data.isRAW_data
+  }
 
   // wbu <> reg
   io.wbu_reg_data.wen   := io.lsu_wbu_data.bits.idu_wbu_data.RegWr && state === s_reg

@@ -37,7 +37,6 @@ class ysyx_23060336_ICACHE_METADATA(m: Int, n: Int) extends Module {
   val newData = maskedData | (io.in_data.pad(dataWidth) << offsetBits)
 
   // 有效位更新
-
   when(io.wen) {
     ysyx_23060336_data(io.in_index)  := newData
     ysyx_23060336_valid(io.in_index) := io.in_valid
