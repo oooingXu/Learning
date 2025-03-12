@@ -209,10 +209,10 @@ class COHERENCE_OUTPUT extends Bundle {
 
 class IMMGEN_DECODE_DATA extends Bundle {
   val idu_valid         = Input(Bool())
-  val immNum            = Input(Bool())
   val recsr             = Input(Bool())
   val inst              = Input(UInt(Base.dataWidth.W))
   val instType          = Input(UInt(Base.instTypeWidth.W))
+  val immType           = Input(UInt(Base.immTypeWidth.W))
   val imm               = Output(UInt(Base.dataWidth.W))
   val zimm              = Output(UInt(Base.dataWidth.W))
   val rers1             = Output(UInt(Base.dataWidth.W))

@@ -29,64 +29,65 @@ object PcMuxField extends DecodeField[InstructionPattern, UInt] {
 
 object EcallField extends BoolDecodeField[InstructionPattern] {
   override def name = "ecall"
-  override def genTable(i: InstructionPattern): BitPat = if (i.hasArg("ecall")) y else n 
+  override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
+    case "ecall" => BitPat("b1")
+    case _       => BitPat("b0")
+  }
 }
 
 object EbreakField extends BoolDecodeField[InstructionPattern] {
   override def name = "ebreak"
-  override def genTable(i: InstructionPattern): BitPat = if (i.hasArg("ebreak")) y else n
+  override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
+    case "ebreak" => BitPat("b1")
+    case _        => BitPat("b0")
+  }
 }
 
 object MretField extends BoolDecodeField[InstructionPattern] {
   override def name = "mret"
-  override def genTable(i: InstructionPattern): BitPat = if (i.hasArg("mret")) y else n
+  override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
+    case "mret" => BitPat("b1")
+    case _      => BitPat("b0")
+  }
 }
 
 object MemWrField extends BoolDecodeField[InstructionPattern] {
   override def name = "memwr"
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "sb" | "sh" | "sw" => y
-    case _ => n
+    case "sb" | "sh" | "sw" => BitPat("b1")
+    case _                  => BitPat("b0") 
   }
 }
 
 object RegWrField extends BoolDecodeField[InstructionPattern] {
   override def name = "regwr"
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or" | "and" | "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" | "lui" | "auipc" | "jal" | "jalr" | "lb" | "lh" | "lw" | "lbu" | "lhu" | "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" => y
-    case _ => n
-  }
-}
-
-object ImmNumField extends BoolDecodeField[InstructionPattern] {
-  override def name = "immnum"
-  override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "slli" | "srli" | "srai" => y
-    case _ => n
+    case "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or" | "and" | "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" | "lui" | "auipc" | "jal" | "jalr" | "lb" | "lh" | "lw" | "lbu" | "lhu" | "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" => BitPat("b1")
+    case _ => BitPat("b0")
   }
 }
 
 object MemtoRegField extends BoolDecodeField[InstructionPattern] {
   override def name = "memtoreg"
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "lb" | "lh" | "lw" | "lbu" | "lhu" => y
-    case _ => n
+    case "lb" | "lh" | "lw" | "lbu" | "lhu" => BitPat("b1")
+    case _                                  => BitPat("b0")
   }
 }
 
 object CsrWrField extends BoolDecodeField[InstructionPattern] {
   override def name = "csrwr"
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" => y
-    case _ => n
+    case "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" => BitPat("b1")
+    case _                                                            => BitPat("b0")
   }
 }
 
 object BranchField extends BoolDecodeField[InstructionPattern] {
   override def name = "branch"
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "beq" | "bne" | "blt" | "bge" | "bltu" | "bgeu" => y
-    case _ => n
+    case "beq" | "bne" | "blt" | "bge" | "bltu" | "bgeu" => BitPat("b1")
+    case _                                               => BitPat("b0")
   }
 }
 
@@ -97,7 +98,7 @@ object WstrbField extends DecodeField[InstructionPattern, UInt] {
     case "sb" => BitPat("b0001")
     case "sh" => BitPat("b0011")
     case "sw" => BitPat("b1111")
-    case _    => BitPat("b0001")
+    case _    => BitPat("b1111")
   }
 }
 
@@ -108,7 +109,7 @@ object AwsizeField extends DecodeField[InstructionPattern, UInt] {
     case "sb" => BitPat("b000")
     case "sh" => BitPat("b001")
     case "sw" => BitPat("b010")
-    case _    => BitPat("b000")
+    case _    => BitPat("b111")
   }
 }
 
@@ -121,7 +122,7 @@ object RegNumField extends DecodeField[InstructionPattern, UInt] {
     case "lw"  => BitPat("b010")
     case "lbu" => BitPat("b011")
     case "lhu" => BitPat("b100")
-    case _     => BitPat("b000")
+    case _     => BitPat("b111")
   }
 }
 
@@ -132,7 +133,7 @@ object ArsizeField extends DecodeField[InstructionPattern, UInt] {
     case "lb" | "lbu" => BitPat("b000")
     case "lh" | "lhu" => BitPat("b001")
     case "lw"         => BitPat("b010")
-    case _            => BitPat("b000")
+    case _            => BitPat("b111")
   }
 }
 
@@ -140,6 +141,7 @@ object AluSelField extends DecodeField[InstructionPattern, UInt] {
   override def name = "alusel"
   override def chiselType = UInt(Base.AluSelWidth.W)
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
+    case "add"  | "addi" | "csrrw" | "csrrwi" => BitPat("b0000") // +
     case "sub"                                => BitPat("b0001") // -
     case "and"  | "andi" | "csrrc" | "csrrci" => BitPat("b0011") // &
     case "or"   | "ori"  | "csrrs" | "csrrsi" => BitPat("b0100") // |
@@ -160,15 +162,39 @@ object AluSelField extends DecodeField[InstructionPattern, UInt] {
 object InstTypeField extends DecodeField[InstructionPattern, UInt] {
   override def name = "insttype"
   override def chiselType = UInt(Base.instTypeWidth.W)
+
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "imm12hi"  | "imm12lo"             => BitPat("b001") // S
-    case "bimm12hi" | "bimm12lo"            => BitPat("b010") // B
-    case "imm20"                            => BitPat("b011") // U
-    case "jimm20"                           => BitPat("b100") // J
-    case "csr"                              => BitPat("b110") // csr
-    case "lb" | "lh" | "lw" | "lbu" | "lhu" => BitPat("b111") // load
-    case "imm12"                            => BitPat("b000") // I
-    case _                                  => BitPat("b101")  
+    case  "jalr" | "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" | "slli" | "srli" | "srai" | "fence.i" => BitPat("b000") // I
+    case  "sb"  | "sh"  | "sw"                            => BitPat("b001") // S
+    case  "beq" | "bne" | "blt" | "bge" | "bltu" | "bgeu" => BitPat("b010") // B
+    case  "lui" | "auipc"                                 => BitPat("b011") // U
+    case  "jal"                                           => BitPat("b100") // J
+    case "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or" | "and" => BitPat("b101") // R
+    case  "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" | "ecall" | "ebreak" => BitPat("b110") // csr
+    case "lb" | "lh" | "lw" | "lbu" | "lhu" => BitPat("b111") // I load
+    case _ => BitPat("b101")
+  }
+}
+
+object ImmTypeField extends DecodeField[InstructionPattern, UInt] {
+  override def name = "immtype"
+  override def chiselType = UInt(Base.immTypeWidth.W)
+  override def genTable(i: InstructionPattern): BitPat = {
+    val immType = i.inst.args
+    .map(_.name match {
+      case "imm12"                 => BitPat("b000")
+      case "imm12hi"  | "imm12lo"  => BitPat("b001")
+      case "bimm12hi" | "bimm12lo" => BitPat("b010")
+      case "imm20"                 => BitPat("b011")
+      case "jimm20"                => BitPat("b100")
+      case "shamtw"                => BitPat("b101")
+      case _                       => BitPat("b111")
+    })
+    .filterNot(_.value == BitPat("b111").value)
+    .headOption
+    .getOrElse(BitPat("b111"))
+
+    immType
   }
 }
 
@@ -192,8 +218,8 @@ object AluMuxField extends DecodeField[InstructionPattern, UInt] {
 object RecsrField extends BoolDecodeField[InstructionPattern] {
   override def name = "recsr"
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "csrrc" | "csrrci" => y
-    case _ => n
+    case "csrrc" | "csrrci" => BitPat("b1")
+    case _                  => BitPat("b0")
   }
 }
 
@@ -209,12 +235,12 @@ class ysyx_23060336_DECODE extends Module {
   val MemtoReg   = Wire(Bool())
   val CsrWr      = Wire(Bool())
   val recsr      = Wire(Bool())
-  val immNum     = Wire(Bool())
   val isRAW_data = Wire(Bool())
   val rd         = Wire(UInt(Base.rdWidth.W))
   val csr        = Wire(UInt(Base.csrWidth.W))
   val AluSel     = Wire(UInt(Base.AluSelWidth.W))
   val instType   = Wire(UInt(Base.instTypeWidth.W))
+  val immType    = Wire(UInt(Base.immTypeWidth.W))
   val AluMux     = Wire(UInt(Base.AluMuxWidth.W))
   val inst       = Wire(UInt(Base.dataWidth.W))
 
@@ -261,7 +287,7 @@ class ysyx_23060336_DECODE extends Module {
   println(s"The length of instList is: ${instList.length}")
 
   // decodefield
-  val allfield = Seq(PcMuxField, EcallField, EbreakField, MretField, MemWrField, RegWrField, ImmNumField, MemtoRegField, CsrWrField, BranchField, WstrbField, AwsizeField, RegNumField, ArsizeField, AluSelField, InstTypeField, AluMuxField, RecsrField) 
+  val allfield = Seq(PcMuxField, EcallField, EbreakField, MretField, MemWrField, RegWrField, MemtoRegField, CsrWrField, BranchField, WstrbField, AwsizeField, RegNumField, ArsizeField, AluSelField, InstTypeField, AluMuxField, RecsrField, ImmTypeField) 
   val decodeTable   = new DecodeTable(instList, allfield) 
   val decodeBundle = decodeTable.decode(inst)
 
@@ -275,8 +301,8 @@ class ysyx_23060336_DECODE extends Module {
   AluSel   := decodeBundle(AluSelField)
   AluMux   := decodeBundle(AluMuxField)
   instType := decodeBundle(InstTypeField)
+  immType  := decodeBundle(ImmTypeField)
   recsr    := decodeBundle(RecsrField)
-  immNum   := decodeBundle(ImmNumField)
 
   // idu <> exu
   io.decode_idu_data.idu_exu_data.pc     := io.decode_idu_data.pc
@@ -292,13 +318,13 @@ class ysyx_23060336_DECODE extends Module {
   io.decode_idu_data.idu_exu_data.src1   := immgen.io.immgen_decode_data.src1
 
   // idu <> lsu
-  io.decode_idu_data.idu_exu_data.idu_lsu_data.wstrb                 := decodeBundle(WstrbField)
-  io.decode_idu_data.idu_exu_data.idu_lsu_data.awsize                := decodeBundle(AwsizeField)
-  io.decode_idu_data.idu_exu_data.idu_lsu_data.arsize                := decodeBundle(ArsizeField)
-  io.decode_idu_data.idu_exu_data.idu_lsu_data.RegNum                := decodeBundle(RegNumField)
-  io.decode_idu_data.idu_exu_data.idu_lsu_data.MemWr                 := Mux(isRAW_data, 0.U, MemWr)
-  io.decode_idu_data.idu_exu_data.idu_lsu_data.MemtoReg              := Mux(isRAW_data, 0.U, MemtoReg)
-  io.decode_idu_data.idu_exu_data.idu_lsu_data.src2                  := immgen.io.immgen_decode_data.src1
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.wstrb    := decodeBundle(WstrbField)
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.awsize   := decodeBundle(AwsizeField)
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.arsize   := decodeBundle(ArsizeField)
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.RegNum   := decodeBundle(RegNumField)
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.MemWr    := Mux(isRAW_data, 0.U, MemWr)
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.MemtoReg := Mux(isRAW_data, 0.U, MemtoReg)
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.src2     := immgen.io.immgen_decode_data.src2
 
   // idu <> wbu
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.rd         := Mux(isRAW_data, 0.U, rd)
@@ -320,10 +346,10 @@ class ysyx_23060336_DECODE extends Module {
   io.decode_idu_data.idu_exu_data.idu_lsu_data.csrdata := io.decode_idu_data.idu_csr_data.csrdata
 
   // decode <> immgen
-  immgen.io.immgen_decode_data.immNum    := immNum
   immgen.io.immgen_decode_data.inst      := inst
   immgen.io.immgen_decode_data.recsr     := recsr
   immgen.io.immgen_decode_data.instType  := instType
+  immgen.io.immgen_decode_data.immType   := immType
   immgen.io.immgen_decode_data.idu_valid := io.decode_idu_data.idu_valid
   isRAW_data                             := immgen.io.immgen_decode_data.isRAW_data
 

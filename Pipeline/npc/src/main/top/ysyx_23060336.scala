@@ -11,90 +11,18 @@ class ysyx_23060336 extends Module {
     val master    = new ysyx_23060336_AXI4Master()
     val slave     = new ysyx_23060336_AXI4Slave()
 })
-  val ifu     = Module(new ysyx_23060336_IFU)
-  val idu     = Module(new ysyx_23060336_IDU())
-  val exu     = Module(new ysyx_23060336_EXU())
-  val lsu     = Module(new ysyx_23060336_LSU())
-  val wbu     = Module(new ysyx_23060336_WBU())
-  val reg     = Module(new ysyx_23060336_REG())
-  val csr     = Module(new ysyx_23060336_CSR())
-  val arbiter = Module(new ysyx_23060336_ARBITER())
-  val xbar    = Module(new ysyx_23060336_XBAR())
-  val clint   = Module(new ysyx_23060336_CLINT())
-  val icache  = Module(new ysyx_23060336_ICACHE(4, 2))
-
-  // cpu slave
-  val awready = Wire(Bool())  
-  val awvalid = Wire(Bool())   
-  val awaddr  = Wire(UInt(32.W))
-  val awid    = Wire(UInt(4.W)) 
-  val awlen   = Wire(UInt(8.W))
-  val awsize  = Wire(UInt(3.W))
-  val awburst = Wire(UInt(2.W))
-  val wready  = Wire(Bool())  
-  val wvalid  = Wire(Bool())  
-  val wdata   = Wire(UInt(32.W))
-  val wstrb   = Wire(UInt(4.W)) 
-  val wlast   = Wire(Bool())   
-  val bready  = Wire(Bool())  
-  val bvalid  = Wire(Bool()) 
-  val bresp   = Wire(UInt(2.W))
-  val bid     = Wire(UInt(4.W)) 
-  val arready = Wire(Bool())   
-  val arvalid = Wire(Bool())  
-  val araddr  = Wire(UInt(32.W)) 
-  val arid    = Wire(UInt(4.W)) 
-  val arlen   = Wire(UInt(8.W))
-  val arsize  = Wire(UInt(3.W))  
-  val arburst = Wire(UInt(2.W)) 
-  val rready  = Wire(Bool())   
-  val rvalid  = Wire(Bool())  
-  val rresp   = Wire(UInt(2.W)) 
-  val rdata   = Wire(UInt(32.W))
-  val rlast   = Wire(Bool())   
-  val rid     = Wire(UInt(4.W)) 
-
-  io.slave.awready := awready
-  awvalid          := io.slave.awvalid
-  awaddr           := io.slave.awaddr
-  awid             := io.slave.awid
-  awlen            := io.slave.awlen
-  awsize           := io.slave.awsize
-  awburst          := io.slave.awburst
-  io.slave.wready  := wready
-  wvalid           := io.slave.wvalid
-  wdata            := io.slave.wdata
-  wstrb            := io.slave.wstrb
-  wlast            := io.slave.wlast
-  bready           := io.slave.bready
-  io.slave.bvalid  := bvalid
-  io.slave.bresp   := bresp
-  io.slave.bid     := bid
-  io.slave.arready := arready
-  arvalid          := io.slave.arvalid
-  araddr           := io.slave.araddr
-  arid             := io.slave.arid
-  arlen            := io.slave.arlen
-  arsize           := io.slave.arsize
-  arburst          := io.slave.arburst
-  rready           := io.slave.rready
-  io.slave.rvalid  := rvalid
-  io.slave.rresp   := rresp
-  io.slave.rdata   := rdata
-  io.slave.rlast   := rlast
-  io.slave.rid     := rid
-
-  awready := false.B
-  wready  := false.B
-  bvalid  := false.B
-  arready := false.B
-  rvalid  := false.B
-  bresp   := 0.U
-  bid     := 0.U
-  rresp   := 0.U
-  rdata   := 0.U
-  rlast   := 0.U
-  rid     := 0.U
+  val ifu       = Module(new ysyx_23060336_IFU)
+  val idu       = Module(new ysyx_23060336_IDU())
+  val exu       = Module(new ysyx_23060336_EXU())
+  val lsu       = Module(new ysyx_23060336_LSU())
+  val wbu       = Module(new ysyx_23060336_WBU())
+  val reg       = Module(new ysyx_23060336_REG())
+  val csr       = Module(new ysyx_23060336_CSR())
+  val xbar      = Module(new ysyx_23060336_XBAR())
+  val clint     = Module(new ysyx_23060336_CLINT())
+  val arbiter   = Module(new ysyx_23060336_ARBITER())
+  val icache    = Module(new ysyx_23060336_ICACHE(4, 2))
+  val top_slave = Module(new ysyx_23060336_TOP_SLAVE())
 
   // pipeline
   def pipelineConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T], thisIn: DecoupledIO[T]) = {
@@ -118,6 +46,9 @@ class ysyx_23060336 extends Module {
   // xbar <-> top 
     io.master      <> xbar.io.master
   }
+
+  // top <> top_slave
+  io.slave <> top_slave.io.slave
 
   // xbar <-> clint <-> arbiter
   xbar.io.clint <> clint.io.axi

@@ -7,6 +7,7 @@ object Base {
   // idu sign
   val pcmuxWidth    = 2
   val instTypeWidth = 3
+  val immTypeWidth  = 3
   val RegNumWidth   = 3
   val PCMuxWidth    = 4
   val AluSelWidth   = 4
