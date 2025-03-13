@@ -20,9 +20,9 @@ object PcMuxField extends DecodeField[InstructionPattern, UInt] {
   override def name = "pcmux"
   override def chiselType = UInt(Base.pcmuxWidth.W)
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "jal"    => BitPat("b01")   // J-type pc += imm
     case "jalr"   => BitPat("b10")   // I-type pc =  imm + src1
-    case "beq" | "bne" | "blt" | "bge" | "bltu" | "bgeu" => BitPat("b01") // B-type pc =  imm + src1
+    case "jal"    => BitPat("b01")   // J-type pc += imm
+    case "beq" | "bne" | "blt" | "bge" | "bltu" | "bgeu" => BitPat("b01") // B-type pc += imm 
     case _ => BitPat("b00")          // Default PC+4
   }
 }
@@ -151,8 +151,8 @@ object AluSelField extends DecodeField[InstructionPattern, UInt] {
     case "srl"  | "srli"                      => BitPat("b1000") // >l
     case "slt"  | "slti"  | "blt"             => BitPat("b1001") // ><
     case "sltu" | "sltiu" | "bltu"            => BitPat("b1010") // ><u
-    case "bge"                                => BitPat("b1011") // >
-    case "bgeu"                               => BitPat("b1100") // >u
+    case "bge"                                => BitPat("b1011") // >=
+    case "bgeu"                               => BitPat("b1100") // >=u
     case "beq"                                => BitPat("b1101") // ==
     case "bne"                                => BitPat("b1110") // !=
     case _                                    => BitPat("b0000") // +
@@ -162,15 +162,14 @@ object AluSelField extends DecodeField[InstructionPattern, UInt] {
 object InstTypeField extends DecodeField[InstructionPattern, UInt] {
   override def name = "insttype"
   override def chiselType = UInt(Base.instTypeWidth.W)
-
   override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case  "jalr" | "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" | "slli" | "srli" | "srai" | "fence.i" => BitPat("b000") // I
-    case  "sb"  | "sh"  | "sw"                            => BitPat("b001") // S
-    case  "beq" | "bne" | "blt" | "bge" | "bltu" | "bgeu" => BitPat("b010") // B
-    case  "lui" | "auipc"                                 => BitPat("b011") // U
-    case  "jal"                                           => BitPat("b100") // J
-    case "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or" | "and" => BitPat("b101") // R
-    case  "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" | "ecall" | "ebreak" => BitPat("b110") // csr
+    case "jalr" | "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" | "slli" | "srli" | "srai" | "fence.i" => BitPat("b000") // I
+    case "sb"   | "sh"   | "sw"                            => BitPat("b001") // S
+    case "beq"  | "bne"  | "blt" | "bge" | "bltu" | "bgeu" => BitPat("b010") // B
+    case "lui"  | "auipc"                                  => BitPat("b011") // U
+    case "jal"                                             => BitPat("b100") // J
+    case "add"  | "sub"  | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or" | "and" => BitPat("b101") // R
+    case "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" | "ecall" | "ebreak" => BitPat("b110") // csr
     case "lb" | "lh" | "lw" | "lbu" | "lhu" => BitPat("b111") // I load
     case _ => BitPat("b101")
   }

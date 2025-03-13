@@ -52,53 +52,26 @@ class ysyx_23060336_ALU(n: Int) extends Module {
 	out14 := Cat(Fill(n-1, 0.U),zero)                     // a == b
 	out15 := Cat(Fill(n-1, 0.U),~zero)                    // a != b
 
-  //when(io.sel === 0.U) {
-  //  io.result := out1 // a + b
-  //}.elsewhen(io.sel === 1.U) {
-  //  io.result := out1 // a - b
-  //}.elsewhen(io.sel === 2.U) {
-  //  io.result := out3 // ~a
-  //}.elsewhen(io.sel === 3.U) {
-  //  io.result := out4 // a & b
-  //}.elsewhen(io.sel === 4.U) {
-  //  io.result := out5 // a | b
-  //}.elsewhen(io.sel === 5.U) {
-  //  io.result := out6 // a ^ b
-  //}.elsewhen(io.sel === 6.U) {
-  //  io.result := out7 // a >> b
-  //}.elsewhen(io.sel === 7.U) {
-  //  io.result := out7 // a << b
-  //}.elsewhen(io.sel === 8.U) {
-  //  io.result := out7 // a >>> b
-  //}.elsewhen(io.sel === 9.U) {
-  //  io.result := out10 // a < b
-  //}.elsewhen(io.sel === 10.U) {
-  //  io.result := out11 // a < b u
-  //}.elsewhen(io.sel === 11.U) {
-  //  io.result := out12 // a >= b
-  //}.elsewhen(io.sel === 12.U) {
-  //  io.result := out13 // a >= b u
-  //}.elsewhen(io.sel === 13.U) {
-  //  io.result := out14 // 其他逻辑
-  //}.otherwise {
-  //  io.result := out15 // 默认值
-  //}
-
-	io.result := Mux(io.sel === 0.U,  out1, // a + b
-							 Mux(io.sel === 1.U,  out1, // a - b
-							 Mux(io.sel === 2.U,  out3, // ~a
-							 Mux(io.sel === 3.U,  out4, // a & b
-							 Mux(io.sel === 4.U,  out5, // a | b
-							 Mux(io.sel === 5.U,  out6, // a ^ b
-               Mux(io.sel === 6.U,  out7, // a >> b A
-							 Mux(io.sel === 7.U,  out7, // a << b
-               Mux(io.sel === 8.U,  out7, // a >>> b L
-							 Mux(io.sel === 9.U,  out10,// a < b 
-               Mux(io.sel === 10.U, out11,// a < b u
-               Mux(io.sel === 11.U, out12,// a>= b 
-               Mux(io.sel === 12.U, out13,// a>= b u 
-							 Mux(io.sel === 13.U, out14, out15))))))))))))))
-} // a == b   // a != b
+  io.result := MuxLookup(io.sel, 0.U)(
+    Seq(
+      0.U(Base.AluSelWidth.W)  -> out1,  // a + b
+      1.U(Base.AluSelWidth.W)  -> out1,  // a - b
+      2.U(Base.AluSelWidth.W)  -> out3,  // ~a
+      3.U(Base.AluSelWidth.W)  -> out4,  // a & b
+      4.U(Base.AluSelWidth.W)  -> out5,  // a | b
+      5.U(Base.AluSelWidth.W)  -> out6,  // a ^ b
+      6.U(Base.AluSelWidth.W)  -> out7,  // a >> b A
+      7.U(Base.AluSelWidth.W)  -> out7,  // a << b
+      8.U(Base.AluSelWidth.W)  -> out7,  // a >>> b L
+      9.U(Base.AluSelWidth.W)  -> out10, // a < b 
+      10.U(Base.AluSelWidth.W) -> out11, // a < b u
+      11.U(Base.AluSelWidth.W) -> out12, // a >= b 
+      12.U(Base.AluSelWidth.W) -> out13, // a >= b u 
+      13.U(Base.AluSelWidth.W) -> out14, // a == b
+      14.U(Base.AluSelWidth.W) -> out15  // a != b
+    )
+  )
+} 
 
 
 class ysyx_23060336_AddSub(n: Int) extends Module {

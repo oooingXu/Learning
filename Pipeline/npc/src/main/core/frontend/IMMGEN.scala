@@ -45,40 +45,39 @@ class ysyx_23060336_IMMGEN extends Module {
   val imm_j = Cat(Fill(11, inst(31)), Cat(inst(31), inst(19, 12), inst(20), inst(30, 21), 0.U))
   val imm_shamtw = Cat(Fill(27, 0.U), inst(24, 20))
   
+  // has src1/src2
+  val conflict_instType_idu_src1 = (instType === "b000".U || instType === "b001".U || instType === "b010".U || instType === "b110".U || instType === "b101".U || instType === "b111".U)
+  val conflict_instType_idu_src2 = (instType === "b001".U || instType === "b010".U || instType === "b101".U)
+  
   // conflict 
-  val conflict_exu_rs1 = rs1 === exu_rd && rs1 =/= 0.U 
-  val conflict_exu_rs2 = rs2 === exu_rd && rs2 =/= 0.U
+  val conflict_exu_rs1 = rs1 === exu_rd && rs1 =/= 0.U && exu_instType =/= "b001".U && exu_instType =/= "b010".U && conflict_instType_idu_src1
+  val conflict_exu_rs2 = rs2 === exu_rd && rs2 =/= 0.U && exu_instType =/= "b001".U && exu_instType =/= "b010".U && conflict_instType_idu_src2
 
-  val conflict_lsu_rs1 = rs1 === lsu_rd && rs1 =/= 0.U   
-  val conflict_lsu_rs2 = rs2 === lsu_rd && rs2 =/= 0.U
+  val conflict_lsu_rs1 = rs1 === lsu_rd && rs1 =/= 0.U && lsu_instType =/= "b001".U && lsu_instType =/= "b010".U && conflict_instType_idu_src1  
+  val conflict_lsu_rs2 = rs2 === lsu_rd && rs2 =/= 0.U && lsu_instType =/= "b001".U && lsu_instType =/= "b010".U && conflict_instType_idu_src2
 
-  val conflict_wbu_rs1 = rs1 === wbu_rd && rs1 =/= 0.U 
-  val conflict_wbu_rs2 = rs2 === wbu_rd && rs2 =/= 0.U
+  val conflict_wbu_rs1 = rs1 === wbu_rd && rs1 =/= 0.U && wbu_instType =/= "b001".U && wbu_instType =/= "b010".U && conflict_instType_idu_src1
+  val conflict_wbu_rs2 = rs2 === wbu_rd && rs2 =/= 0.U && wbu_instType =/= "b001".U && wbu_instType =/= "b010".U && conflict_instType_idu_src2
 
   // bypass 
-  val bypass_exu = exu_instType =/= "b111".U && exu_instType =/= "b001".U && exu_instType =/= "b010".U
-  val bypass_lsu = ((lsu_instType === "b111".U && lsu_valid) || lsu_instType =/= "b111".U) && lsu_instType =/= "b001".U && lsu_instType =/= "b010".U
-  val bypass_wbu = wbu_instType =/= "b001".U && wbu_instType =/= "b010".U
+  val bypass_exu = exu_instType =/= "b111".U 
+  val bypass_lsu = ((lsu_instType === "b111".U && lsu_valid) || lsu_instType =/= "b111".U) 
 
   val bypass_exu_rs1 = conflict_exu_rs1 && bypass_exu
-  val bypass_lsu_rs1 = conflict_lsu_rs1 && bypass_lsu
-  val bypass_wbu_rs1 = conflict_wbu_rs1 && bypass_wbu
+  val bypass_lsu_rs1 = conflict_lsu_rs1 && bypass_lsu && !conflict_exu_rs1
+  val bypass_wbu_rs1 = conflict_wbu_rs1 && !conflict_exu_rs1 && !conflict_lsu_rs1
 
   val bypass_exu_rs2 = conflict_exu_rs2 && bypass_exu
-  val bypass_lsu_rs2 = conflict_lsu_rs2 && bypass_lsu
-  val bypass_wbu_rs2 = conflict_wbu_rs2 && bypass_wbu
+  val bypass_lsu_rs2 = conflict_lsu_rs2 && bypass_lsu && !conflict_exu_rs2
+  val bypass_wbu_rs2 = conflict_wbu_rs2 && !conflict_exu_rs2 && !conflict_lsu_rs2
 
-  // has src1/src2
-  val bypass_instType_idu_src1 = (instType === "b000".U || instType === "b001".U || instType === "b010".U || instType === "b110".U || instType === "b101".U || instType === "b111".U)
-  val bypass_instType_idu_src2 = (instType === "b001".U || instType === "b010".U || instType === "b101".U)
-  
   val isRAW_data      = Wire(Bool())
   val isRAW_data_src1 = Wire(Bool())
   val isRAW_data_src2 = Wire(Bool())
 
   // data raw
-  isRAW_data_src1 := bypass_instType_idu_src1 && (conflict_exu_rs1 || conflict_lsu_rs1 || conflict_wbu_rs1) && !(bypass_exu || bypass_lsu || bypass_wbu)
-  isRAW_data_src2 := bypass_instType_idu_src2 && (conflict_exu_rs2 || conflict_lsu_rs2 || conflict_wbu_rs2) && !(bypass_exu || bypass_lsu || bypass_wbu)
+  isRAW_data_src1 := (conflict_exu_rs1 && !bypass_exu_rs1) || (conflict_lsu_rs1 && !bypass_lsu_rs1)
+  isRAW_data_src2 := (conflict_exu_rs2 && !bypass_exu_rs2) || (conflict_lsu_rs2 && !bypass_lsu_rs2)
   isRAW_data := (isRAW_data_src1 || isRAW_data_src2) && io.immgen_decode_data.idu_valid
 
   src1 := Mux(bypass_exu_rs1, exu_regdata,
@@ -129,10 +128,10 @@ class ysyx_23060336_IMMGEN extends Module {
 
   // decode <> immgen
   inst := io.immgen_decode_data.inst
-  io.immgen_decode_data.src1 := src1
-  io.immgen_decode_data.src2 := src2
+  io.immgen_decode_data.src1       := src1
+  io.immgen_decode_data.src2       := src2
+  io.immgen_decode_data.zimm       := zimm
   io.immgen_decode_data.isRAW_data := isRAW_data
-  io.immgen_decode_data.zimm   := zimm
   io.immgen_decode_data.rers1  := Mux(recsr, ~src1, src1)
   io.immgen_decode_data.rezimm := Mux(recsr, ~zimm, zimm)
   io.immgen_decode_data.imm    := Mux(isRAW_data, 0.U, imm)
