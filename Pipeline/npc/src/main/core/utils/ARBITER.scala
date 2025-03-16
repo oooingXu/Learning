@@ -98,7 +98,7 @@ class ysyx_23060336_ARBITER extends Module{
   io.axi.arvalid := arvalid && (state === s_lsu || state === s_ifu)
   io.axi.rready  := rready
   awready        := io.axi.awready
-  arready        := io.axi.arready
+  arready        := io.axi.arready && state =/= s_wait
   wready         := io.axi.wready
   bvalid         := io.axi.bvalid
   bresp          := io.axi.bresp

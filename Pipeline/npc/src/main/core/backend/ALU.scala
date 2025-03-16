@@ -22,12 +22,22 @@ class ysyx_23060336_ALU(n: Int) extends Module {
 	val out5  = io.ina | io.inb
 	val out6  = io.ina ^ io.inb
 	val out7  = Wire(UInt(n.W))
-  val out10 = Wire(UInt(n.W)) // a < b
-  val out11 = Wire(UInt(n.W)) // a < b (U)
-  val out12 = Wire(UInt(n.W)) // a >= b
-  val out13 = Wire(UInt(n.W)) // a >= b (U)
-  val out14 = Wire(UInt(n.W)) // a == b
-  val out15 = Wire(UInt(n.W)) // a != b
+
+  // 独立比较逻辑 
+  val a_signed = io.ina.asSInt
+  val b_signed = io.inb.asSInt
+
+  // 无符号比较
+  val lt_u  = io.ina < io.inb
+  val geu_u = io.ina >= io.inb
+
+  // 有符号比较
+  val lt_s  = a_signed < b_signed
+  val ge_s  = a_signed >= b_signed
+
+  // 相等比较（复用原逻辑）
+  val beq    = io.ina === io.inb
+  val neq   = io.ina =/= io.inb
 
 	val addsub = Module(new ysyx_23060336_AddSub(n))
 	addsub.io.ina := io.ina
@@ -37,8 +47,6 @@ class ysyx_23060336_ALU(n: Int) extends Module {
 	zero          := addsub.io.zero
 	overflow      := addsub.io.overflow
 	out1          := addsub.io.result
-	out11         := Cat(Fill(n-1, 0.U), cin ^ addsub.io.carry)
-	out13         := Cat(Fill(n-1, 0.U), ~(cin ^ addsub.io.carry))
 	
 	val shift = Module(new ysyx_23060336_SHIFT(n))
   shift.io.in      := io.ina
@@ -46,11 +54,6 @@ class ysyx_23060336_ALU(n: Int) extends Module {
   shift.io.isLeft  := io.sel(0)
   shift.io.izArith := io.sel(1)
   out7             := shift.io.out
-
-	out10 := Cat(Fill(n-1, 0.U), addsub.io.result(n-1) ^ overflow)    // a < b
-	out12 := Cat(Fill(n-1, 0.U), ~(addsub.io.result(n-1) ^ overflow) | zero)               // a >= b
-	out14 := Cat(Fill(n-1, 0.U),zero)                     // a == b
-	out15 := Cat(Fill(n-1, 0.U),~zero)                    // a != b
 
   io.result := MuxLookup(io.sel, 0.U)(
     Seq(
@@ -63,16 +66,15 @@ class ysyx_23060336_ALU(n: Int) extends Module {
       6.U(Base.AluSelWidth.W)  -> out7,  // a >> b A
       7.U(Base.AluSelWidth.W)  -> out7,  // a << b
       8.U(Base.AluSelWidth.W)  -> out7,  // a >>> b L
-      9.U(Base.AluSelWidth.W)  -> out10, // a < b 
-      10.U(Base.AluSelWidth.W) -> out11, // a < b u
-      11.U(Base.AluSelWidth.W) -> out12, // a >= b 
-      12.U(Base.AluSelWidth.W) -> out13, // a >= b u 
-      13.U(Base.AluSelWidth.W) -> out14, // a == b
-      14.U(Base.AluSelWidth.W) -> out15  // a != b
+      9.U(Base.AluSelWidth.W)  -> lt_s, // a < b 
+      10.U(Base.AluSelWidth.W) -> lt_u, // a < b u
+      11.U(Base.AluSelWidth.W) -> ge_s, // a >= b 
+      12.U(Base.AluSelWidth.W) -> geu_u, // a >= b u 
+      13.U(Base.AluSelWidth.W) -> beq, // a == b
+      14.U(Base.AluSelWidth.W) -> neq// a != b
     )
   )
 } 
-
 
 class ysyx_23060336_AddSub(n: Int) extends Module {
 	val io = IO(new Bundle{

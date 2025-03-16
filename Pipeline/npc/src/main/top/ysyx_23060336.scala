@@ -57,7 +57,7 @@ class ysyx_23060336 extends Module {
 
   // ICache
   if(Config.useICache) {
-    val icache    = Module(new ysyx_23060336_ICACHE(4, 4))
+    val icache    = Module(new ysyx_23060336_ICACHE(4, 2)) // m n
 
     // ifu <-> icache
     ifu.io.axi <> icache.io.slave

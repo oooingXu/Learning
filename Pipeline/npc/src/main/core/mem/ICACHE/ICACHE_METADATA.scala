@@ -17,12 +17,12 @@ class ysyx_23060336_ICACHE_METADATA(m: Int, n: Int) extends Module {
   })
 
   // 参数计算
-  val dataWidth = 1 << (m + 3)   // 数据总位宽
-  val tagWidth = 32 - m - n
+  val icachedataWidth = 1 << (m + 3)   // 数据总位宽
+  val icachetagWidth = 32 - m - n
 
   // 使用Reg实现同步读-修改-写
-  val ysyx_23060336_tag   = Mem(1 << n, UInt(tagWidth.W))
-  val ysyx_23060336_data  = Mem(1 << n, UInt(dataWidth.W))
+  val ysyx_23060336_tag   = Mem(1 << n, UInt(icachetagWidth.W))
+  val ysyx_23060336_data  = Mem(1 << n, UInt(icachedataWidth.W))
   val ysyx_23060336_valid = Mem(1 << n, UInt(1.W))
 
   // 当前数据通路
@@ -32,9 +32,9 @@ class ysyx_23060336_ICACHE_METADATA(m: Int, n: Int) extends Module {
   val offsetBits = io.in_offset * 32.U
 
   // 修正掩码生成逻辑（核心修复点）
-  val segmentMask = (~0.U(32.W)).pad(dataWidth) << offsetBits
+  val segmentMask = (~0.U(32.W)).pad(icachedataWidth) << offsetBits
   val maskedData = currentData & ~segmentMask
-  val newData = maskedData | (io.in_data.pad(dataWidth) << offsetBits)
+  val newData = maskedData | (io.in_data.pad(icachedataWidth) << offsetBits)
 
   // 有效位更新
   when(io.wen) {
@@ -44,7 +44,7 @@ class ysyx_23060336_ICACHE_METADATA(m: Int, n: Int) extends Module {
   }
 
   // 输出逻辑
-  val outSegmentMask = (~0.U(32.W)).pad(dataWidth) << offsetBits
+  val outSegmentMask = (~0.U(32.W)).pad(icachedataWidth) << offsetBits
   val maskedOutdata = (currentData & outSegmentMask) >> offsetBits
 
   io.out_tag   := ysyx_23060336_tag(io.in_index)

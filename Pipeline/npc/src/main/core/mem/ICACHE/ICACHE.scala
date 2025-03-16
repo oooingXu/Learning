@@ -14,6 +14,8 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   val icache_lsu = Module(new ysyx_23060336_ICACHE_LSU(m, n))
   val icache_issue = Module(new ysyx_23060336_ICACHE_ISSUE())
 
+  val slave_araddr = Reg(UInt(Base.addrWidth.W))
+
   // icache pipeline
   def icacheConnect[T <: Data, T2 <: Data](prevOut: DecoupledIO[T], thisIn: DecoupledIO[T]) = {
     prevOut.ready := thisIn.ready
@@ -52,12 +54,14 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   icache_ifu.io.in.coherence_input := io.coherence_input
 
   // arbiter <> icache_lsu
-  io.master.araddr  := Mux(skip_addr, io.slave.araddr, icache_lsu.io.lsu_arbiter.araddr)
-  io.master.arvalid := icache_lsu.io.lsu_arbiter.arvalid || (io.slave.arvalid && skip_addr)
-  io.master.rready  := icache_lsu.io.lsu_arbiter.rready || (io.slave.arvalid && skip_addr) || state === s_skip
+  io.master.araddr  := Mux(state === s_skip, slave_araddr, icache_lsu.io.lsu_arbiter.araddr)
+  io.master.arvalid := icache_lsu.io.lsu_arbiter.arvalid || (io.slave.arvalid && state === s_skip)
+  io.master.rready  := icache_lsu.io.lsu_arbiter.rready || state === s_idle || state === s_skip
   icache_lsu.io.lsu_arbiter.rvalid := io.master.rvalid
   icache_lsu.io.lsu_arbiter.rdata  := io.master.rdata
   icache_lsu.io.lsu_arbiter.arready:= io.master.arready
+
+  slave_araddr := io.slave.araddr
 
   // icache <> icache_issue
   icache_issue.io.ifu_rready := io.slave.rready

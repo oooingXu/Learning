@@ -20,40 +20,50 @@ class ysyx_23060336_EXU extends Module {
   val pcadd = Wire(UInt(Base.pcWidth.W))
   val PCMux = Wire(UInt(Base.PCMuxWidth.W))
 
+  val dnpc  = Wire(UInt(Base.pcWidth.W))
+
   // state machine
   val s_idle :: s_wait_ready :: Nil = Enum(2)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(
-    s_idle -> Mux(io.idu_exu_data.valid, s_wait_ready, s_idle),
+    s_idle       -> Mux(io.idu_exu_data.valid, s_wait_ready, s_idle),
     s_wait_ready -> Mux(io.exu_lsu_data.ready, s_idle, s_wait_ready)
   ))
 
   io.exu_lsu_data.valid := state === s_wait_ready
-  io.idu_exu_data.ready  := state === s_idle
+  io.idu_exu_data.ready := state === s_idle
 
   // exu <> lsu
   io.exu_lsu_data.bits.idu_lsu_data  <> io.idu_exu_data.bits.idu_lsu_data
   io.exu_lsu_data.bits.exu_wbu_data.pc   := io.idu_exu_data.bits.pc
-  io.exu_lsu_data.bits.exu_wbu_data.dnpc := io.exu_ifu_raw.dnpc
+  io.exu_lsu_data.bits.exu_wbu_data.dnpc := dnpc
 
   // exu <> alu
-  ina  := Mux(io.idu_exu_data.bits.AluMux === "b0111".U, io.idu_exu_data.bits.src1,
-          Mux(io.idu_exu_data.bits.AluMux === "b0001".U, io.idu_exu_data.bits.src1,
-          Mux(io.idu_exu_data.bits.AluMux === "b0010".U, io.idu_exu_data.bits.pc,
-          Mux(io.idu_exu_data.bits.AluMux === "b0011".U, 0.U,  
-          Mux(io.idu_exu_data.bits.AluMux === "b0100".U, io.idu_exu_data.bits.pc,                
-          Mux(io.idu_exu_data.bits.AluMux === "b0101".U, io.idu_exu_data.bits.rers1, 
-          Mux(io.idu_exu_data.bits.AluMux === "b1000".U, io.idu_exu_data.bits.rers1,                     
-          Mux(io.idu_exu_data.bits.AluMux === "b1001".U, io.idu_exu_data.bits.rezimm,                     
-          Mux(io.idu_exu_data.bits.AluMux === "b0110".U, io.idu_exu_data.bits.rezimm, 0.U(32.W))))))))))   
+  ina := MuxLookup(io.idu_exu_data.bits.AluMux, 0.U)(
+    Seq(
+      "b0111".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.src1,
+      "b0001".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.src1,
+      "b0010".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.pc,
+      "b0011".U(Base.AluMuxWidth.W) -> 0.U,  
+      "b0100".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.pc,                
+      "b0101".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.rers1, 
+      "b1000".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.rers1,                     
+      "b1001".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.rezimm,                     
+      "b0110".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.rezimm   
+    )
+  )
 
-  inb  := Mux(io.idu_exu_data.bits.AluMux === "b0111".U, io.idu_exu_data.bits.idu_lsu_data.src2,
-          Mux(io.idu_exu_data.bits.AluMux === "b0001".U, io.idu_exu_data.bits.imm,
-          Mux(io.idu_exu_data.bits.AluMux === "b0010".U, 4.U,  
-          Mux(io.idu_exu_data.bits.AluMux === "b0011".U, io.idu_exu_data.bits.imm,
-          Mux(io.idu_exu_data.bits.AluMux === "b0101".U, io.idu_exu_data.bits.idu_lsu_data.csrdata,
-          Mux(io.idu_exu_data.bits.AluMux === "b0110".U, io.idu_exu_data.bits.idu_lsu_data.csrdata, 
-          Mux(io.idu_exu_data.bits.AluMux === "b0100".U, io.idu_exu_data.bits.imm, 0.U(32.W))))))))
+  inb := MuxLookup(io.idu_exu_data.bits.AluMux, 0.U)(
+    Seq(
+      "b0111".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.idu_lsu_data.src2,
+      "b0001".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.imm,
+      "b0010".U(Base.AluMuxWidth.W) -> 4.U,  
+      "b0011".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.imm,
+      "b0101".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.idu_lsu_data.csrdata,
+      "b0110".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.idu_lsu_data.csrdata, 
+      "b0100".U(Base.AluMuxWidth.W) -> io.idu_exu_data.bits.imm
+    )
+  )
 
   alu.io.ina         := ina
   alu.io.inb         := inb
@@ -63,26 +73,36 @@ class ysyx_23060336_EXU extends Module {
   // exu <> pc_add
   PCMux := Cat(io.idu_exu_data.bits.branch, io.exu_lsu_data.bits.result(0), io.idu_exu_data.bits.pcmux)
 
-  pca   := Mux(PCMux === "b0010".U, io.idu_exu_data.bits.src1,
-           Mux(PCMux === "b0110".U, io.idu_exu_data.bits.src1, io.idu_exu_data.bits.pc))
+  pca := MuxLookup(PCMux, io.idu_exu_data.bits.pc)(
+    Seq(
+      "b0010".U(Base.PCMuxWidth.W) -> io.idu_exu_data.bits.src1,
+      "b0110".U(Base.PCMuxWidth.W) -> io.idu_exu_data.bits.src1
+    )
+  )
 
-  pcb   := Mux(PCMux === "b0010".U, io.idu_exu_data.bits.imm,
-           Mux(PCMux === "b0110".U, io.idu_exu_data.bits.imm,
-           Mux(PCMux === "b0001".U, io.idu_exu_data.bits.imm,
-           Mux(PCMux === "b0101".U, io.idu_exu_data.bits.imm,
-           Mux(PCMux === "b1101".U, io.idu_exu_data.bits.imm, 4.U)))))
+  pcb := MuxLookup(PCMux, 4.U)(
+    Seq(
+      "b0010".U(Base.PCMuxWidth.W) -> io.idu_exu_data.bits.imm,
+      "b0110".U(Base.PCMuxWidth.W) -> io.idu_exu_data.bits.imm,
+      "b0001".U(Base.PCMuxWidth.W) -> io.idu_exu_data.bits.imm,
+      "b0101".U(Base.PCMuxWidth.W) -> io.idu_exu_data.bits.imm,
+      "b1101".U(Base.PCMuxWidth.W) -> io.idu_exu_data.bits.imm
+    )
+  )
 
   pcadd := pca + pcb
 
-  io.exu_ifu_raw.dnpc := Mux(reset.asBool, "h80000000".U,
-                         Mux(io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.ecall, io.idu_exu_data.bits.mtvec,      
-                         Mux(io.idu_exu_data.bits.mret,  io.idu_exu_data.bits.mepc, pcadd)))
+  dnpc := Mux(reset.asBool, "h80000000".U,
+          Mux(io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.ecall, io.idu_exu_data.bits.mtvec,      
+          Mux(io.idu_exu_data.bits.mret,  io.idu_exu_data.bits.mepc, pcadd)))
 
-  io.exu_idu_raw.exu_rd := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.rd
-  io.exu_idu_raw.exu_instType := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.instType
-  io.exu_idu_raw.exu_regdata := alu.io.result
-  io.exu_ifu_raw.exu_valid := state === s_wait_ready
-  io.exu_ifu_raw.isRAW_control := (io.idu_exu_data.bits.pc + 4.U) =/= io.exu_ifu_raw.dnpc
+  io.exu_ifu_raw.dnpc := dnpc
+
+  io.exu_idu_raw.exu_rd        := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.rd
+  io.exu_idu_raw.exu_instType  := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.instType
+  io.exu_idu_raw.exu_regdata   := alu.io.result
+  io.exu_ifu_raw.exu_valid     := state === s_wait_ready
+  io.exu_ifu_raw.isRAW_control := (io.idu_exu_data.bits.pc + 4.U) =/= dnpc
 
   // useCounter
   if(Config.useCounter) {
