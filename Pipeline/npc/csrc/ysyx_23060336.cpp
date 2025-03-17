@@ -6,15 +6,9 @@
 #include <iostream>
 #include <vector>
 
-#include <dlfcn.h>
-
-#include <common.h>
-#include <utils.h>
-#include <debug.h>
 #include <cpu.h>
 #include <sdb.h>
 #include <counter.h>
-#include <pmem.h>
 #include <map.h>
 
 class TOP_NAME;
@@ -99,8 +93,8 @@ extern "C" void set_npc_state(int ebreak, uint32_t wbu_clk_h, uint32_t wbu_clk_l
 }
 
 extern "C" void pipeline_state(uint32_t pc, uint32_t dnpc, bool valid){
-	pipeline_pc		= pc;
-	pipeline_dnpc	= dnpc;
+	pipeline_pc    = pc;
+	pipeline_dnpc  = dnpc;
 	pipeline_valid = valid;
 }
 
@@ -196,9 +190,9 @@ static void init_npc(){
 	cpu.pc = 0x80000000;
 #endif
 
-	cpu.mstatus = 0x1800;
+	cpu.mstatus   = 0x1800;
 	cpu.mvendorid = 0x79737978;
-	cpu.marchid = 0x015fdf70;
+	cpu.marchid   = 0x015fdf70;
 }
 
 static void trace_and_difftest(){
@@ -295,25 +289,18 @@ int main(int argc, char **argv)
 	m_trace->open("waveform.fst");
 #endif
 
-	char * img_file = argv[1];
-	
 #ifdef CONFIG_SOC 
 	nvboard_bind_all_pins(dut);
 	nvboard_init();
+	long img_size = load_program(argv[1], MBASE);
 #endif
 
-#ifdef CONFIG_SOC
-	long img_size = load_program(img_file, MBASE);
-#endif
-
-#ifdef CONFIG_NPC
-	long img_size = load_program(img_file, 0x80000000);
-#endif
-
+	IFDEF(CONFIG_NPC, long img_size = load_program(argv[1], 0x80000000));
 	IFDEF(CONFIG_DEVICE, init_device());
 	IFDEF(CONFIG_DIFFTEST, init_difftest(argv[2], img_size));
 
 	welcome();
+
 #ifdef CONFIG_BATCH
 	cpu_exec(-1);
 #else
