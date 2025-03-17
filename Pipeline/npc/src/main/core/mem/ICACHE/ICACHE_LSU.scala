@@ -16,11 +16,11 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
 
   val slave_tag    = io.in.bits.araddr(31, m + n)
   val slave_index  = io.in.bits.araddr(m + n - 1, m)
-  val slave_offset = Wire(UInt((m - 2).W))
+  val slave_offset = Wire(UInt(m.W))
 
   val store_tag    = io.in.bits.coherence_output.awaddr(31, m + n)
   val store_index  = io.in.bits.coherence_output.awaddr(m + n - 1, m)
-  val store_offset = io.in.bits.araddr(3, 2)
+  val store_offset = io.in.bits.araddr(3, 0)
 
   val fence_i = store_tag === slave_tag && store_index === slave_index
   val hit_miss = slave_tag === icache.io.out_tag && icache.io.out_valid
@@ -32,7 +32,7 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
     s_wait_indata  -> s_judge_addr,
     s_judge_addr   -> Mux(hit_miss, s_wait_ready, s_sent_request),
     s_sent_request -> Mux(io.lsu_arbiter.arready, Mux(io.lsu_arbiter.rvalid, s_wait_ready, s_update_data), s_sent_request),
-    s_update_data  -> Mux(io.lsu_arbiter.rvalid, Mux(counter === (m - 1).U, s_wait_ready, s_sent_request), s_update_data),
+    s_update_data  -> Mux(io.lsu_arbiter.rvalid, Mux(if(m == 4) {counter === (m - 1).U} else {counter === 0.U}, s_wait_ready, s_sent_request), s_update_data),
     s_wait_ready   -> Mux(io.out.ready, s_idle, s_wait_ready)
   ))
 
@@ -40,17 +40,21 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
   io.out.valid := state === s_wait_ready
 
   // slave
-  slave_offset := Mux(state === s_update_data, araddr(3,2), io.in.bits.araddr(3, 2))
+  slave_offset := Mux(state === s_update_data, araddr(3,0), io.in.bits.araddr(3, 0))
 
   // maskedaraddr
-  araddr := MuxLookup(counter, maskedaraddr)(
-    Seq(
-      3.U(2.W) ->  (maskedaraddr | "b1100".U),
-      2.U(2.W) ->  (maskedaraddr | "b1000".U),
-      1.U(2.W) ->  (maskedaraddr | "b0100".U),
-      0.U(2.W) ->  maskedaraddr
+  if(m == 4) {
+    araddr := MuxLookup(counter, maskedaraddr)(
+      Seq(
+        3.U(2.W) ->  (maskedaraddr | "b1100".U),
+        2.U(2.W) ->  (maskedaraddr | "b1000".U),
+        1.U(2.W) ->  (maskedaraddr | "b0100".U),
+        0.U(2.W) ->  maskedaraddr
+      )
     )
-  )
+  } else {
+    araddr := io.in.bits.araddr
+  }
 
   // icache_lsu <> arbiter
   io.lsu_arbiter.arvalid := state === s_sent_request
@@ -69,10 +73,14 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
   io.out.bits.icache_out_data := icache.io.out_data
 
   // counter
-  when(state === s_wait_ready) {
+  if(m == 4) {
+    when(state === s_wait_ready) {
+      counter := 0.U
+    } .elsewhen(state === s_update_data && io.lsu_arbiter.rvalid) {
+      counter := counter + 1.U
+    }
+  } else {
     counter := 0.U
-  } .elsewhen(state === s_update_data && io.lsu_arbiter.rvalid) {
-    counter := counter + 1.U
   }
 
 }
