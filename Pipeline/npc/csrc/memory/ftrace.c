@@ -3,8 +3,8 @@
 #include <string.h>
 #include <elf.h>
 
-#include "pmem.h"
-#include "../cpu/cpu.h"
+#include <pmem.h>
+#include <cpu.h>
 
 static Elf32_Sym *symtab = NULL;
 static char *strtab = NULL;

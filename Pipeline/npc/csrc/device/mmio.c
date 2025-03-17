@@ -13,8 +13,8 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include "map.h"
-#include "../memory/pmem.h"
+#include <map.h>
+#include <pmem.h>
 
 #define NR_MAP 16
 

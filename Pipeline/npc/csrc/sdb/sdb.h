@@ -1,12 +1,12 @@
 #ifndef __SDB_SDB_H__
 #define	__SDB_SDB_H__
 
-#include<stdio.h>
-#include<stdint.h>
-#include"../include/utils.h"
-#include"../include/debug.h"
-#include"../memory/pmem.h"
-#include"../cpu/cpu.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <utils.h>
+#include <debug.h>
+#include <pmem.h>
+#include <cpu.h>
 
 #define MAX_STR_LEN 100
 #define MAX_CMD_LEN 50

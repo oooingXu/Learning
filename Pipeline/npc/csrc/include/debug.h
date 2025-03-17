@@ -17,12 +17,12 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#include "common.h"
 #include <stdio.h>
-#include "utils.h"
-#include<stdio.h>
-#include<errno.h>
-#include<string.h>
+#include <common.h>
+#include <utils.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
 
 
 #define Log(format, ...) \

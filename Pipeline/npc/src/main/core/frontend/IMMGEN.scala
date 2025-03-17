@@ -9,11 +9,12 @@ class ysyx_23060336_IMMGEN extends Module {
   })
 
   val recsr    = Wire(Bool())
+  val rs1en    = Wire(Bool())
+  val rs2en    = Wire(Bool())
   val inst     = Wire(UInt(Base.dataWidth.W))
   val imm      = Wire(UInt(Base.dataWidth.W))
   val zimm     = Wire(UInt(Base.dataWidth.W))
   val immType  = Wire(UInt(Base.immTypeWidth.W))
-  val instType = Wire(UInt(Base.instTypeWidth.W))
   val src1     = Wire(UInt(Base.dataWidth.W))
   val src2     = Wire(UInt(Base.dataWidth.W))
   val reg_src1 = Wire(UInt(Base.dataWidth.W))
@@ -27,13 +28,16 @@ class ysyx_23060336_IMMGEN extends Module {
   val lsu_rd = Wire(UInt(Base.rdWidth.W))
   val wbu_rd = Wire(UInt(Base.rdWidth.W))
 
-  val exu_instType = Wire(UInt(Base.instTypeWidth.W))
-  val lsu_instType = Wire(UInt(Base.instTypeWidth.W))
-  val wbu_instType = Wire(UInt(Base.instTypeWidth.W))
+  val exu_rden = Wire(Bool())
+  val lsu_rden = Wire(Bool())
+  val wbu_rden = Wire(Bool())
 
   val exu_regdata = Wire(UInt(Base.dataWidth.W))
   val lsu_regdata = Wire(UInt(Base.dataWidth.W))
   val wbu_regdata = Wire(UInt(Base.dataWidth.W))
+
+  val exu_MemtoReg = Wire(Bool())
+  val lsu_MemtoReg = Wire(Bool())
 
   val lsu_valid = Wire(Bool())
 
@@ -46,22 +50,22 @@ class ysyx_23060336_IMMGEN extends Module {
   val imm_shamtw = Cat(Fill(27, 0.U), inst(24, 20))
   
   // has src1/src2
-  val conflict_instType_idu_src1 = (instType === "b000".U || instType === "b001".U || instType === "b010".U || instType === "b110".U || instType === "b101".U || instType === "b111".U)
-  val conflict_instType_idu_src2 = (instType === "b001".U || instType === "b010".U || instType === "b101".U)
-  
+  val conflict_idu_src1 = rs1en
+  val conflict_idu_src2 = rs2en 
+
   // conflict 
-  val conflict_exu_rs1 = rs1 === exu_rd && rs1 =/= 0.U && exu_instType =/= "b001".U && exu_instType =/= "b010".U && conflict_instType_idu_src1
-  val conflict_exu_rs2 = rs2 === exu_rd && rs2 =/= 0.U && exu_instType =/= "b001".U && exu_instType =/= "b010".U && conflict_instType_idu_src2
+  val conflict_exu_rs1 = rs1 === exu_rd && rs1 =/= 0.U && exu_rden && conflict_idu_src1
+  val conflict_exu_rs2 = rs2 === exu_rd && rs2 =/= 0.U && exu_rden && conflict_idu_src2
 
-  val conflict_lsu_rs1 = rs1 === lsu_rd && rs1 =/= 0.U && lsu_instType =/= "b001".U && lsu_instType =/= "b010".U && conflict_instType_idu_src1  
-  val conflict_lsu_rs2 = rs2 === lsu_rd && rs2 =/= 0.U && lsu_instType =/= "b001".U && lsu_instType =/= "b010".U && conflict_instType_idu_src2
+  val conflict_lsu_rs1 = rs1 === lsu_rd && rs1 =/= 0.U && lsu_rden && conflict_idu_src1  
+  val conflict_lsu_rs2 = rs2 === lsu_rd && rs2 =/= 0.U && lsu_rden && conflict_idu_src2
 
-  val conflict_wbu_rs1 = rs1 === wbu_rd && rs1 =/= 0.U && wbu_instType =/= "b001".U && wbu_instType =/= "b010".U && conflict_instType_idu_src1
-  val conflict_wbu_rs2 = rs2 === wbu_rd && rs2 =/= 0.U && wbu_instType =/= "b001".U && wbu_instType =/= "b010".U && conflict_instType_idu_src2
+  val conflict_wbu_rs1 = rs1 === wbu_rd && rs1 =/= 0.U && wbu_rden && conflict_idu_src1
+  val conflict_wbu_rs2 = rs2 === wbu_rd && rs2 =/= 0.U && wbu_rden && conflict_idu_src2
 
   // bypass 
-  val bypass_exu = exu_instType =/= "b111".U 
-  val bypass_lsu = ((lsu_instType === "b111".U && lsu_valid) || lsu_instType =/= "b111".U) 
+  val bypass_exu = !exu_MemtoReg
+  val bypass_lsu = ((lsu_MemtoReg && lsu_valid) || !lsu_MemtoReg) 
 
   val bypass_exu_rs1 = conflict_exu_rs1 && bypass_exu
   val bypass_lsu_rs1 = conflict_lsu_rs1 && bypass_lsu && !conflict_exu_rs1
@@ -88,7 +92,8 @@ class ysyx_23060336_IMMGEN extends Module {
           Mux(bypass_lsu_rs2, lsu_regdata,
           Mux(bypass_wbu_rs2, wbu_regdata, reg_src2)))
 
-  instType := io.immgen_decode_data.instType
+  rs1en    := io.immgen_decode_data.rs1en
+  rs2en    := io.immgen_decode_data.rs2en
   immType  := io.immgen_decode_data.immType
 
   // immgen_decode_raw
@@ -96,15 +101,17 @@ class ysyx_23060336_IMMGEN extends Module {
   lsu_rd       := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_rd
   wbu_rd       := io.immgen_decode_data.immgen_decode_raw.idu_wbu_raw.wbu_rd
 
-  exu_instType := io.immgen_decode_data.immgen_decode_raw.idu_exu_raw.exu_instType
-  lsu_instType := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_instType
-  wbu_instType := io.immgen_decode_data.immgen_decode_raw.idu_wbu_raw.wbu_instType
+  exu_rden     := io.immgen_decode_data.immgen_decode_raw.idu_exu_raw.exu_rden
+  lsu_rden     := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_rden
+  wbu_rden     := io.immgen_decode_data.immgen_decode_raw.idu_wbu_raw.wbu_rden
 
   exu_regdata  := io.immgen_decode_data.immgen_decode_raw.idu_exu_raw.exu_regdata
   lsu_regdata  := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_regdata
   wbu_regdata  := io.immgen_decode_data.immgen_decode_raw.idu_wbu_raw.wbu_regdata
 
   lsu_valid    := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_valid
+  lsu_MemtoReg := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_MemtoReg
+  exu_MemtoReg := io.immgen_decode_data.immgen_decode_raw.idu_exu_raw.exu_MemtoReg
 
   // imm
   imm := MuxLookup(immType, 0.U)(

@@ -16,8 +16,8 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include "common.h"
-#include "macro.h"
+#include <common.h>
+#include <macro.h>
 
 // ----------- state -----------
 

@@ -117,10 +117,11 @@ class ysyx_23060336_LSU extends Module{
   }
 
   // lsu <> idu 
-  io.lsu_idu_raw.lsu_rd       := io.exu_lsu_data.bits.idu_lsu_data.idu_wbu_data.rd
   io.lsu_idu_raw.lsu_valid    := state === s_wait_ready || io.axi.rvalid
   io.lsu_idu_raw.lsu_regdata  := io.lsu_wbu_data.bits.regdata
-  io.lsu_idu_raw.lsu_instType := io.lsu_wbu_data.bits.idu_wbu_data.instType
+  io.lsu_idu_raw.lsu_rd       := io.exu_lsu_data.bits.idu_lsu_data.idu_wbu_data.rd
+  io.lsu_idu_raw.lsu_rden     := io.exu_lsu_data.bits.idu_lsu_data.idu_wbu_data.rden
+  io.lsu_idu_raw.lsu_MemtoReg := io.exu_lsu_data.bits.idu_lsu_data.MemtoReg
 
   // useCounter
   if(Config.useCounter) {

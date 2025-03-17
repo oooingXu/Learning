@@ -159,19 +159,52 @@ object AluSelField extends DecodeField[InstructionPattern, UInt] {
   }
 }
     
-object InstTypeField extends DecodeField[InstructionPattern, UInt] {
-  override def name = "insttype"
-  override def chiselType = UInt(Base.instTypeWidth.W)
-  override def genTable(i: InstructionPattern): BitPat = i.inst.name match {
-    case "jalr" | "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" | "slli" | "srli" | "srai" | "fence.i" => BitPat("b000") // I
-    case "sb"   | "sh"   | "sw"                            => BitPat("b001") // S
-    case "beq"  | "bne"  | "blt" | "bge" | "bltu" | "bgeu" => BitPat("b010") // B
-    case "lui"  | "auipc"                                  => BitPat("b011") // U
-    case "jal"                                             => BitPat("b100") // J
-    case "add"  | "sub"  | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or" | "and" => BitPat("b101") // R
-    case "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" | "ecall" | "ebreak" => BitPat("b110") // csr
-    case "lb" | "lh" | "lw" | "lbu" | "lhu" => BitPat("b111") // I load
-    case _ => BitPat("b101")
+object RdenField extends BoolDecodeField[InstructionPattern] {
+  override def name = "rden"
+  override def genTable(i : InstructionPattern): BitPat = {
+    val rden = i.inst.args
+    .map(_.name match {
+      case "rd" => BitPat("b1")
+      case _    => BitPat("b0")
+    })
+    .filterNot(_.value == BitPat("b0").value)
+    .headOption
+    .getOrElse(BitPat("b0"))
+
+    rden
+  }
+}
+
+
+object Rs1enField extends BoolDecodeField[InstructionPattern] {
+  override def name = "rs1en"
+  override def genTable(i: InstructionPattern): BitPat = {
+    val rs1en = i.inst.args
+    .map(_.name match {
+      case "rs1" => BitPat("b1")
+      case _     => BitPat("b0")
+    })
+    .filterNot(_.value == BitPat("b0").value)
+    .headOption
+    .getOrElse(BitPat("b0"))
+
+    rs1en
+  }
+}
+
+object Rs2enField extends BoolDecodeField[InstructionPattern] {
+  override def name = "rs2en"
+  override def genTable(i: InstructionPattern): BitPat = {
+    val rs2en = i.inst.args
+    .map(_.name match {
+      case "rs2" => BitPat("b1")
+      case _     => BitPat("b0")
+    })
+    .filterNot(_.value == BitPat("b0").value)
+    .headOption
+    .getOrElse(BitPat("b0"))
+
+    rs2en
   }
 }
 
@@ -181,13 +214,13 @@ object ImmTypeField extends DecodeField[InstructionPattern, UInt] {
   override def genTable(i: InstructionPattern): BitPat = {
     val immType = i.inst.args
     .map(_.name match {
-      case "imm12"                 => BitPat("b000")
-      case "imm12hi"  | "imm12lo"  => BitPat("b001")
-      case "bimm12hi" | "bimm12lo" => BitPat("b010")
-      case "imm20"                 => BitPat("b011")
-      case "jimm20"                => BitPat("b100")
-      case "shamtw"                => BitPat("b101")
-      case _                       => BitPat("b111")
+      case "imm12"                 => BitPat("b000") // I
+      case "imm12hi"  | "imm12lo"  => BitPat("b001") // S
+      case "bimm12hi" | "bimm12lo" => BitPat("b010") // B
+      case "imm20"                 => BitPat("b011") // U
+      case "jimm20"                => BitPat("b100") // J
+      case "shamtw"                => BitPat("b101") // I
+      case _                       => BitPat("b111") // R
     })
     .filterNot(_.value == BitPat("b111").value)
     .headOption
@@ -235,10 +268,12 @@ class ysyx_23060336_DECODE extends Module {
   val CsrWr      = Wire(Bool())
   val recsr      = Wire(Bool())
   val isRAW_data = Wire(Bool())
+  val rden       = Wire(Bool())
+  val rs1en      = Wire(Bool())
+  val rs2en      = Wire(Bool())
   val rd         = Wire(UInt(Base.rdWidth.W))
   val csr        = Wire(UInt(Base.csrWidth.W))
   val AluSel     = Wire(UInt(Base.AluSelWidth.W))
-  val instType   = Wire(UInt(Base.instTypeWidth.W))
   val immType    = Wire(UInt(Base.immTypeWidth.W))
   val AluMux     = Wire(UInt(Base.AluMuxWidth.W))
   val inst       = Wire(UInt(Base.dataWidth.W))
@@ -286,7 +321,7 @@ class ysyx_23060336_DECODE extends Module {
   //println(s"The length of instList is: ${instList.length}")
 
   // decodefield
-  val allfield = Seq(PcMuxField, EcallField, EbreakField, MretField, MemWrField, RegWrField, MemtoRegField, CsrWrField, BranchField, WstrbField, AwsizeField, RegNumField, ArsizeField, AluSelField, InstTypeField, AluMuxField, RecsrField, ImmTypeField) 
+  val allfield = Seq(PcMuxField, EcallField, EbreakField, MretField, MemWrField, RegWrField, MemtoRegField, CsrWrField, BranchField, WstrbField, AwsizeField, RegNumField, ArsizeField, AluSelField, AluMuxField, RecsrField, ImmTypeField, RdenField, Rs1enField, Rs2enField) 
   val decodeTable   = new DecodeTable(instList, allfield) 
   val decodeBundle = decodeTable.decode(inst)
 
@@ -299,9 +334,11 @@ class ysyx_23060336_DECODE extends Module {
   CsrWr    := decodeBundle(CsrWrField)
   AluSel   := decodeBundle(AluSelField)
   AluMux   := decodeBundle(AluMuxField)
-  instType := decodeBundle(InstTypeField)
   immType  := decodeBundle(ImmTypeField)
   recsr    := decodeBundle(RecsrField)
+  rden     := decodeBundle(RdenField)
+  rs1en    := decodeBundle(Rs1enField)
+  rs2en    := decodeBundle(Rs2enField)
 
   // idu <> exu
   io.decode_idu_data.idu_exu_data.pc     := io.decode_idu_data.pc
@@ -331,7 +368,9 @@ class ysyx_23060336_DECODE extends Module {
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.RegWr      := decodeBundle(RegWrField)
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.ecall      := decodeBundle(EcallField)
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.ebreak     := decodeBundle(EbreakField)
-  io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.instType   := instType
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.rden       := rden
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.rs1en      := rs1en
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.rs2en      := rs2en
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.isRAW_data := isRAW_data
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.csr        := csr
 
@@ -347,7 +386,8 @@ class ysyx_23060336_DECODE extends Module {
   // decode <> immgen
   immgen.io.immgen_decode_data.inst      := inst
   immgen.io.immgen_decode_data.recsr     := recsr
-  immgen.io.immgen_decode_data.instType  := instType
+  immgen.io.immgen_decode_data.rs1en     := rs1en
+  immgen.io.immgen_decode_data.rs2en     := rs2en
   immgen.io.immgen_decode_data.immType   := immType
   isRAW_data                             := immgen.io.immgen_decode_data.isRAW_data
 

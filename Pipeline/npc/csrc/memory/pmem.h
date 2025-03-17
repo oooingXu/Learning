@@ -1,11 +1,11 @@
 #ifndef __MEMORY_PMEM_H__
 #define __MEMORY_PMEM_H__
 
-#include<stdint.h>
-#include<assert.h>
-#include<stdio.h>
-#include"../include/macro.h"
-#include"../include/common.h"
+#include <stdint.h>
+#include <assert.h>
+#include <stdio.h>
+#include <macro.h>
+#include <common.h>
 
 #ifdef CONFIG_SOC
 #define MBASE				(0x00000000)

@@ -1,5 +1,5 @@
-#include"pmem.h"
-#include"../device/map.h"
+#include <pmem.h>
+#include <map.h>
 
 uint8_t pmem[MSIZE] PG_ALIGN = {};
 uint8_t cmem[0x20] = {};

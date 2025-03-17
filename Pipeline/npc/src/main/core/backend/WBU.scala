@@ -25,8 +25,13 @@ class ysyx_23060336_WBU extends Module {
   val ebreak    = Module(new ysyx_23060336_EBREAK())
   ebreak.io.clock      := clock
   ebreak.io.ebreak     := io.lsu_wbu_data.bits.idu_wbu_data.ebreak
-  ebreak.io.instType   := io.lsu_wbu_data.bits.idu_wbu_data.instType
-  ebreak.io.state      := state
+
+  // useCounter
+  if(Config.useCounter) {
+    val wbu_counter = Module(new WBU_COUNTER())
+    wbu_counter.io.clock      := clock
+    wbu_counter.io.state      := state
+  }
 
   // diff pipeline pc/dnpc
   if(Config.useDiff) {
@@ -51,6 +56,6 @@ class ysyx_23060336_WBU extends Module {
 
   // wbu <> idu
   io.wbu_idu_raw.wbu_rd       := io.lsu_wbu_data.bits.idu_wbu_data.rd
-  io.wbu_idu_raw.wbu_instType := io.lsu_wbu_data.bits.idu_wbu_data.instType
+  io.wbu_idu_raw.wbu_rden     := io.lsu_wbu_data.bits.idu_wbu_data.rden
   io.wbu_idu_raw.wbu_regdata  := io.lsu_wbu_data.bits.regdata
 }

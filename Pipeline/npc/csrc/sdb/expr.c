@@ -17,7 +17,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
-#include "sdb.h"
+#include <sdb.h>
 
 #define NUMBER 44859
 

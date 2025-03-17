@@ -1,12 +1,12 @@
-#ifndef __CPU_CPU_H__
-#define __CPU_CPU_H__
+#ifndef __CPU_H__
+#define __CPU_H__
 
-#include"../include/common.h"
-#include"../include/utils.h"
-#include"../include/debug.h"
-#include"../memory/pmem.h"
-#include<stdio.h>
-#include<dlfcn.h>
+#include <common.h>
+#include <utils.h>
+#include <debug.h>
+#include <pmem.h>
+#include <stdio.h>
+#include <dlfcn.h>
 
 #define R 16
 #define C 4096

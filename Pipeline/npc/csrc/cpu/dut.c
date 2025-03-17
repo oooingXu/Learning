@@ -1,4 +1,4 @@
-#include"cpu.h"
+#include <cpu.h>
 
 void (*ref_difftest_memcpy)(uint32_t addr, void *buf, size_t n, int direction) = NULL;
 void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
@@ -97,7 +97,7 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 
 static void checkregs(CPU_state *ref, uint32_t pc){
 	if(!isa_difftest_checkregs(ref, pc)){
-		npc_state.state = NPC_ABORT; //NPC_ABORT
+		npc_state.state = NPC_ABORT; 
 		npc_state.halt_pc = pc;
 		if(cpu.pc != cpu.dnpc){
 			isa_reg_display();

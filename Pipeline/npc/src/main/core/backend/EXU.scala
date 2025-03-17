@@ -98,9 +98,10 @@ class ysyx_23060336_EXU extends Module {
 
   io.exu_ifu_raw.dnpc := dnpc
 
-  io.exu_idu_raw.exu_rd        := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.rd
-  io.exu_idu_raw.exu_instType  := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.instType
   io.exu_idu_raw.exu_regdata   := alu.io.result
+  io.exu_idu_raw.exu_rd        := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.rd
+  io.exu_idu_raw.exu_rden      := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.rden
+  io.exu_idu_raw.exu_MemtoReg  := io.idu_exu_data.bits.idu_lsu_data.MemtoReg
   io.exu_ifu_raw.exu_valid     := state === s_wait_ready
   io.exu_ifu_raw.isRAW_control := (io.idu_exu_data.bits.pc + 4.U) =/= dnpc
 

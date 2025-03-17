@@ -1,8 +1,8 @@
 #ifndef __DEVICE_MAP_H__
 #define __DEVICE_MAP_H__
 
-#include "../cpu/cpu.h"
-#include "../memory/pmem.h"
+#include <cpu.h>
+#include <pmem.h>
 
 #define TIMER_HZ 60
 

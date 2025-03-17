@@ -43,7 +43,9 @@ class IDU_WBU_DATA extends Bundle {
   val RegWr      = Output(Bool())
   val CsrWr      = Output(Bool())
   val isRAW_data = Output(Bool())
-  val instType   = Output(UInt(Base.instTypeWidth.W))
+  val rden       = Output(Bool())
+  val rs1en      = Output(Bool())
+  val rs2en      = Output(Bool())
   val rd         = Output(UInt(Base.rdWidth.W))
   val csr        = Output(UInt(Base.csrWidth.W))
 }
@@ -79,39 +81,43 @@ class EXU_IFU_RAW extends Bundle {
 }
 
 class IDU_EXU_RAW extends Bundle {
-  val exu_instType = Input(UInt(Base.instTypeWidth.W))
+  val exu_MemtoReg = Input(Bool())
+  val exu_rden     = Input(Bool())
   val exu_rd       = Input(UInt(Base.rdWidth.W))
   val exu_regdata  = Input(UInt(Base.dataWidth.W))
 }
 
 class EXU_IDU_RAW extends Bundle {
-  val exu_instType = Output(UInt(Base.instTypeWidth.W))
+  val exu_MemtoReg = Output(Bool())
+  val exu_rden     = Output(Bool())
   val exu_rd       = Output(UInt(Base.rdWidth.W))
   val exu_regdata  = Output(UInt(Base.dataWidth.W))
 }
 
 class IDU_LSU_RAW extends Bundle {
+  val lsu_MemtoReg = Input(Bool())
+  val lsu_rden     = Input(Bool())
   val lsu_valid    = Input(Bool())
-  val lsu_instType = Input(UInt(Base.instTypeWidth.W))
   val lsu_rd       = Input(UInt(Base.rdWidth.W))
   val lsu_regdata  = Input(UInt(Base.dataWidth.W))
 }
 
 class LSU_IDU_RAW extends Bundle {
+  val lsu_MemtoReg = Output(Bool())
+  val lsu_rden     = Output(Bool())
   val lsu_valid    = Output(Bool())
-  val lsu_instType = Output(UInt(Base.instTypeWidth.W))
   val lsu_rd       = Output(UInt(Base.rdWidth.W))
   val lsu_regdata  = Output(UInt(Base.dataWidth.W))
 }
 
 class IDU_WBU_RAW extends Bundle {
-  val wbu_instType = Input(UInt(Base.instTypeWidth.W))
+  val wbu_rden     = Input(Bool())
   val wbu_rd       = Input(UInt(Base.rdWidth.W))
   val wbu_regdata  = Input(UInt(Base.dataWidth.W))
 }
 
 class WBU_IDU_RAW extends Bundle {
-  val wbu_instType = Output(UInt(Base.instTypeWidth.W))
+  val wbu_rden     = Output(Bool())
   val wbu_rd       = Output(UInt(Base.rdWidth.W))
   val wbu_regdata  = Output(UInt(Base.dataWidth.W))
 }
@@ -210,8 +216,9 @@ class COHERENCE_OUTPUT extends Bundle {
 class IMMGEN_DECODE_DATA extends Bundle {
   val idu_valid         = Input(Bool())
   val recsr             = Input(Bool())
+  val rs1en             = Input(Bool())
+  val rs2en             = Input(Bool())
   val inst              = Input(UInt(Base.dataWidth.W))
-  val instType          = Input(UInt(Base.instTypeWidth.W))
   val immType           = Input(UInt(Base.immTypeWidth.W))
   val imm               = Output(UInt(Base.dataWidth.W))
   val zimm              = Output(UInt(Base.dataWidth.W))
