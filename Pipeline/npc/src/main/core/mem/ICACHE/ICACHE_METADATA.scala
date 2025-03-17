@@ -21,9 +21,9 @@ class ysyx_23060336_ICACHE_METADATA(m: Int, n: Int) extends Module {
   val icachetagWidth = 32 - m - n
 
   // 使用Reg实现同步读-修改-写
-  val ysyx_23060336_tag   = Mem(1 << n, UInt(icachetagWidth.W))
-  val ysyx_23060336_data  = Mem(1 << n, UInt(icachedataWidth.W))
-  val ysyx_23060336_valid = Mem(1 << n, UInt(1.W))
+  val ysyx_23060336_tag   = SyncReadMem(1 << n, UInt(icachetagWidth.W))
+  val ysyx_23060336_data  = SyncReadMem(1 << n, UInt(icachedataWidth.W))
+  val ysyx_23060336_valid = SyncReadMem(1 << n, UInt(1.W))
 
   // 当前数据通路
   val currentData = ysyx_23060336_data(io.in_index)
@@ -51,3 +51,4 @@ class ysyx_23060336_ICACHE_METADATA(m: Int, n: Int) extends Module {
   io.out_valid := ysyx_23060336_valid(io.in_index)  
   io.out_data  := maskedOutdata(31, 0)
 }
+

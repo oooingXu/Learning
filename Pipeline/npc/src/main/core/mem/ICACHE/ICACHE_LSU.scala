@@ -25,10 +25,11 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
   val fence_i = store_tag === slave_tag && store_index === slave_index
   val hit_miss = slave_tag === icache.io.out_tag && icache.io.out_valid
 
-  val s_idle :: s_judge_addr :: s_sent_request :: s_update_data :: s_wait_ready :: Nil = Enum(5)
+  val s_idle :: s_judge_addr :: s_sent_request :: s_update_data :: s_wait_ready :: s_wait_indata :: Nil = Enum(6)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(
-    s_idle         -> Mux(io.in.valid, s_judge_addr, s_idle),
+    s_idle         -> Mux(io.in.valid, s_wait_indata, s_idle),
+    s_wait_indata  -> s_judge_addr,
     s_judge_addr   -> Mux(hit_miss, s_wait_ready, s_sent_request),
     s_sent_request -> Mux(io.lsu_arbiter.arready, Mux(io.lsu_arbiter.rvalid, s_wait_ready, s_update_data), s_sent_request),
     s_update_data  -> Mux(io.lsu_arbiter.rvalid, Mux(counter === (m - 1).U, s_wait_ready, s_sent_request), s_update_data),
@@ -42,16 +43,19 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
   slave_offset := Mux(state === s_update_data, araddr(3,2), io.in.bits.araddr(3, 2))
 
   // maskedaraddr
-  araddr := Mux(counter === 3.U, maskedaraddr | "b1100".U, 
-            Mux(counter === 2.U, maskedaraddr | "b1000".U,
-            Mux(counter === 1.U, maskedaraddr | "b0100".U, maskedaraddr)))
+  araddr := MuxLookup(counter, maskedaraddr)(
+    Seq(
+      3.U(2.W) ->  (maskedaraddr | "b1100".U),
+      2.U(2.W) ->  (maskedaraddr | "b1000".U),
+      1.U(2.W) ->  (maskedaraddr | "b0100".U),
+      0.U(2.W) ->  maskedaraddr
+    )
+  )
 
   // icache_lsu <> arbiter
   io.lsu_arbiter.arvalid := state === s_sent_request
   io.lsu_arbiter.rready  := state === s_sent_request || state === s_update_data
   io.lsu_arbiter.araddr  := araddr
-                            
-                            
     
   // icache_lsu <> icache_metadata
   icache.io.in_index  := Mux(io.in.bits.coherence_output.awvalid && fence_i, store_index, slave_index)

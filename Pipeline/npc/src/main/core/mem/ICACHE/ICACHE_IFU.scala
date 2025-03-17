@@ -9,7 +9,7 @@ class ysyx_23060336_ICACHE_IFU extends Module {
     val in  = new ICACHE_IFU_DATA()
   })
 
-  val araddr = RegInit(0.U(32.W))
+  val araddr = Reg(UInt(Base.dataWidth.W))
 
   val s_idle :: s_wait_ready :: Nil = Enum(2)
   val state = RegInit(s_idle)

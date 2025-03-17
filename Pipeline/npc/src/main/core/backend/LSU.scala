@@ -23,8 +23,8 @@ class ysyx_23060336_LSU extends Module{
   val rdata_b = Wire(UInt(Base.dataWidth.W))
   val rdata_h = Wire(UInt(Base.dataWidth.W))
 
-  val regdata   = RegInit(0.U(Base.dataWidth.W))
-  val csrdata   = RegInit(0.U(Base.dataWidth.W))
+  val regdata   = Reg(UInt(Base.dataWidth.W))
+  val csrdata   = Reg(UInt(Base.dataWidth.W))
 
   // state machine
   val s_idle :: s_wait_rslave :: s_wait_wslave :: s_wait_ready :: s_wait_prepare :: s_wait_sign :: Nil = Enum(6)
