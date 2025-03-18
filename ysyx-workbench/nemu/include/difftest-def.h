@@ -23,6 +23,16 @@
 #define __EXPORT __attribute__((visibility("default")))
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF , DIFFTEST_TO_NPC};
 
+typedef struct {
+	uint32_t araddr;
+	uint32_t awaddr;
+	uint32_t wdata;
+	int wstrb;
+	int arsize;
+} MEM_DIFF;
+
+extern MEM_DIFF mem_diff;
+
 #if defined(CONFIG_ISA_x86)
 # define DIFFTEST_REG_SIZE (sizeof(uint32_t) * 9) // GPRs + pc
 #elif defined(CONFIG_ISA_mips32)

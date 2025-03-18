@@ -64,6 +64,7 @@ class EXU_WBU_DATA extends Bundle {
 class LSU_WBU_DATA extends Bundle {
   val regdata = Output(UInt(Base.dataWidth.W))
   val csrdata = Output(UInt(Base.dataWidth.W))
+  val wbu_sram_data = new WBU_SRAM_DATA()
   val idu_wbu_data = new IDU_WBU_DATA()
   val exu_wbu_data = new EXU_WBU_DATA()
 }
@@ -247,4 +248,13 @@ class IMMGEN_DECODE_RAW extends Bundle {
   val idu_wbu_raw = new IDU_WBU_RAW()
 }
 
+class WBU_SRAM_DATA extends Bundle {
+  val araddr  = Input(UInt(Base.addrWidth.W))
+  val awaddr  = Input(UInt(Base.addrWidth.W))
+  val wstrb   = Input(UInt(Base.wstrbWidth.W))
+  val wdata   = Input(UInt(Base.dataWidth.W))
+  val arsize  = Input(UInt(Base.sizeWidth.W))
+  val arvalid = Input(Bool())
+  val awvalid = Input(Bool())
+}
 

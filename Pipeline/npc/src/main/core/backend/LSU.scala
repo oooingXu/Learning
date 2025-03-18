@@ -81,6 +81,14 @@ class ysyx_23060336_LSU extends Module{
            Mux(io.exu_lsu_data.bits.idu_lsu_data.RegNum === "b000".U, Cat(Fill(24, DataOut(7)),  DataOut(7, 0)),
            Mux(io.exu_lsu_data.bits.idu_lsu_data.RegNum === "b001".U, Cat(Fill(16, DataOut(15)), DataOut(15, 0)), DataOut)))))))
 
+  io.lsu_wbu_data.bits.wbu_sram_data.wstrb   := io.exu_lsu_data.bits.idu_lsu_data.wstrb
+  io.lsu_wbu_data.bits.wbu_sram_data.araddr  := io.axi.araddr
+  io.lsu_wbu_data.bits.wbu_sram_data.awaddr  := io.axi.awaddr
+  io.lsu_wbu_data.bits.wbu_sram_data.wdata   := io.exu_lsu_data.bits.idu_lsu_data.src2
+  io.lsu_wbu_data.bits.wbu_sram_data.arsize  := io.axi.arsize
+  io.lsu_wbu_data.bits.wbu_sram_data.arvalid := io.exu_lsu_data.bits.idu_lsu_data.MemtoReg
+  io.lsu_wbu_data.bits.wbu_sram_data.awvalid := io.exu_lsu_data.bits.idu_lsu_data.MemWr
+
   // AXI4
   io.axi.awvalid := Mux(reset.asBool, false.B, io.exu_lsu_data.bits.idu_lsu_data.MemWr && (state === s_wait_wslave))
   io.axi.awaddr  := io.exu_lsu_data.bits.result
@@ -100,21 +108,6 @@ class ysyx_23060336_LSU extends Module{
   io.axi.arburst := "h1".U
   io.axi.rready  := state === s_idle || state === s_wait_rslave || state === s_wait_prepare
   io.axi.wstrb   := Mux(io.exu_lsu_data.bits.idu_lsu_data.awsize === 0.U, wstrb_b, Mux(io.exu_lsu_data.bits.idu_lsu_data.awsize === 1.U, wstrb_h, io.exu_lsu_data.bits.idu_lsu_data.wstrb))
-
-  // useSram
-  if(Config.useSram) {
-    val sram_read = Module(new SRAM_READ())
-    sram_read.io.clock   := clock
-    sram_read.io.wstrb   := io.exu_lsu_data.bits.idu_lsu_data.wstrb
-    sram_read.io.araddr  := io.axi.araddr
-    sram_read.io.awaddr  := io.axi.awaddr
-    sram_read.io.wdata   := io.axi.wdata
-    sram_read.io.arsize  := io.axi.arsize
-    sram_read.io.arvalid := io.axi.arvalid
-    sram_read.io.awvalid := io.axi.awvalid
-    sram_read.io.arready := io.axi.arready
-    sram_read.io.awready := io.axi.awready
-  }
 
   // lsu <> idu 
   io.lsu_idu_raw.lsu_valid    := state === s_wait_ready || io.axi.rvalid

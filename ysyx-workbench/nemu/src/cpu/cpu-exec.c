@@ -39,6 +39,7 @@ void device_update();
 
 IFDEF(CONFIG_CACHESIM, FILE *pc_trace_file = NULL);
 
+#ifdef CONFIG_CACHESIM
 void cache_sim_start() {
     const char *dir_path = "/home/romeo/ysyx-workbench/npc/perf";
     const char *file_name = "pc_trace.bin";
@@ -61,6 +62,7 @@ void cache_sim_end() {
         pc_trace_file = NULL;
     }
 }
+#endif
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND

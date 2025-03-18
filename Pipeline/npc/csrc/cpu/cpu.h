@@ -32,11 +32,24 @@ typedef struct{
 	bool		 valid;
 
 	char	logbuf[128];
-}CPU_state;
+} CPU_state;
 
 extern CPU_state cpu;
 
 extern const char *regs[];
+
+typedef struct {
+	 uint32_t araddr;
+	 uint32_t awaddr;
+	 uint32_t wdata;
+	 int wstrb;
+	 int arsize;
+
+	 bool arvalid;
+	 bool awvalid;
+} MEM_DIFF;
+
+extern MEM_DIFF mem_diff;
 
 void isa_reg_display();
 uint32_t isa_reg_str2val(const char *s, bool *success);

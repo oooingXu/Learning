@@ -16,6 +16,7 @@
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <device/mmio.h>
+#include <difftest-def.h>
 #include <isa.h>
 
 #if   defined(CONFIG_PMEM_MALLOC)
@@ -80,8 +81,33 @@ void init_mem() {
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
+static void mem_diff_store_update(paddr_t addr, int len, word_t data) {
+	mem_diff.awaddr = addr;
+	mem_diff.wdata = data;
+	if(len == 4) {
+		mem_diff.wstrb = 0xf;
+	} else if(len == 2) {
+		mem_diff.wstrb = 0x3;
+	} else if(len == 1) {
+		mem_diff.wstrb = 0x1;
+	}
+}
+		
+static void mem_diff_load_update(paddr_t addr, int len) {
+	mem_diff.araddr = addr;
+	if(len == 4) {
+		mem_diff.arsize = 2;
+	} else if(len == 2) {
+		mem_diff.arsize = 1;
+	} else if(len == 1) {
+		mem_diff.arsize = 0;
+	}
+}
+
+
 word_t paddr_read(paddr_t addr, int len) {
 	//IFDEF(CONFIG_MTRACE, printf("(nemu) pread  at " FMT_PADDR " len = %d\n", addr, len));
+	mem_diff_load_update(addr, len);
 
   if (likely(in_pmem(addr))) {
 		IFDEF(CONFIG_FMTRACE, printf("(nemu) flash READ: addr = 0x%08x, data = 0x%08x, size = %d\n", addr, pmem_read(addr, len), len));
@@ -100,6 +126,7 @@ word_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, word_t data) {
 	//IFDEF(CONFIG_MTRACE, printf("pwrite at " FMT_PADDR " len = %d data = " FMT_WORD"\n" , addr, len, data));
+	mem_diff_store_update(addr, len, data);
 
  if (likely(in_pmem(addr))) { 
 	 IFDEF(CONFIG_FMTRACE, printf("(nemu) flash WRITE: addr = 0x%08x, data = 0x%08x, size = %d\n", addr, data, len));

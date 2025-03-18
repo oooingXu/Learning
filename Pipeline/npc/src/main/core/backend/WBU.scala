@@ -42,6 +42,13 @@ class ysyx_23060336_WBU extends Module {
     seepc.io.valid := state === s_reg && !io.lsu_wbu_data.bits.idu_wbu_data.isRAW_data
   }
 
+  // useSram / mem_diff
+  if(Config.useSram) {
+    val sram_read = Module(new SRAM_READ())
+    sram_read.io.clock := clock
+    sram_read.io.wbu_sram_data <> io.lsu_wbu_data.bits.wbu_sram_data
+  }
+
   // wbu <> reg
   io.wbu_reg_data.wen   := io.lsu_wbu_data.bits.idu_wbu_data.RegWr && state === s_reg
   io.wbu_reg_data.waddr := io.lsu_wbu_data.bits.idu_wbu_data.rd
