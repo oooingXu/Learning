@@ -79,7 +79,7 @@ bool in_device(uint32_t addr){return (addr >= UART_START && addr <= UART_END) ||
 
 bool in_pmem(uint32_t addr){return addr - MBASE < MSIZE;}
 
-static int rdata_shift(uint32_t data, uint32_t addr){
+static uint32_t rdata_shift(uint32_t data, uint32_t addr){
 	int rstrb = addr & 0x3;
 	switch(rstrb) {
 		case 1: return data << 8; break;
@@ -91,9 +91,10 @@ static int rdata_shift(uint32_t data, uint32_t addr){
 
 extern "C" int pmem_read(int araddr) {
 	if(likely(in_pmem(araddr))) {
-	uint32_t ret = rdata_shift(host_read(guest_to_host(araddr)), araddr);
-	IFDEF(CONFIG_MTRACE, printf("(npc) pmem READ: at " FMT_PADDR ", data = " FMT_PADDR "\n", araddr, ret));
-	return ret;
+		uint32_t data = host_read(guest_to_host(araddr));
+		uint32_t ret = rdata_shift(data, araddr);
+		IFDEF(CONFIG_MTRACE, printf("(npc) pmem READ: at " FMT_PADDR ", data = " FMT_PADDR "\n", araddr, ret));
+		return ret;
 	} else {
 		return mmio_read(araddr);
 	}
@@ -205,4 +206,10 @@ extern "C" void sram_read(uint32_t araddr, bool arvalid, int arsize, uint32_t aw
 		IFDEF(CONFIG_SMTRACE, printf("(npc) sram WRITE: addr = 0x%08x, data = 0x%08x, size = %d\n", awaddr, wdata, w_size(wstrb)));
 		host_write(s_guest_to_host(awaddr), wstrb, wdata);
 	}
+}
+
+uint32_t get_inst(uint32_t pc) {
+#ifdef CONFIG_NPC
+	return pmem_read(pc);
+#endif
 }

@@ -2,13 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
-
-#include <pmem.h>
-#include <cpu.h>
+#include <cpu/cpu.h>
 
 static Elf32_Sym *symtab = NULL;
 static char *strtab = NULL;
 static int nr_symtab_entry = 0;
+static uint32_t call_timer = 0; 
 
 void init_ftrace(const char *elf_file) {
   if (elf_file == NULL) {
@@ -31,10 +30,10 @@ void init_ftrace(const char *elf_file) {
     return;
   }
 
-	printf("ELF Header:\n");
-	printf("e_shnum = %d\n", ehdr.e_shnum); 
-	printf("e_shentsize = %d\n", ehdr.e_shentsize);
-	printf("e_shoff = %d\n", ehdr.e_shoff);
+	//printf("ELF Header:\n");
+	//printf("e_shnum = %d\n", ehdr.e_shnum); 
+	//printf("e_shentsize = %d\n", ehdr.e_shentsize);
+	//printf("e_shoff = %d\n", ehdr.e_shoff);
 
 	if(ehdr.e_shnum == 0 || ehdr.e_shentsize == 0){
 		printf("Invalid section header number or size.\n");
@@ -59,15 +58,15 @@ void init_ftrace(const char *elf_file) {
 
  // 查找符号表和字符串表
 		printf("SHY_SYMTAB = %d\n",SHT_SYMTAB);
-  for (int i = 0; i < ehdr.e_shnum; i++) {
+	  for (int i = 0; i < ehdr.e_shnum; i++) {
     if (shdr[i].sh_type == SHT_SYMTAB) {
       symtab = (Elf32_Sym *)malloc(shdr[i].sh_size);
-			if(symtab == NULL){
-				printf("Invalid section symtab\n");
-				fclose(fp);
-				return;
-			}
-
+      if(symtab == NULL){
+        printf("Failed to allocate memory for symbol table.\n");
+        free(shdr);
+        fclose(fp);
+        return;
+      }
       fseek(fp, shdr[i].sh_offset, SEEK_SET);
       if (fread(symtab, shdr[i].sh_size, 1, fp) != 1) {
         printf("Failed to read symbol table.\n");
@@ -77,17 +76,29 @@ void init_ftrace(const char *elf_file) {
         return;
       }
       nr_symtab_entry = shdr[i].sh_size / sizeof(Elf32_Sym);
-    }
-		else if (shdr[i].sh_type == SHT_STRTAB && i != ehdr.e_shstrndx) {
-      strtab = (char *)malloc(shdr[i].sh_size);
-			if(strtab == NULL){
-				printf("Invalid section strtab\n");
-				fclose(fp);
-				return;
-			}
-      fseek(fp, shdr[i].sh_offset, SEEK_SET);
-      if (fread(strtab, shdr[i].sh_size, 1, fp) != 1) {
+
+      // 1: 通过符号表的 sh_link 找到对应的字符串表
+      int strtab_idx = shdr[i].sh_link;
+      if (strtab_idx >= ehdr.e_shnum) {
+        printf("Invalid string table index.\n");
+        free(symtab);
+        free(shdr);
+        fclose(fp);
+        return;
+      }
+      Elf32_Shdr *strtab_shdr = &shdr[strtab_idx];
+      strtab = (char *)malloc(strtab_shdr->sh_size);
+      if (strtab == NULL) {
+        printf("Failed to allocate memory for string table.\n");
+        free(symtab);
+        free(shdr);
+        fclose(fp);
+        return;
+      }
+      fseek(fp, strtab_shdr->sh_offset, SEEK_SET);
+      if (fread(strtab, strtab_shdr->sh_size, 1, fp) != 1) {
         printf("Failed to read string table.\n");
+        free(symtab);
         free(strtab);
         free(shdr);
         fclose(fp);
@@ -111,37 +122,34 @@ const char* get_func_name(uint32_t addr) {
   return "???";
 }
 
-int call_ret = 0;
+static void call_timer_printf() {
+	for(uint32_t i = 0; i < call_timer; i++) {
+		printf(" ");
+	}
+}
 
-void is_jal(uint32_t inst){ 
-	inst &= 0xFFF;
-	if(inst == 0xEF){
+void ftrace(uint32_t inst) {
+	uint32_t is_jal = inst & 0xfff;
+	uint32_t is_jalr = inst & 0xfff07fff;
+	uint32_t is_ret = inst & 0xfffff;
+
+	if(is_jal == 0xEF){
 		printf("0x%08x:", cpu.pc);
-		for(int i = 0; i < call_ret; i++){
-			printf(" ");
-		}
-		printf(" call [%s@0x%08x]\n", get_func_name(cpu.dnpc), cpu.dnpc);
-		call_ret++;
-		}
-}  
-  
-void is_jalr(uint32_t inst){
-	  uint32_t tmp = inst & 0xFFF07FFF; 
-		inst &= 0xFFFFF;     
-		if(inst == 0x8067){ 
-			call_ret--;
-			printf("0x%08x:", cpu.pc); 
-			for(int i = 0; i < call_ret; i++){
-				printf(" ");
-			}
-			printf(" ret  [%s@0x%08x]\n", get_func_name(cpu.pc), cpu.pc); 
-		} else if(inst == 0xE7 || tmp == 0x67){
-			printf("0x%08x:", cpu.pc); 
-			for(int i = 0; i < call_ret; i++){
-				printf(" ");
-			}
-			printf(" call [%s@0x%08x]\n", get_func_name(cpu.dnpc), cpu.dnpc); 
-			call_ret++;
-		}
+		call_timer_printf();
+		printf("call [%s@0x%08x]\n", get_func_name(cpu.dnpc), cpu.dnpc);
+		call_timer++;
+	}
+
+	if(is_ret == 0x8067){ 
+		printf("0x%08x:", cpu.pc); 
+		call_timer--;
+		call_timer_printf();
+		printf("ret  [%s@0x%08x]\n", get_func_name(cpu.pc), cpu.pc); 
+	} else if(is_ret == 0xE7 || is_jalr == 0x67){
+		printf("0x%08x:", cpu.pc); 
+		call_timer_printf();
+		printf("call [%s@0x%08x]\n", get_func_name(cpu.dnpc), cpu.dnpc); 
+		call_timer++;
+	}
 }
 

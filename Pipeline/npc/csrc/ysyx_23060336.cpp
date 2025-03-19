@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <cpu.h>
+#include <pmem.h>
 #include <sdb.h>
 #include <counter.h>
 #include <map.h>
@@ -198,6 +199,9 @@ static void init_npc(){
 
 static void trace_and_difftest(){
 	if(!(cpu.reset || (cpu.pc == cpu.dnpc) || (cpu.pc == 0) || (cpu.dnpc == 0) || !cpu.valid)) {
+		// ftrace
+		IFDEF(CONFIG_FTRACE, ftrace(get_inst(cpu.pc)));
+		// difftest
 		IFDEF(CONFIG_DIFFTEST,  difftest_step()); 
 		g_nr_guest_inst++;
 	}
@@ -305,6 +309,7 @@ int main(int argc, char **argv)
 	long img_size = load_program(argv[1], MBASE);
 #endif
 
+	IFDEF(CONFIG_FTRACE, init_ftrace(argv[3]));
 	IFDEF(CONFIG_NPC, long img_size = load_program(argv[1], 0x80000000));
 	IFDEF(CONFIG_DEVICE, init_device());
 	IFDEF(CONFIG_DIFFTEST, init_difftest(argv[2], img_size));
