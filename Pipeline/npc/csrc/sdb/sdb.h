@@ -18,8 +18,8 @@ void sdb_main();
 int cmd_hello(char args[]);
 
 void exec_once();
-void execute(uint32_t n);
-void cpu_exec(uint32_t n);
+void execute(uint64_t n);
+void cpu_exec(uint64_t n);
 
 void isa_reg_display();
 

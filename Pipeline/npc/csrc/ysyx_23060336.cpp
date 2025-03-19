@@ -14,6 +14,7 @@
 class TOP_NAME;
 static TOP_NAME *dut = NULL;
 
+uint64_t cur_inst_cycle = 0;
 uint64_t g_nr_guest_clk = 0;
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0;
@@ -220,11 +221,20 @@ void exec_once(){
 		renew_pc();
 }
 
-void execute(uint32_t n){
+void execute(uint64_t n){
 	for(; n > 0; n--){
 		exec_once();
 		IFDEF(CONFIG_SOC, nvboard_update());
 		g_nr_guest_clk++;
+
+		if(cpu.pc == cpu.dnpc) cur_inst_cycle++;
+		else cur_inst_cycle = 0;
+
+		if(cur_inst_cycle > 0xff) {
+			Log(ANSI_FMT("Too many cycles for one instruction, maybe a bug.", ANSI_FG_RED));
+			npc_state.state = NPC_ABORT;
+			break;
+		}
 
 		if(npc_state.state != NPC_RUNNING) break;
 
@@ -240,7 +250,7 @@ void assert_fall_msg() {
 	npc_state.state = NPC_ABORT;
 }
 
-void cpu_exec(uint32_t n){
+void cpu_exec(uint64_t n){
 
 	switch(npc_state.state){
 		case NPC_END: case NPC_ABORT:
