@@ -14,7 +14,7 @@ void init_ftrace(const char *elf_file) {
     printf("No ELF file provided.\n");
     return;
   }
-	printf("elf_file = %s\n",elf_file);
+	//printf("elf_file = %s\n",elf_file);
 
   FILE *fp = fopen(elf_file, "rb");
   if (fp == NULL) {
@@ -57,7 +57,7 @@ void init_ftrace(const char *elf_file) {
   }
 
  // 查找符号表和字符串表
-		printf("SHY_SYMTAB = %d\n",SHT_SYMTAB);
+		//printf("SHY_SYMTAB = %d\n",SHT_SYMTAB);
 	  for (int i = 0; i < ehdr.e_shnum; i++) {
     if (shdr[i].sh_type == SHT_SYMTAB) {
       symtab = (Elf32_Sym *)malloc(shdr[i].sh_size);
@@ -144,7 +144,7 @@ void ftrace(uint32_t inst) {
 		printf("0x%08x:", cpu.pc); 
 		call_timer--;
 		call_timer_printf();
-		printf("ret  [%s@0x%08x]\n", get_func_name(cpu.pc), cpu.pc); 
+		printf("ret  [%s]\n", get_func_name(cpu.pc)); 
 	} else if(is_ret == 0xE7 || is_jalr == 0x67){
 		printf("0x%08x:", cpu.pc); 
 		call_timer_printf();
