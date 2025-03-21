@@ -17,13 +17,16 @@ module psram(
 	reg [23:0] saddr;
 	reg [31:0] line;
 
-	wire [3:0] wr;
-	wire [31:0] wline;
-	wire [31:0] rline;
-	wire [31:0] pline;
+	reg [31:0] wline;
+	reg [31:0] rline;
 
-	assign wline = line;
+	wire [3:0] wr;
+
 	assign wr = (state == QPI_WRITE && counter == 16) ? 4'd15 : (state == QPI_WRITE && counter == 12) ? 4'd3 : (state == QPI_WRITE && counter == 10) ? 4'd1 : (state == QPI_READ && counter == 10) ? 4'd2 : 4'd0;
+
+	always@(*) begin
+		wline = line;
+	end
 
 	always@* begin
 		case(state) 
