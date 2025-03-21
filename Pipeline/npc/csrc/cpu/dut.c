@@ -138,9 +138,7 @@ static void checkregs(CPU_state *ref, uint32_t pc){
 	if(!isa_difftest_checkregs(ref, pc)){
 		npc_state.state = NPC_ABORT; 
 		npc_state.halt_pc = pc;
-		if(cpu.pc != cpu.dnpc){
-			isa_reg_display();
-		}
+		isa_reg_display();
 	}
 }
 

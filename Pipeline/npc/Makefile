@@ -31,7 +31,7 @@ OBJ = ./obj_dir
 VSRC = ./vsrc
 SOC_HOME = $(NPC_HOME)/../ysyxSoC
 PERF = ./perf
-PERF_REF = $(PERF)/$(TOP_NAME)
+PERF_REF = $(PERF)/ysyxSoCFull
 PERF_BIN = $(PERF)/$(MICROBENCH)
 CACHESIM = $(PERF)/cachesim
 CACHESIM_BIN = $(PERF)/pc_trace.bin
@@ -69,7 +69,8 @@ INVFLAGS += -I$(SOC_HOME)/perip/uart16550/rtl
 INVFLAGS += -I$(SOC_HOME)/perip/spi/rtl
 
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\""
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\"" 
+#CXXFLAGS += -mcmodel=medium
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ)
@@ -113,10 +114,7 @@ cachesim:
 	@$(CACHESIM) $(CACHESIM_BIN)
 
 clean:
-	rm -rf $(BUILD_DIR)
-	rm -rf $(OBJ)
-	rm -rf $(VSRC)
-	rm -f waveform.*
+	rm -rf $(BUILD_DIR) test_run_dir $(OBJ) $(VSRC) waveform.*
 
 cleansim:
 	rm -rf performance_trace.csv $(OBJ) $(BUILD_DIR)
