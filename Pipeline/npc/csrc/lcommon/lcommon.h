@@ -46,8 +46,6 @@
 
 extern bool sim_verbose;
 
-uint64_t uptime(void);
-
 int eprintf(const char *fmt, ...);
 
 #define Info(...)           \
@@ -60,3 +58,4 @@ int eprintf(const char *fmt, ...);
 typedef int (*eprintf_handle_t)(const char *fmt, va_list ap);
 
 #endif
+

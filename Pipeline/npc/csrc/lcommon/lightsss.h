@@ -21,7 +21,7 @@
 #define WAIT_INTERVAL 5
 #define SLOT_SIZE 2
 
-#include <common.h>
+#include <lcommon.h>
 #include <deque>
 #include <list>
 #include <signal.h>
