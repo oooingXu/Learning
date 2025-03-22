@@ -73,10 +73,12 @@ void wave_init() {
 #endif
 }
 
+#ifdef CONFIG_LIGHTSSS
 void fork_child_init() {
 	FORK_PRINTF("the oldest checkpoint start to dump wave...\n")
 	wave_init();
 }
+#endif
 
 static void statistic(){
 	g_nr_guest_inst++;
@@ -88,41 +90,6 @@ static void statistic(){
 		Log("simulation frequency = %ld inst/s", g_nr_guest_inst * 1000000 / g_timer);
 		Log("simulation frequency = %ld clk/s", g_nr_guest_clk * 1000000 / g_timer);
 	} else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
-}
-
-static void check_state(){
-		switch(npc_state.state){
-			case NPC_RUNNING: npc_state.state = NPC_STOP; break;
-			case NPC_ABORT: case NPC_END:  
-				Log("npc: %s at pc = " FMT_WORD, 
-				(npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :  
-				(npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : 
-					ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))), 
-				npc_state.halt_pc);
-			case NPC_QUIT: 
-				timer_end = get_time();
-				g_timer += timer_end - timer_start;
-				statistic();
-				if(force_dump_wave && m_trace) {
-					m_trace->close();
-					delete m_trace;
-					m_trace = NULL;
-				}
-		}
-#ifdef CONFIG_LIGHTSSS 
-	if(!is_fork_child()) {
-		bool need_wakeup = npc_state.state == NPC_ABORT;
-		if(need_wakeup) {
-			//printf(ANSI_FMT("Lightsss wakeup_child\n", ANSI_FG_GREEN));
-			lightsss->wakeup_child(g_nr_guest_clk);
-		} else {
-			lightsss->do_clear();
-		}
-		delete lightsss;
-		lightsss = NULL;
-	}
-#endif
-		
 }
 
 extern "C" void set_npc_state(int ebreak, uint32_t wbu_clk_h, uint32_t wbu_clk_l){
@@ -334,7 +301,38 @@ void cpu_exec(uint64_t n){
 		timer_end = get_time();
 		g_timer += timer_end - timer_start;
 
-		check_state();
+		switch(npc_state.state){
+			case NPC_RUNNING: npc_state.state = NPC_STOP; break;
+			case NPC_ABORT: case NPC_END:  
+				Log("npc: %s at pc = " FMT_WORD, 
+				(npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :  
+				(npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : 
+					ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))), 
+				npc_state.halt_pc);
+			case NPC_QUIT: 
+				timer_end = get_time();
+				g_timer += timer_end - timer_start;
+				statistic();
+				if(force_dump_wave && m_trace) {
+					m_trace->close();
+					delete m_trace;
+					m_trace = NULL;
+				}
+		}
+#ifdef CONFIG_LIGHTSSS 
+	if(!is_fork_child()) {
+		bool need_wakeup = npc_state.state == NPC_ABORT;
+		if(need_wakeup) {
+			//printf(ANSI_FMT("Lightsss wakeup_child\n", ANSI_FG_GREEN));
+			lightsss->wakeup_child(g_nr_guest_clk);
+		} else {
+			lightsss->do_clear();
+		}
+		delete lightsss;
+		lightsss = NULL;
+	}
+#endif
+		
 }
 
 static void welcome(){
