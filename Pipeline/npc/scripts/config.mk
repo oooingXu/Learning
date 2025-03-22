@@ -18,13 +18,13 @@ MCONF  := $(KCONFIG_PATH)/build/mconf
 FIXDEP := $(FIXDEP_PATH)/build/fixdep
 
 $(CONF):
-	$(Q)$(MAKE) $(silent) -c $(KCONFIG_PATH) NAME=conf
+	$(Q)$(MAKE) $(silent) -C $(KCONFIG_PATH) NAME=conf
 
 $(MCONF):
-	$(Q)$(MAKE) $(silent) -c $(KCONFIG_PATH) NAME=mconf
+	$(Q)$(MAKE) $(silent) -C $(KCONFIG_PATH) NAME=mconf
 
 $(FIXDEP):
-	$(Q)$(MAKE) $(silent) -c $(FIXDEP_PATH)
+	$(Q)$(MAKE) $(silent) -C $(FIXDEP_PATH)
 
 menuconfig: $(MCONF) $(CONF) $(FIXDEP)
 	$(Q)$(MCONF) $(Kconfig)
