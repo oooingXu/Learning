@@ -69,38 +69,18 @@ class LSU_WBU_DATA extends Bundle {
   val exu_wbu_data = new EXU_WBU_DATA()
 }
 
-class IFU_EXU_RAW extends Bundle {
-  val exu_valid     = Input(Bool())
-  val isRAW_control = Input(Bool())
-  val dnpc          = Input(UInt(Base.pcWidth.W))
-}
-
 class EXU_IFU_RAW extends Bundle {
   val exu_valid     = Output(Bool())
   val isRAW_control = Output(Bool())
   val dnpc          = Output(UInt(Base.pcWidth.W))
 }
 
-class IDU_EXU_RAW extends Bundle {
-  val exu_MemtoReg = Input(Bool())
-  val exu_rden     = Input(Bool())
-  val exu_rd       = Input(UInt(Base.rdWidth.W))
-  val exu_regdata  = Input(UInt(Base.dataWidth.W))
-}
-
 class EXU_IDU_RAW extends Bundle {
-  val exu_MemtoReg = Output(Bool())
-  val exu_rden     = Output(Bool())
-  val exu_rd       = Output(UInt(Base.rdWidth.W))
-  val exu_regdata  = Output(UInt(Base.dataWidth.W))
-}
-
-class IDU_LSU_RAW extends Bundle {
-  val lsu_MemtoReg = Input(Bool())
-  val lsu_rden     = Input(Bool())
-  val lsu_valid    = Input(Bool())
-  val lsu_rd       = Input(UInt(Base.rdWidth.W))
-  val lsu_regdata  = Input(UInt(Base.dataWidth.W))
+  //val exu_isRAW_control = Output(Bool())
+  val exu_MemtoReg      = Output(Bool())
+  val exu_rden          = Output(Bool())
+  val exu_rd            = Output(UInt(Base.rdWidth.W))
+  val exu_regdata       = Output(UInt(Base.dataWidth.W))
 }
 
 class LSU_IDU_RAW extends Bundle {
@@ -109,12 +89,6 @@ class LSU_IDU_RAW extends Bundle {
   val lsu_valid    = Output(Bool())
   val lsu_rd       = Output(UInt(Base.rdWidth.W))
   val lsu_regdata  = Output(UInt(Base.dataWidth.W))
-}
-
-class IDU_WBU_RAW extends Bundle {
-  val wbu_rden     = Input(Bool())
-  val wbu_rd       = Input(UInt(Base.rdWidth.W))
-  val wbu_regdata  = Input(UInt(Base.dataWidth.W))
 }
 
 class WBU_IDU_RAW extends Bundle {
@@ -243,9 +217,9 @@ class DECODE_IDU_DATA extends Bundle {
 }
 
 class IMMGEN_DECODE_RAW extends Bundle {
-  val idu_exu_raw = new IDU_EXU_RAW()
-  val idu_lsu_raw = new IDU_LSU_RAW()
-  val idu_wbu_raw = new IDU_WBU_RAW()
+  val exu_idu_raw = Flipped(new EXU_IDU_RAW())
+  val lsu_idu_raw = Flipped(new LSU_IDU_RAW())
+  val wbu_idu_raw = Flipped(new WBU_IDU_RAW())
 }
 
 class WBU_SRAM_DATA extends Bundle {

@@ -21,6 +21,7 @@ class ysyx_23060336_EXU extends Module {
   val PCMux = Wire(UInt(Base.PCMuxWidth.W))
 
   val dnpc  = Wire(UInt(Base.pcWidth.W))
+  val isRAW_control = Wire(Bool())
 
   // state machine
   val s_idle :: s_wait_ready :: Nil = Enum(2)
@@ -28,10 +29,12 @@ class ysyx_23060336_EXU extends Module {
   state := MuxLookup(state, s_idle)(List(
     s_idle       -> Mux(io.idu_exu_data.valid, s_wait_ready, s_idle),
     s_wait_ready -> Mux(io.exu_lsu_data.ready, s_idle, s_wait_ready)
+    //s_wait_ready -> Mux(io.exu_lsu_data.ready && !io.idu_exu_data.valid, s_idle, s_wait_ready)
   ))
 
   io.exu_lsu_data.valid := state === s_wait_ready
-  io.idu_exu_data.ready := state === s_idle
+  io.idu_exu_data.ready := state === s_idle 
+  //io.idu_exu_data.ready := state === s_idle || (io.exu_lsu_data.valid && io.idu_exu_data.valid)
 
   // exu <> lsu
   io.exu_lsu_data.bits.idu_lsu_data  <> io.idu_exu_data.bits.idu_lsu_data
@@ -97,20 +100,25 @@ class ysyx_23060336_EXU extends Module {
           Mux(io.idu_exu_data.bits.mret,  io.idu_exu_data.bits.mepc, pcadd)))
 
   io.exu_ifu_raw.dnpc := dnpc
+  isRAW_control := (io.idu_exu_data.bits.pc + 4.U) =/= dnpc
 
+  // exu_idu_raw
   io.exu_idu_raw.exu_regdata   := alu.io.result
   io.exu_idu_raw.exu_rd        := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.rd
   io.exu_idu_raw.exu_rden      := io.idu_exu_data.bits.idu_lsu_data.idu_wbu_data.rden
   io.exu_idu_raw.exu_MemtoReg  := io.idu_exu_data.bits.idu_lsu_data.MemtoReg
+  //io.exu_idu_raw.exu_isRAW_control := isRAW_control
+
+  // exu_ifu_raw
   io.exu_ifu_raw.exu_valid     := state === s_wait_ready
-  io.exu_ifu_raw.isRAW_control := (io.idu_exu_data.bits.pc + 4.U) =/= dnpc
+  io.exu_ifu_raw.isRAW_control := isRAW_control
 
   // useCounter
   if(Config.useCounter) {
     val exu_counter = Module(new EXU_COUNTER())
     exu_counter.io.clock         := clock
     exu_counter.io.state         := state
-    exu_counter.io.isRAW_control := io.exu_ifu_raw.isRAW_control
+    exu_counter.io.isRAW_control := isRAW_control
   }
 
 }

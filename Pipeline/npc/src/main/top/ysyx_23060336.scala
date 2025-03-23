@@ -88,15 +88,15 @@ class ysyx_23060336 extends Module {
   wbu.io.wbu_csr_data <> csr.io.csr_wbu_data
 
   // ifu <> exu
-  ifu.io.ifu_exu_raw <> exu.io.exu_ifu_raw
+  ifu.io.exu_ifu_raw <> exu.io.exu_ifu_raw
 
   // idu <> exu
-  idu.io.idu_exu_raw <> exu.io.exu_idu_raw
+  idu.io.exu_idu_raw <> exu.io.exu_idu_raw
 
   // idu <> lsu
-  idu.io.idu_lsu_raw <> lsu.io.lsu_idu_raw
+  idu.io.lsu_idu_raw <> lsu.io.lsu_idu_raw
 
   // idu <> wbu
-  idu.io.idu_wbu_raw <> wbu.io.wbu_idu_raw
+  idu.io.wbu_idu_raw <> wbu.io.wbu_idu_raw
 }
 

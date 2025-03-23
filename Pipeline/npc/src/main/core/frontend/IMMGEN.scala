@@ -97,21 +97,21 @@ class ysyx_23060336_IMMGEN extends Module {
   immType  := io.immgen_decode_data.immType
 
   // immgen_decode_raw
-  exu_rd       := io.immgen_decode_data.immgen_decode_raw.idu_exu_raw.exu_rd
-  lsu_rd       := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_rd
-  wbu_rd       := io.immgen_decode_data.immgen_decode_raw.idu_wbu_raw.wbu_rd
+  exu_rd       := io.immgen_decode_data.immgen_decode_raw.exu_idu_raw.exu_rd
+  lsu_rd       := io.immgen_decode_data.immgen_decode_raw.lsu_idu_raw.lsu_rd
+  wbu_rd       := io.immgen_decode_data.immgen_decode_raw.wbu_idu_raw.wbu_rd
 
-  exu_rden     := io.immgen_decode_data.immgen_decode_raw.idu_exu_raw.exu_rden
-  lsu_rden     := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_rden
-  wbu_rden     := io.immgen_decode_data.immgen_decode_raw.idu_wbu_raw.wbu_rden
+  exu_rden     := io.immgen_decode_data.immgen_decode_raw.exu_idu_raw.exu_rden
+  lsu_rden     := io.immgen_decode_data.immgen_decode_raw.lsu_idu_raw.lsu_rden
+  wbu_rden     := io.immgen_decode_data.immgen_decode_raw.wbu_idu_raw.wbu_rden
 
-  exu_regdata  := io.immgen_decode_data.immgen_decode_raw.idu_exu_raw.exu_regdata
-  lsu_regdata  := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_regdata
-  wbu_regdata  := io.immgen_decode_data.immgen_decode_raw.idu_wbu_raw.wbu_regdata
+  exu_regdata  := io.immgen_decode_data.immgen_decode_raw.exu_idu_raw.exu_regdata
+  lsu_regdata  := io.immgen_decode_data.immgen_decode_raw.lsu_idu_raw.lsu_regdata
+  wbu_regdata  := io.immgen_decode_data.immgen_decode_raw.wbu_idu_raw.wbu_regdata
 
-  lsu_valid    := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_valid
-  lsu_MemtoReg := io.immgen_decode_data.immgen_decode_raw.idu_lsu_raw.lsu_MemtoReg
-  exu_MemtoReg := io.immgen_decode_data.immgen_decode_raw.idu_exu_raw.exu_MemtoReg
+  lsu_valid    := io.immgen_decode_data.immgen_decode_raw.lsu_idu_raw.lsu_valid
+  lsu_MemtoReg := io.immgen_decode_data.immgen_decode_raw.lsu_idu_raw.lsu_MemtoReg
+  exu_MemtoReg := io.immgen_decode_data.immgen_decode_raw.exu_idu_raw.exu_MemtoReg
 
   // imm
   imm := MuxLookup(immType, 0.U)(

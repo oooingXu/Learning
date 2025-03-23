@@ -28,5 +28,5 @@ object Base {
 
   // icache
   val block = 2 // block == 2 / 4
-  val index = 4 // 10 >= index >= 0
+  val index = 7 // 10 >= index >= 0
 }
