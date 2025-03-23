@@ -26,7 +26,7 @@ bool ebreak_done = false;
 
 bool force_dump_wave = false;
 uint32_t inst_last = 0;
-uint32_t INST_WAIT = 10;
+uint32_t INST_WAIT = 1000;
 
 uint32_t pipeline_pc, pipeline_dnpc;
 bool pipeline_valid;
