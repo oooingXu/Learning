@@ -325,11 +325,16 @@ void cpu_exec(uint64_t n){
 		if(need_wakeup) {
 			//printf(ANSI_FMT("Lightsss wakeup_child\n", ANSI_FG_GREEN));
 			lightsss->wakeup_child(g_nr_guest_clk);
+			//printf(ANSI_FMT("Lightsss wakeup_child\n", ANSI_FG_RED));
 		} else {
+			//printf(ANSI_FMT("Lightsss do_clear\n", ANSI_FG_GREEN));
 			lightsss->do_clear();
 		}
 		delete lightsss;
 		lightsss = NULL;
+	} else {
+		//printf(ANSI_FMT("Lightsss do_clear\n", ANSI_FG_RED));
+		lightsss->do_clear();
 	}
 #endif
 		

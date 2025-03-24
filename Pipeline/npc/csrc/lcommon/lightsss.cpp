@@ -161,17 +161,20 @@ int LightSSS::do_clear() {
   FORK_PRINTF("clear processes...\n")
   while (!pidSlot.empty()) {
     pid_t temp = pidSlot.back();
-		//FORK_PRINTF("do_clear: clear pid = %d\n", temp)
+		//FORK_PRINTF("do_clear: clear pidSlot pid = %d\n", temp)
     pidSlot.pop_back();
     kill(temp, SIGKILL);
     waitpid(temp, NULL, 0);
     slotCnt--;
 
-		if(getpid() != p_pid) {
-    	kill(getpid(), SIGKILL);
-    	waitpid(getpid(), NULL, 0);
-		}
-
   }
+
+	//FORK_PRINTF("do_clear: child pid = %d, p_pid = %d\n", getpid(), p_pid)
+	if(getpid() != p_pid) {
+		//FORK_PRINTF("do_clear: clear child pid = %d\n", getpid())
+  	kill(getpid(), SIGKILL);
+  	waitpid(getpid(), NULL, 0);
+	}
+
   return 0;
 }
