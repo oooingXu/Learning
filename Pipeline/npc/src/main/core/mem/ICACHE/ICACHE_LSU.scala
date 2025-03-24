@@ -56,6 +56,7 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
     araddr := maskedaraddr 
     io.lsu_arbiter.arlen := 3.U
   } else {
+    offset := io.in.bits.araddr(3, 0)
     araddr := io.in.bits.araddr
     io.lsu_arbiter.arlen := 0.U
   }
