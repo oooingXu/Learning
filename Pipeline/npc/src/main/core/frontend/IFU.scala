@@ -51,7 +51,7 @@ class ysyx_23060336_IFU extends Module{
   io.axi.awaddr  := 0.U
   io.axi.awid    := "h1".U
   io.axi.awlen   := "h0".U
-  io.axi.awsize  := "h3".U
+  io.axi.awsize  := "h2".U
   io.axi.awburst := "h1".U
   io.axi.wvalid  := false.B
   io.axi.wdata   := 0.U

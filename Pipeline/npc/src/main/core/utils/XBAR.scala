@@ -19,6 +19,7 @@ class ysyx_23060336_XBAR extends Module{
   when(io.slave.araddr >= CLINT_START && io.slave.araddr <= CLINT_END) {
     io.clint.arvalid  := io.slave.arvalid
     io.slave.arready  := io.clint.arready
+    io.slave.rlast    := io.clint.rlast
     io.slave.rvalid   := io.clint.rvalid
     io.slave.rdata    := io.clint.rdata
     io.slave.rresp    := io.clint.rresp
@@ -26,6 +27,7 @@ class ysyx_23060336_XBAR extends Module{
   } .otherwise {
     io.master.arvalid := io.slave.arvalid
     io.slave.arready  := io.master.arready
+    io.slave.rlast    := io.master.rlast
     io.slave.rvalid   := io.master.rvalid
     io.slave.rdata    := io.master.rdata
     io.slave.rresp    := io.master.rresp

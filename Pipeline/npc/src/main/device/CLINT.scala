@@ -36,7 +36,7 @@ class ysyx_23060336_CLINT extends Module{
   io.axi.rvalid  := state === s_ready
   io.axi.rresp   := 0.U
   io.axi.rdata   := Mux(state === s_ready, Mux(araddr === "h02000000".U, mtimel, mtimeh), 0.U)
-  io.axi.rlast   := 1.U
+  io.axi.rlast   := state === s_ready
   io.axi.rid     := 2.U
 
 }

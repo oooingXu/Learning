@@ -9,8 +9,6 @@ class ysyx_23060336_ICACHE_IFU extends Module {
     val in  = new ICACHE_IFU_DATA()
   })
 
-  val araddr = Reg(UInt(Base.dataWidth.W))
-
   val s_idle :: s_wait_ready :: Nil = Enum(2)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(
@@ -22,11 +20,7 @@ class ysyx_23060336_ICACHE_IFU extends Module {
 
   // icache_ifu <> icache_lsu
   io.out.bits.coherence_output <> io.in.coherence_input
-  io.out.bits.araddr  := araddr
-
-  when(io.in.arvalid) {
-    araddr := io.in.araddr
-  }
+  io.out.bits.araddr  := io.in.araddr
 
   // icache <> icache_ifu
   io.in.arready := state === s_idle

@@ -169,8 +169,10 @@ class ICACHE_LSU_ARBITER_DATA extends Bundle {
   val arvalid = Output(Bool())
   val rready  = Output(Bool())
   val araddr  = Output(UInt(Base.addrWidth.W))
+  val arlen   = Output(UInt(Base.lenWidth.W))
   val arready = Input(Bool())
   val rvalid  = Input(Bool())
+  val rlast   = Input(Bool())
   val rdata   = Input(UInt(Base.dataWidth.W))
 }
 

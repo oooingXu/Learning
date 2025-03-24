@@ -32,14 +32,14 @@ class ysyx_23060336_LSU extends Module{
   state := MuxLookup(state, s_idle)(List(
     s_idle         -> Mux(io.exu_lsu_data.valid, s_wait_sign, s_idle),
     s_wait_sign    -> Mux(io.exu_lsu_data.bits.idu_lsu_data.MemtoReg, s_wait_rslave, Mux(io.exu_lsu_data.bits.idu_lsu_data.MemWr, s_wait_wslave, s_wait_ready)),
-    s_wait_rslave  -> Mux(io.axi.arready, Mux(io.axi.rvalid, Mux(io.lsu_wbu_data.ready, s_idle, s_wait_ready), s_wait_prepare), s_wait_rslave),
+    s_wait_rslave  -> Mux(io.axi.arready, Mux(io.axi.rvalid && io.axi.rlast, Mux(io.lsu_wbu_data.ready, s_idle, s_wait_ready), s_wait_prepare), s_wait_rslave),
     s_wait_wslave  -> Mux(io.axi.wready, s_wait_prepare, s_wait_wslave),
     s_wait_prepare -> Mux(prepare, Mux(io.lsu_wbu_data.ready, s_idle, s_wait_ready), s_wait_prepare),
     s_wait_ready   -> Mux(io.lsu_wbu_data.ready, s_idle, s_wait_ready)
   ))
 
   io.exu_lsu_data.ready  := state === s_idle
-  io.lsu_wbu_data.valid := state === s_wait_ready || ((state === s_wait_prepare && prepare) || (state === s_wait_rslave && io.axi.arready && io.axi.rvalid) && io.lsu_wbu_data.ready)
+  io.lsu_wbu_data.valid := state === s_wait_ready || ((state === s_wait_prepare && prepare) || (state === s_wait_rslave && io.axi.arready && io.axi.rvalid && io.axi.rlast) && io.lsu_wbu_data.ready)
 
   // rdata
   rdata_h := Mux(io.exu_lsu_data.bits.result(1,0) === 2.U, io.axi.rdata >> 16,
@@ -61,8 +61,9 @@ class ysyx_23060336_LSU extends Module{
              Mux(io.exu_lsu_data.bits.result(1,0) === 0.U, io.exu_lsu_data.bits.idu_lsu_data.wstrb, 0.U))
   wstrb_b := Mux(io.exu_lsu_data.bits.result(1,0) === 3.U, io.exu_lsu_data.bits.idu_lsu_data.wstrb << 3, Mux(io.exu_lsu_data.bits.result(1,0) === 2.U, io.exu_lsu_data.bits.idu_lsu_data.wstrb << 2, Mux(io.exu_lsu_data.bits.result(1,0) === 1.U, io.exu_lsu_data.bits.idu_lsu_data.wstrb << 1, io.exu_lsu_data.bits.idu_lsu_data.wstrb)))
 
-  prepare := (io.exu_lsu_data.bits.idu_lsu_data.MemtoReg && io.axi.rvalid) || (io.exu_lsu_data.bits.idu_lsu_data.MemWr && io.axi.bvalid) 
+  prepare := (io.exu_lsu_data.bits.idu_lsu_data.MemtoReg && io.axi.rvalid && io.axi.rlast) || (io.exu_lsu_data.bits.idu_lsu_data.MemWr && io.axi.bvalid) 
   DataOut := Mux(io.exu_lsu_data.bits.idu_lsu_data.MemtoReg, Mux(io.exu_lsu_data.bits.idu_lsu_data.arsize === 0.U, rdata_b, Mux(io.exu_lsu_data.bits.idu_lsu_data.arsize === 1.U, rdata_h, io.axi.rdata)), io.exu_lsu_data.bits.result)
+  //DataOut := Mux(io.exu_lsu_data.bits.idu_lsu_data.MemtoReg, io.axi.rdata, io.exu_lsu_data.bits.result) // wrong
 
   when(io.axi.rvalid && io.axi.rready){
     regdata := rdata

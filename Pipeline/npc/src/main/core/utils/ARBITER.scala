@@ -44,8 +44,8 @@ class ysyx_23060336_ARBITER extends Module{
   val state = RegInit(s_ifu)
   state := MuxLookup(state, s_wait)(List(
     s_wait     -> Mux(io.lsu.arvalid, s_lsu, Mux(io.ifu.arvalid, s_ifu, s_wait)),
-    s_lsu      -> Mux(rvalid === 1.U, s_wait, s_lsu),
-    s_ifu      -> Mux(rvalid === 1.U, s_wait, s_ifu)
+    s_lsu      -> Mux(rlast && rvalid, s_wait, s_lsu),
+    s_ifu      -> Mux(rlast && rvalid, s_wait, s_ifu)
   ))
 
   // ********** Arbiter **********
@@ -108,12 +108,12 @@ class ysyx_23060336_ARBITER extends Module{
   io.ifu.rid    := rid       
   io.ifu.rresp  := rresp     
   io.ifu.rdata  := rdata
-  io.ifu.rlast  := rlast     
+  io.ifu.rlast  := rlast && state === s_ifu     
                          
   io.lsu.rid    := rid       
   io.lsu.rresp  := rresp     
   io.lsu.rdata  := rdata  
-  io.lsu.rlast  := rlast     
+  io.lsu.rlast  := rlast && state === s_lsu     
 
   // AW
   awid           := io.lsu.awid

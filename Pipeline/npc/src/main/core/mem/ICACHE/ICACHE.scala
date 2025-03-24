@@ -57,7 +57,9 @@ class ysyx_23060336_ICACHE(m: Int, n: Int) extends Module{
   io.master.araddr  := Mux(state === s_skip, slave_araddr, icache_lsu.io.lsu_arbiter.araddr)
   io.master.arvalid := icache_lsu.io.lsu_arbiter.arvalid || (io.slave.arvalid && state === s_skip)
   io.master.rready  := icache_lsu.io.lsu_arbiter.rready || state === s_idle || state === s_skip
+  io.master.arlen   := icache_lsu.io.lsu_arbiter.arlen
   icache_lsu.io.lsu_arbiter.rvalid := io.master.rvalid
+  icache_lsu.io.lsu_arbiter.rlast  := io.master.rlast
   icache_lsu.io.lsu_arbiter.rdata  := io.master.rdata
   icache_lsu.io.lsu_arbiter.arready:= io.master.arready
 

@@ -13,6 +13,7 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
   val counter = RegInit(0.U(2.W))
   val maskedaraddr = io.in.bits.araddr & ~(0x0000000f.U(Base.addrWidth.W))
   val araddr = Wire(UInt(Base.addrWidth.W))
+  val offset = Wire(UInt(m.W))
 
   val slave_tag    = io.in.bits.araddr(31, m + n)
   val slave_index  = io.in.bits.araddr(m + n - 1, m)
@@ -31,8 +32,8 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
     s_idle         -> Mux(io.in.valid, s_wait_indata, s_idle),
     s_wait_indata  -> s_judge_addr,
     s_judge_addr   -> Mux(hit_miss, s_wait_ready, s_sent_request),
-    s_sent_request -> Mux(io.lsu_arbiter.arready, Mux(io.lsu_arbiter.rvalid, s_wait_ready, s_update_data), s_sent_request),
-    s_update_data  -> Mux(io.lsu_arbiter.rvalid, Mux(if(m == 4) {counter === (m - 1).U} else {counter === 0.U}, s_wait_ready, s_sent_request), s_update_data),
+    s_sent_request -> Mux(io.lsu_arbiter.arready, Mux(io.lsu_arbiter.rvalid, Mux(io.lsu_arbiter.rlast, s_wait_ready, s_update_data), s_update_data), s_sent_request),
+    s_update_data  -> Mux(io.lsu_arbiter.rvalid, Mux(io.lsu_arbiter.rlast, s_wait_ready, s_update_data), s_update_data),
     s_wait_ready   -> Mux(io.out.ready, s_idle, s_wait_ready)
   ))
 
@@ -40,20 +41,23 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
   io.out.valid := state === s_wait_ready
 
   // slave
-  slave_offset := Mux(state === s_update_data, araddr(3,0), io.in.bits.araddr(3, 0))
+  slave_offset := Mux(state === s_update_data, offset, io.in.bits.araddr(3, 0))
 
   // maskedaraddr
   if(m == 4) {
-    araddr := MuxLookup(counter, maskedaraddr)(
+    offset := MuxLookup(counter, 0.U)(
       Seq(
-        3.U(2.W) ->  (maskedaraddr | "b1100".U),
-        2.U(2.W) ->  (maskedaraddr | "b1000".U),
-        1.U(2.W) ->  (maskedaraddr | "b0100".U),
-        0.U(2.W) ->  maskedaraddr
+        3.U(2.W) ->  "b1100".U,
+        2.U(2.W) ->  "b1000".U,
+        1.U(2.W) ->  "b0100".U,
+        0.U(2.W) ->  "b0000".U
       )
     )
+    araddr := maskedaraddr 
+    io.lsu_arbiter.arlen := 3.U
   } else {
     araddr := io.in.bits.araddr
+    io.lsu_arbiter.arlen := 0.U
   }
 
   // icache_lsu <> arbiter

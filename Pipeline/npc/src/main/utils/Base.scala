@@ -27,6 +27,6 @@ object Base {
   val dataWidth  = 32
 
   // icache
-  val block = 2 // block == 2 / 4
+  val block = 4 // block == 2 / 4
   val index = 7 // 10 >= index >= 0
 }

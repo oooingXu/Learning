@@ -251,6 +251,8 @@ void execute(uint64_t n){
 		}
 #endif
 
+		uint32_t cur_pc = pipeline_pc;
+
 		exec_once();
 
 		IFDEF(CONFIG_SOC, nvboard_update());
@@ -264,10 +266,10 @@ void execute(uint64_t n){
 		}
 #endif
 
-		if(cpu.pc == cpu.dnpc) cur_inst_cycle++;
+		if(cpu.pc == cur_pc) cur_inst_cycle++;
 		else cur_inst_cycle = 0;
 
-		if(cur_inst_cycle > 0xff) {
+		if(cur_inst_cycle > 0xfff) {
 			Log(ANSI_FMT("Too many cycles for one instruction, maybe a bug.", ANSI_FG_RED));
 			npc_state.state = NPC_ABORT;
 			break;
