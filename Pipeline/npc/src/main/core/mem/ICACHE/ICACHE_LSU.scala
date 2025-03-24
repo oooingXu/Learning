@@ -12,7 +12,7 @@ class ysyx_23060336_ICACHE_LSU(m: Int, n: Int) extends Module {
   val icache = Module(new ysyx_23060336_ICACHE_METADATA(m, n))
   val counter = RegInit(0.U(2.W))
   val maskedaraddr = io.in.bits.araddr & ~(0x0000000f.U(Base.addrWidth.W))
-  val araddr = Wire(UInt(Base.addrWidth.W))
+  val araddr = Reg(UInt(Base.addrWidth.W))
   val offset = Wire(UInt(m.W))
 
   val slave_tag    = io.in.bits.araddr(31, m + n)

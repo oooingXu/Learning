@@ -1,7 +1,7 @@
 package npc
 
 object Config {
-  val useNPCSim = false
+  val useNPCSim = true
   val useICache = true
   val useCounter = true
   val useDiff = true

@@ -51,19 +51,64 @@ class NPC_SIM extends BlackBox with HasBlackBoxInline{
     | );
     |
     | `ifdef VERILATOR
-    | reg npc_rvalid, npc_bvalid;
+    | parameter IDLE = 0, TRANSMISS = 1, ISSUE = 2;
+    |
+    | reg [1:0] nstate = IDLE;
+    | reg [1:0] state  = IDLE;
+    |
+    | reg npc_rvalid, npc_bvalid, npc_rlast;
     | reg [1:0]  npc_bresp;
     | reg [31:0] npc_rdata;
+    | reg [7:0]  npc_arlen;
+    | 
+    | wire [31:0] npc_araddr;
+    |
+    | assign npc_araddr = axi_araddr + npc_arlen * 32'd4;
     |
     | always@(posedge clock) begin
-    |   if(axi_arvalid && !npc_rvalid) begin
-    |     npc_rvalid <= 1;
-    |     npc_rdata  <= pmem_read(axi_araddr);
-    |   end else begin
-    |     npc_rvalid <= 0;
-    |     npc_rdata  <= 0;
-    |   end
+    |   state <= nstate;
+    | end
     |
+    | always@* begin
+    |   case(state)
+    |     IDLE: nstate = axi_arvalid ? npc_arlen == axi_arlen ? ISSUE : TRANSMISS : IDLE;
+    |     TRANSMISS: nstate = npc_arlen == axi_arlen ? ISSUE : TRANSMISS;
+    |     ISSUE: nstate = npc_rlast ? IDLE : ISSUE;
+    |     default: nstate = IDLE;
+    |   endcase
+    | end
+    |
+    | always@(posedge clock) begin
+    |   if(state == TRANSMISS && npc_rvalid) begin
+    |     npc_arlen <= npc_arlen + 1;
+    |   end else if(state == IDLE) begin
+    |     npc_arlen <= 0;
+    |   end else begin
+    |     npc_arlen <= npc_arlen;
+    |   end
+    | end
+    |
+    | always@(posedge clock) begin
+    |   if(state == TRANSMISS || state == ISSUE) begin
+    |     if(axi_rready && !npc_rvalid) begin
+    |       npc_rdata <= pmem_read(npc_araddr);
+    |       npc_rvalid <= 1;
+    |     end else begin
+    |       npc_rdata <= 0;
+    |       npc_rvalid <= 0;
+    |     end
+    |   end
+    | end
+    |
+    | always@(posedge clock) begin
+    |   if((state == TRANSMISS || state == ISSUE) && (axi_arlen == npc_arlen) && axi_rready && !npc_rlast) begin
+    |     npc_rlast <= 1;
+    |   end else begin
+    |     npc_rlast <= 0;
+    |   end
+    | end
+    |
+    | always@(posedge clock) begin
     |   if(axi_awvalid && !npc_bvalid) begin
     |     npc_bvalid <= 1;
     |     {30'b0, npc_bresp}  <= pmem_write(axi_awaddr, axi_wdata, {28'b0, axi_wstrb});
@@ -74,6 +119,7 @@ class NPC_SIM extends BlackBox with HasBlackBoxInline{
     |
     | assign axi_rdata   = npc_rdata;
     | assign axi_rvalid  = npc_rvalid;
+    | assign axi_rlast   = npc_rlast;
     | assign axi_bvalid  = npc_bvalid;
     | assign axi_bresp   = npc_bresp;
     | assign axi_arready = 1;
