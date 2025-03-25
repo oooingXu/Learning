@@ -39,6 +39,7 @@ extern CPU_state cpu;
 extern const char *regs[];
 
 typedef struct {
+	 uint32_t inst;
 	 uint32_t araddr;
 	 uint32_t awaddr;
 	 uint32_t wdata;

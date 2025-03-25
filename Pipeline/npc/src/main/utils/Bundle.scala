@@ -48,6 +48,7 @@ class IDU_WBU_DATA extends Bundle {
   val rs2en      = Output(Bool())
   val rd         = Output(UInt(Base.rdWidth.W))
   val csr        = Output(UInt(Base.csrWidth.W))
+  val inst       = Output(UInt(Base.dataWidth.W))
 }
 
 class EXU_LSU_DATA extends Bundle {

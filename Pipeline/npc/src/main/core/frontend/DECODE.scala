@@ -373,6 +373,7 @@ class ysyx_23060336_DECODE extends Module {
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.rs2en      := rs2en
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.isRAW_data := isRAW_data
   io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.csr        := csr
+  io.decode_idu_data.idu_exu_data.idu_lsu_data.idu_wbu_data.inst       := inst
 
   // idu <> reg
   io.decode_idu_data.idu_reg_data <> immgen.io.immgen_decode_data.idu_reg_data

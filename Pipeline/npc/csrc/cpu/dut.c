@@ -71,42 +71,50 @@ void init_difftest(char *ref_so_file, long img_size){
 static bool isa_difftest_checkmem() {
 	MEM_DIFF mem_ref;
 	ref_difftest_mem_diff(&mem_ref);
-	bool ret;
+	bool mem_ret = true;
+	bool inst_ret = true;
+	if(mem_diff.inst != mem_ref.inst) {
+		inst_ret = false;
+		printf("inst fail\n");
+		printf("dut.inst = 0x%08x, ref.inst = 0x%08x\n", mem_diff.inst, mem_ref.inst);
+	}
 	if(mem_diff.arvalid) {
-		ret = ((mem_diff.araddr == mem_ref.araddr) && (mem_diff.arsize == mem_ref.arsize)); 
-		if(!ret) {
+		mem_ret = ((mem_diff.araddr == mem_ref.araddr) && (mem_diff.arsize == mem_ref.arsize)); 
+		if(!mem_ret) {
 			printf("Load Fail\n");
 			printf("dut.araddr = 0x%08x, ref.araddr = 0x%08x\n", mem_diff.araddr, mem_ref.araddr);
 			printf("dut.arsize = 0x%08x, ref.arsize = 0x%08x\n", mem_diff.arsize, mem_ref.arsize);
 		}
 	} else if(mem_diff.awvalid) {
-		ret = ((mem_diff.awaddr == mem_ref.awaddr) && (mem_diff.wdata == mem_ref.wdata) && (mem_diff.wstrb == mem_ref.wstrb));
-		if(!ret) {
+		mem_ret = ((mem_diff.awaddr == mem_ref.awaddr) && (mem_diff.wdata == mem_ref.wdata) && (mem_diff.wstrb == mem_ref.wstrb));
+		if(!mem_ret) {
 			printf("Store Fail\n");
 			printf("dut.awaddr = 0x%08x, ref.awaddr = 0x%08x\n", mem_diff.awaddr, mem_ref.awaddr);
 			printf("dut.wdata = 0x%08x, ref.wdata = 0x%08x\n", mem_diff.wdata, mem_ref.wdata);
 			printf("dut.wstrb = 0x%08x, ref.wstrb = 0x%08x\n", mem_diff.wstrb, mem_ref.wstrb);
 		}
-	} else {
-		ret = true;
-	}
+	} 
 	
-	return ret;
+	return mem_ret && inst_ret;
 }
 
 static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 
+	bool reg_ret = true;
+	bool csr_ret = true;
+	bool pc_ret  = true;
 	for(int i = 0; i < R; i++){
 		if(ref->gpr[i] != cpu.gpr[i]){
+			reg_ret = false;
 			printf("\nWrong regs\n");
 			printf("ref.gpr[%s] = 0x%08x, ",regs[i],ref->gpr[i]);
 			printf("dut->gpr[%s] = 0x%08x, ",regs[i],cpu.gpr[i]);
 			printf("dut->pc = 0x%08x, dut->dnpc = 0x%08x, ref->dnpc = 0x%08x\n",cpu.pc, cpu.dnpc, ref->pc);
-			return false;
 		}
 	}
 
 	if(cpu.mtvec != ref->mtvec || cpu.mepc != ref->mepc || cpu.mcause != ref->mcause || cpu.mstatus != ref->mstatus){
+		csr_ret = false;
 		printf("Wrong csrs\n");
 		printf("dut->pc = 0x%08x, dut->dnpc = 0x%08x, ref->dnpc = 0x%08x\n",cpu.pc, cpu.dnpc, ref->pc);
 
@@ -115,16 +123,17 @@ static bool isa_difftest_checkregs(CPU_state *ref, uint32_t pc){
 		printf("mepc ref = 0x%08x, dut = 0x%08x\n", ref->mepc, cpu.mepc);
 		printf("mcause  ref = 0x%08x, dut = 0x%08x\n", ref->mcause, cpu.mcause);
 		printf("mstatus ref = 0x%08x, dut = 0x%08x\n\n", ref->mstatus, cpu.mstatus);
-		return false;
 	}
 
 	if(ref->pc != cpu.dnpc) {
+		pc_ret = false;
 		printf("Wrong pc\n");
 		printf("ref.pc = 0x%08x, dut.pc = 0x%08x\n", ref->pc, cpu.dnpc);
 	}
 
-	bool ret = isa_difftest_checkmem();
-	if(!ret) return false;
+
+	bool mem_ret = isa_difftest_checkmem();
+	if(!(mem_ret && reg_ret && csr_ret && pc_ret)) return false;
 
 
 	debug("All right");

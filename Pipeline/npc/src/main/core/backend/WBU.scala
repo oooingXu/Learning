@@ -46,6 +46,7 @@ class ysyx_23060336_WBU extends Module {
   if(Config.useSram) {
     val sram_read = Module(new SRAM_READ())
     sram_read.io.clock := clock
+    sram_read.io.inst  := io.lsu_wbu_data.bits.idu_wbu_data.inst
     sram_read.io.wbu_sram_data <> io.lsu_wbu_data.bits.wbu_sram_data
   }
 
