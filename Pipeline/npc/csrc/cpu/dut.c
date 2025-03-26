@@ -73,6 +73,7 @@ static bool isa_difftest_checkmem() {
 	ref_difftest_mem_diff(&mem_ref);
 	bool mem_ret = true;
 	bool inst_ret = true;
+	IFDEF(CONFIG_ITRACE, itrace(mem_diff.inst));
 	if(mem_diff.inst != mem_ref.inst) {
 		inst_ret = false;
 		printf("inst fail\n");

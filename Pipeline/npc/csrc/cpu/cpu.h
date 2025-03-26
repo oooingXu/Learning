@@ -60,6 +60,8 @@ void difftest_step();
 void difftest_skip_ref();
 void difftest_skip_dut(CPU_state *ref, int nr_ref, int nr_dut);
 
+void itrace(uint32_t instr);
+
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF, DIFFTEST_TO_NPC};
 
 #endif
