@@ -24,15 +24,16 @@ class ysyx_23060336_EXU extends Module {
   val isRAW_control = Wire(Bool())
 
   // state machine
-  val s_idle :: s_wait_ready :: Nil = Enum(2)
+  val s_idle :: s_wait_ready :: s_wait_ready_control :: Nil = Enum(3)
   val state = RegInit(s_idle)
   state := MuxLookup(state, s_idle)(List(
-    s_idle       -> Mux(io.idu_exu_data.valid, s_wait_ready, s_idle),
-    s_wait_ready -> Mux(io.exu_lsu_data.ready, s_idle, s_wait_ready)
+    s_idle               -> Mux(io.idu_exu_data.valid, Mux(isRAW_control, s_wait_ready_control, s_wait_ready), s_idle),
+    s_wait_ready         -> Mux(io.exu_lsu_data.ready, s_idle, s_wait_ready),
+    s_wait_ready_control -> Mux(io.exu_lsu_data.ready, s_idle, s_wait_ready_control)
     //s_wait_ready -> Mux(io.exu_lsu_data.ready && !io.idu_exu_data.valid, s_idle, s_wait_ready)
   ))
 
-  io.exu_lsu_data.valid := state === s_wait_ready
+  io.exu_lsu_data.valid := state === s_wait_ready || state === s_wait_ready_control
   io.idu_exu_data.ready := state === s_idle 
   //io.idu_exu_data.ready := state === s_idle || (io.exu_lsu_data.valid && io.idu_exu_data.valid)
 
@@ -110,7 +111,7 @@ class ysyx_23060336_EXU extends Module {
   //io.exu_idu_raw.exu_isRAW_control := isRAW_control
 
   // exu_ifu_raw
-  io.exu_ifu_raw.exu_valid     := state === s_wait_ready
+  io.exu_ifu_raw.exu_valid     := (state === s_wait_ready && !isRAW_control) || state === s_wait_ready_control
   io.exu_ifu_raw.isRAW_control := isRAW_control
 
   // useCounter

@@ -36,6 +36,7 @@ PERF_BIN = $(PERF)/$(MICROBENCH)
 CACHESIM = $(PERF)/cachesim
 CACHESIM_BIN = $(PERF)/pc_trace.bin
 BIN = $(BUILD_DIR)/$(TOP_NAME)
+NPC = $(NPC_HOME)/csrc/$(CPU_NAME).cpp
 
 default: $(BIN)
 
@@ -56,7 +57,6 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 endif
 
-NPC = $(NPC_HOME)/csrc/$(CPU_NAME).cpp
 ifdef CONFIG_SOC
 VSRCS += $(SOC_HOME)/build/ysyxSoCFull.v
 VSRCS += $(shell find $(SOC_HOME)/perip -name "*.v")
@@ -70,7 +70,10 @@ INVFLAGS += -I$(SOC_HOME)/perip/spi/rtl
 
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP_NAME)\"" 
-#CXXFLAGS += -mcmodel=medium
+CXXFLAGS += -mcmodel=medium
+#CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+#LDFLAGS  += -lLLVM-19
+#LDFLAGS  += $(shell llvm-config --libs)
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ)
@@ -93,6 +96,7 @@ verilog:
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(VSRC)
 	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC)
+	sed -i '/----- 8< ----- FILE "firrtl_black_box_resource_files.f" ----- 8< -----/,$$d' $(NPC_HOME)/vsrc/$(CPU_NAME).sv
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
