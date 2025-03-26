@@ -32,27 +32,22 @@ const char *instLOAD[] = {
 };
 
 static void itrace_b(uint32_t func3, int rs1, int rs2, uint32_t imm) {
-	if(rs1 >= R || rs2 >= R) {
-		printf("B reg fail\n");
+	if(rs1 >= R || rs2 >= R || func3 > 7) {
+		printf("inst B decode fail\n");
+		printf("func3 = %ld, rs1 = %d, rs2 = %d, imm = %x\n", func3, rs1, rs2, imm);
 		assert(0);
 	}
 
-	if(func3 > 7){
-		printf("inst B decode fail\n");
-	}
-	printf("func3 = %ld, rs1 = %d, rs2 = $d, imm = %x\n", func3, rs1, rs2, imm);
 	printf("%s %s,%s,%x\n", instB[func3], regs[rs1], regs[rs2], cpu.pc + imm);
 }
 
 static void itrace_r(uint32_t func7, uint32_t func3, int rd, int rs1, int rs2) {
-	if(rd >= R || rs1 >= R) {
-		printf("R reg fail\n");
-		assert(0);
-	}
-	if(func3 > 7){
+	if(rd >= R || rs1 >= R || func3 > 7) {
 		printf("inst R decode fail\n");
+		printf("func7 = %ld, func3 = %ld, rd = %d, rs1 = %d, rs2 = %d\n", func7, func3, rd, rs1, rs2);
 		assert(0);
 	}
+
 	if(func3 == 0) {
 		if(func7 == 0) {
 			printf("%s %s,%s,%s\n", instR[func3], regs[rd], regs[rs1], regs[rs2]);
@@ -75,12 +70,9 @@ static void itrace_j(uint32_t imm) {
 }
 
 static void itrace_s(uint32_t func3, int rs1, int rs2, uint32_t imm) {
-	if(rs1 >= R || rs2 >= R) {
-		printf("S reg fail\n");
-		assert(0);
-	}
-	if(func3 > 3){
+	if(rs1 >= R || rs2 >= R || func3 > 3) {
 		printf("inst S decode fail\n");
+		printf("func3 = %ld, rs1 = %d, rs2 = %d, imm = %x\n", func3, rs1, rs2, imm);
 		assert(0);
 	}
 	printf("%s %s,%s,%x\n", instS[func3], regs[rs1], regs[rs2], imm);
@@ -89,7 +81,7 @@ static void itrace_s(uint32_t func3, int rs1, int rs2, uint32_t imm) {
 static void itrace_u(uint32_t opcode, int rd, uint32_t imm) {
 	if(rd >= R) {
 		printf("U reg fail\n");
-		printf("rd = %d\n", rd);
+		printf("rd = %d, imm = %x\n", rd, imm);
 		assert(0);
 	}
 	if(opcode == 0x17) {
@@ -102,6 +94,7 @@ static void itrace_u(uint32_t opcode, int rd, uint32_t imm) {
 static void itrace_i(uint32_t opcode, uint32_t func7, uint32_t func3, int rd, int rs1, uint32_t imm, uint32_t shamt) {
 	if(rs1 >= R || rd >= R) {
 		printf("I reg fail\n");
+		printf("func7 = %ld, func3 = %ld, rd = %d, rs1 = %d, imm = %x\n", func7, func3, rd, rs1, imm);
 		assert(0);
 	}
 	if(opcode == 0x67) {
@@ -114,6 +107,7 @@ static void itrace_i(uint32_t opcode, uint32_t func7, uint32_t func3, int rd, in
 	} else if(opcode == 0x13) {
 		if(func3 > 7) {
 			printf("inst I decode fail\n");
+			printf("func7 = %ld, func3 = %ld, rd = %d, rs1 = %d, imm = %x\n", func7, func3, rd, rs1, imm);
 			assert(0);
 		}
 		if(func3 == 5 && func7 == 2) {
@@ -124,6 +118,7 @@ static void itrace_i(uint32_t opcode, uint32_t func7, uint32_t func3, int rd, in
 	} else if(opcode == 0x03) {
 		if(func3 > 4) {
 			printf("inst LOAD decode fail\n");
+			printf("func7 = %ld, func3 = %ld, rd = %d, rs1 = %d, imm = %x\n", func7, func3, rd, rs1, imm);
 			assert(0);
 		}
 			printf("%s %s,%x(%s)\n", instLOAD[func3], regs[rd], cpu.gpr[rs1] + imm, regs[rs1]);
