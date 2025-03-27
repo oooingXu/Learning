@@ -26,6 +26,7 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
+	printf("nemu\n");
 	for(int i = 0; i < 16; i++) {
 		printf("%-3s --->  0x%x\n",regs[i],cpu.gpr[i]);
 	}

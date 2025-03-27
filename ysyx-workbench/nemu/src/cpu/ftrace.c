@@ -7,6 +7,7 @@
 static Elf32_Sym *symtab = NULL;
 static char *strtab = NULL;
 static int nr_symtab_entry = 0;
+static uint32_t call_timer = 0; 
 
 void init_ftrace(const char *elf_file) {
   if (elf_file == NULL) {
@@ -57,15 +58,15 @@ void init_ftrace(const char *elf_file) {
 
  // 查找符号表和字符串表
 		printf("SHY_SYMTAB = %d\n",SHT_SYMTAB);
-  for (int i = 0; i < ehdr.e_shnum; i++) {
+	  for (int i = 0; i < ehdr.e_shnum; i++) {
     if (shdr[i].sh_type == SHT_SYMTAB) {
       symtab = malloc(shdr[i].sh_size);
-			if(symtab == NULL){
-				printf("Invalid section symtab\n");
-				fclose(fp);
-				return;
-			}
-
+      if(symtab == NULL){
+        printf("Failed to allocate memory for symbol table.\n");
+        free(shdr);
+        fclose(fp);
+        return;
+      }
       fseek(fp, shdr[i].sh_offset, SEEK_SET);
       if (fread(symtab, shdr[i].sh_size, 1, fp) != 1) {
         printf("Failed to read symbol table.\n");
@@ -75,17 +76,29 @@ void init_ftrace(const char *elf_file) {
         return;
       }
       nr_symtab_entry = shdr[i].sh_size / sizeof(Elf32_Sym);
-    }
-		else if (shdr[i].sh_type == SHT_STRTAB && i != ehdr.e_shstrndx) {
-      strtab = malloc(shdr[i].sh_size);
-			if(strtab == NULL){
-				printf("Invalid section strtab\n");
-				fclose(fp);
-				return;
-			}
-      fseek(fp, shdr[i].sh_offset, SEEK_SET);
-      if (fread(strtab, shdr[i].sh_size, 1, fp) != 1) {
+
+      // 修复1: 通过符号表的 sh_link 找到对应的字符串表
+      int strtab_idx = shdr[i].sh_link;
+      if (strtab_idx >= ehdr.e_shnum) {
+        printf("Invalid string table index.\n");
+        free(symtab);
+        free(shdr);
+        fclose(fp);
+        return;
+      }
+      Elf32_Shdr *strtab_shdr = &shdr[strtab_idx];
+      strtab = malloc(strtab_shdr->sh_size);
+      if (strtab == NULL) {
+        printf("Failed to allocate memory for string table.\n");
+        free(symtab);
+        free(shdr);
+        fclose(fp);
+        return;
+      }
+      fseek(fp, strtab_shdr->sh_offset, SEEK_SET);
+      if (fread(strtab, strtab_shdr->sh_size, 1, fp) != 1) {
         printf("Failed to read string table.\n");
+        free(symtab);
         free(strtab);
         free(shdr);
         fclose(fp);
@@ -109,18 +122,33 @@ const char* get_func_name(vaddr_t addr) {
   return "???";
 }
 
+static void call_timer_printf() {
+	for(uint32_t i = 0; i < call_timer; i++) {
+		printf(" ");
+	}
+}
+
 void jal_print(int rd, vaddr_t pc, vaddr_t dnpc){
 	if(rd == 1){
-		printf("0x%08x: call [%s@0x%08x]\n", pc, get_func_name(dnpc), dnpc);
+		printf("0x%08x:", pc);
+		call_timer_printf();
+		printf("call [%s@0x%08x]\n", get_func_name(dnpc), dnpc);
+		call_timer++;
 	}
 	return;
 }
 
 void jalr_print(uint32_t val, int rd, word_t imm, vaddr_t pc, vaddr_t dnpc){
 	if(val == 0x00008067){
-		printf("0x%08x: ret [%s@0x%08x]\n", pc, get_func_name(pc), pc);
+		printf("0x%08x:", pc);
+		call_timer--;
+		call_timer_printf();
+		printf("ret [%s@0x%08x]\n", get_func_name(pc), pc);
 	} else if(rd == 1 || (rd == 0 && imm == 0)){
-		printf("0x%08x: call [%s@0x%08x]\n", pc, get_func_name(dnpc), dnpc);
+		printf("0x%08x:", pc);
+		call_timer_printf();
+		printf("call [%s@0x%08x]\n", get_func_name(dnpc), dnpc);
+		call_timer++;
 	}
 }
 

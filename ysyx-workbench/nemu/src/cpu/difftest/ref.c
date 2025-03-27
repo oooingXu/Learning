@@ -18,7 +18,12 @@
 #include <difftest-def.h>
 #include <memory/paddr.h>
 
+#ifdef CONFIG_RVE
 #define R 16
+#else 
+#define R 32
+#endif
+
 
 MEM_DIFF mem_diff;
 
@@ -76,6 +81,7 @@ __EXPORT void difftest_init(int port) {
 __EXPORT void difftest_mem_diff(void *dut) {
 	MEM_DIFF *diff_dut = (MEM_DIFF *)dut;
 
+	diff_dut->inst		 = mem_diff.inst;
 	diff_dut->araddr   = mem_diff.araddr;
 	diff_dut->awaddr   = mem_diff.awaddr;
 	diff_dut->wdata    = mem_diff.wdata;

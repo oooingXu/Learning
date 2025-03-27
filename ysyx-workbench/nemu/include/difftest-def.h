@@ -24,6 +24,7 @@
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF , DIFFTEST_TO_NPC};
 
 typedef struct {
+	uint32_t inst;
 	uint32_t araddr;
 	uint32_t awaddr;
 	uint32_t wdata;
