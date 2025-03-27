@@ -4,7 +4,7 @@
  - 单周期RV32E[Signgle_cycle](Single_cycle/README.mk)， 
  - 多周期RV32E[Multi](Multi/README.mk)，
  - 五级流水线RV32E[Pipeline](Pipeline/README.mk).
- - ysyxSoC[SoC](SoC/README.mk)实现的代码.
+ - [ysyxSoC](SoC/README.mk)实现的代码.
 ## 
 目前Single_cycle和Multi中存在部分错误，但已不维护.
 目前还在维护Pipeline.
