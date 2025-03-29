@@ -11,6 +11,7 @@
 #include <sdb.h>
 #include <counter.h>
 #include <map.h>
+#include <trace.h>
 
 class TOP_NAME;
 static TOP_NAME *dut = NULL;
@@ -210,6 +211,7 @@ static void trace_and_difftest(){
 		IFDEF(CONFIG_DIFFTEST,  difftest_step()); 
 		// exec once inst
 		g_nr_guest_inst++;
+		cur_inst_cycle = 0;
 	}
 }
 
@@ -266,8 +268,9 @@ void execute(uint64_t n){
 		}
 #endif
 
-		if(cpu.pc == cur_pc) cur_inst_cycle++;
-		else cur_inst_cycle = 0;
+		cur_inst_cycle++;
+		//if(cpu.pc == cur_pc) cur_inst_cycle++;
+		//else cur_inst_cycle = 0;
 
 		if(cur_inst_cycle > 0xfff) {
 			Log(ANSI_FMT("Too many cycles for one instruction, maybe a bug.", ANSI_FG_RED));

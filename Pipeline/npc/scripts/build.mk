@@ -1,5 +1,4 @@
 CSRCS += $(NPC_HOME)/csrc/memory/pmem.c
-CSRCS += $(NPC_HOME)/csrc/memory/ftrace.c
 CSRCS += $(NPC_HOME)/csrc/device/device.c
 CSRCS += $(NPC_HOME)/csrc/device/serial.c
 CSRCS += $(NPC_HOME)/csrc/device/timer.c
@@ -11,6 +10,8 @@ CSRCS += $(NPC_HOME)/csrc/sdb/expr.c
 CSRCS += $(NPC_HOME)/csrc/cpu/cpu.c  
 CSRCS += $(NPC_HOME)/csrc/cpu/dut.c 
 CSRCS += $(NPC_HOME)/csrc/utils/time.c
+CSRCS += $(NPC_HOME)/csrc/utils/ftrace.c
+CSRCS += $(NPC_HOME)/csrc/utils/itrace.c
 CSRCS += $(NPC_HOME)/csrc/lcommon/lightsss.cpp
 CSRCS += $(NPC_HOME)/csrc/lcommon/lcommon.cpp
 CSRCS += $(NPC_HOME)/csrc/counter/counter.c
